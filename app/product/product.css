@@ -1,0 +1,65 @@
+body {
+  @apply font-dreamFont;
+}
+.circle {
+  @apply flex justify-center items-center w-12 h-12  text-xs border-[1px] border-gray-500 rounded-full;
+}
+.circle:hover {
+  @apply scale-[95%]
+  shadow-gray-500
+    transition-all
+    duration-300
+    shadow-md
+    cursor-pointer;
+}
+
+.product-right {
+  @apply /* border-[1px] border-gray-800  */p-10;
+}
+
+.dynamic-product-container{
+  @apply grid grid-cols-1 m-5
+}
+
+.product-mainbox{
+  @apply grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mx-auto
+}
+
+.slider-image{
+  @apply w-full h-full
+}
+
+.products-container {
+  @apply flex flex-col mt-20 justify-center items-center gap-40 lg:relative  w-full h-[350dvh];
+}
+
+.item-card {
+  @apply w-[20rem] h-[28rem] block lg:absolute shadow-md shadow-gray-300 object-cover opacity-0;
+}
+.item-content {
+  position: absolute;
+  padding: 60px;
+  height: 100%;
+  width: 100%;
+  z-index: 1000;
+  background-color: #595a3b49;
+  opacity: 0;
+  transition: all;
+  transition-duration: 500ms;
+}
+.item-content:hover {
+  @apply opacity-100 z-0;
+}
+.item-title {
+  @apply font-semibold;
+}
+.item-title {
+  @apply font-semibold;
+}
+.item-details {
+  @apply font-normal z-20;
+}
+
+.product-footer {
+  @apply relative bottom-0 flex flex-col w-full;
+}

@@ -1,0 +1,14 @@
+h1{
+  font-size: xx-large
+}
+.about-container {
+  @apply h-screen px-24 my-5 flex items-center justify-center;
+}
+
+.about-image {
+  @apply relative w-full h-full object-fill overflow-hidden opacity-70;
+}
+
+.about-content {
+  @apply absolute h-[250px] top-[30%] left-0 p-14 mx-10 text-gray-900;
+}
