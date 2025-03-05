@@ -2,21 +2,44 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
+import { Mouse } from "lucide-react";
 import Link from "next/link";
 import "../product/product.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Product() {
+  const mouseRef = useRef();
   useEffect(() => {
     // Scroll to top on reload
     window.scrollTo(0, 0);
     const items = document.querySelectorAll(".item-card");
 
+    gsap.set(mouseRef.current, { opacity: 0.5 });
+
+    // Blinking effect
+    gsap.to(mouseRef.current, {
+      opacity: 0,
+      duration: 0.5,
+      repeat: -1,
+      yoyo: true,
+      ease: "power1.inOut",
+    });
+
+    // Fade out on scroll
+    gsap.to(mouseRef.current, {
+      opacity: 0,
+      scrollTrigger: {
+        trigger: "body",
+        start: "top+=100", // Adjust this value to control when it disappears
+        scrub: true,
+      },
+    });
+
     items.forEach((item) => {
-      gsap.set(item, { opacity: 0, y: 100 });
+      gsap.set(item, { opacity: 0.1, y: 100 });
       gsap.to(item, {
         opacity: 1,
         y: 0,
@@ -75,6 +98,9 @@ function Product() {
 
   return (
     <div className="products-container">
+      <div className="mouse-icon" ref={mouseRef}>
+        <Mouse />
+      </div>
       <div className="products-items">
         {products.map((product, index) => (
           // Wrap each card in a Link to its detail page

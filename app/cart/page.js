@@ -59,7 +59,7 @@ function page() {
         <div className="cart-box ">
           <div className="cart-items">
             <Link href={"/product/Id"}>
-              <image
+              <img
                 src="/images/product/image-3.jpg"
                 className="cart-item-image"
                 alt="image-1"

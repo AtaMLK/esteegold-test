@@ -103,11 +103,8 @@ function Hero() {
       </div>
       <div className="hero-content">
         <p>Wear your lovely pet</p>
-        <Button
-          variant="default"
-          className="border-[1px] border-lightgreen-800 p-5 font-semibold text-md text-darkgreen-800 bg-lightgreen-400 mt-5"
-        >
-          Take a tour
+        <Button variant="default" className="hero-button">
+          Discover the beyond
         </Button>
       </div>
     </div>

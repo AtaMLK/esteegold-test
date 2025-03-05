@@ -59,8 +59,7 @@ function Menu() {
         {
           bottom: "10%",
           opacity: 1,
-          duration: 1 /* 
-          delay: 1, */,
+          duration: 1 
         },
         "<"
       );

@@ -1,14 +1,15 @@
-h1{
-  font-size: xx-large
+h1 {
+  font-size: xx-large;
 }
+
 .about-container {
-  @apply h-screen px-24 my-5 flex items-center justify-center;
+  @apply relative w-screen h-screen px-4 lg:px-24 lg:my-5  overflow-hidden flex items-center justify-center;
 }
 
 .about-image {
-  @apply relative w-full h-full object-fill overflow-hidden opacity-70;
+  @apply absolute top-[20%] md:top-0 w-[85%] h-screen opacity-70 object-center;
 }
 
 .about-content {
-  @apply absolute h-[250px] top-[30%] left-0 p-14 mx-10 text-gray-900;
+  @apply text-gray-900  border-[1px] border-gray-600 w-[75%] text-lg font-thin  h-auto  p-4 lg:p-14 mx-10 z-10;
 }

@@ -17,24 +17,28 @@ body {
   @apply /* border-[1px] border-gray-800  */p-10;
 }
 
-.dynamic-product-container{
-  @apply grid grid-cols-1 m-5
+.dynamic-product-container {
+  @apply grid grid-cols-1 m-5;
 }
 
-.product-mainbox{
-  @apply grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mx-auto
+.product-mainbox {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mx-auto;
 }
 
-.slider-image{
-  @apply w-full h-full
+.slider-image {
+  @apply w-full h-full;
 }
 
 .products-container {
-  @apply flex flex-col mt-20 justify-center items-center gap-40 lg:relative  w-full h-[350dvh];
+  @apply flex flex-col my-10 justify-center items-center gap-20 lg:relative w-full lg:h-[450dvh];
+}
+
+.mouse-icon {
+  @apply absolute hidden md:block md:top-[25rem];
 }
 
 .item-card {
-  @apply w-[20rem] h-[28rem] block lg:absolute shadow-md shadow-gray-300 object-cover opacity-0;
+  @apply w-[20rem] h-[28rem] block lg:absolute shadow-lg shadow-gray-600 object-cover opacity-0;
 }
 .item-content {
   position: absolute;

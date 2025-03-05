@@ -31,8 +31,7 @@ function page() {
   };
   return (
     <>
-      <div className="w-full h-full mb-28">
-      </div>
+      <div className="w-full h-full mb-28"></div>
       <div className="dynamic-product-container">
         <div className="product-mainbox">
           <div className="product-left w-full">
@@ -138,4 +137,3 @@ function page() {
 }
 
 export default page;
-

@@ -5,7 +5,8 @@ import Menu from "./Menu";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { LucideShoppingBag, Search } from "lucide-react";
+import { LucideShoppingBag, Search, User } from "lucide-react";
+import Auth from "./auth";
 
 function Header() {
   const menuRef = useRef(null);
@@ -103,13 +104,16 @@ function Header() {
       }`}
       ref={mainRef}
     >
+      {/* Header content (Logo + Search) */}
       <div className="header-wrapper">
-        <div className="logo text-xl text-gray-800" ref={titleRef}>
+        {/* Logo */}
+        <div className="header-logo opacity-0" ref={titleRef}>
           <Link href="/">
             <h1>Estee Gold Studio</h1>
           </Link>
         </div>
-        <div className="header-icons" ref={searchRef}>
+        {/* Search & Cart Icons */}
+        <div className="header-icons opacity-0" ref={searchRef}>
           <div className="search-section">
             <input
               type="text"
@@ -121,7 +125,13 @@ function Header() {
           <Link href="/cart">
             <LucideShoppingBag className="text-gray-800 cursor-pointer text-lg mx-2" />
           </Link>
+          <Link href="/Login">
+            <User />
+          </Link>
         </div>
+      </div>
+      {/* Burger Menu */}
+      <div className="header-menu">
         <Menu ref={menuRef} />
       </div>
     </div>

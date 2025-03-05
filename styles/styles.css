@@ -26,22 +26,25 @@ span {
 }
 
 .header-container-absolute {
-  @apply absolute top-0 left-0 z-50 w-full h-28 mt-8 border-b-2 md:border-0;
+  @apply grid grid-cols-12 absolute top-[1%] left-0 z-50 w-full h-20 border-b-2 md:border-0;
 }
 .header-container-flex {
-  @apply top-0 left-0 z-50 w-full h-28 mt-8 border-b-2 md:border-0;
+  @apply grid grid-cols-12 z-50 mt-[18px] w-full h-20 border-b-2 md:border-0;
 }
 
 .header-wrapper {
-  @apply flex items-center justify-between ms-6 md:ms-14 lg:ms-24;
+  @apply col-span-11 flex items-center justify-between  px-2 md:px-8 lg:px-12 text-gray-700;
+}
+
+.header-menu {
+  @apply col-span-1 flex items-center justify-center;
 }
 
 .header-icons {
-  @apply flex items-center justify-between gap-3;
+  @apply flex items-center gap-3;
 }
-.logo {
-  text-align: center;
-  font-size: 2rem;
+.header-logo {
+  @apply text-2xl font-bold ml-8 text-gray-700;
 }
 
 .hero-container {
@@ -49,7 +52,11 @@ span {
 }
 
 .hero-content {
-  @apply absolute bottom-10 left-5 ms-10 border-[1px] border-gray-600 py-5 px-16 rounded-sm text-gray-700 opacity-0 md:opacity-100 z-20;
+  @apply absolute hidden md:flex flex-col   items-center bottom-10 left-5 ms-10 border-[1px] border-gray-600 py-5 px-16 rounded-sm text-gray-700 opacity-0 md:opacity-100 z-20;
+}
+
+.hero-button {
+  @apply border-[1px] border-lightgreen-800 p-5 font-semibold text-base text-darkgreen-800 bg-lightgreen-400 mt-5;
 }
 
 .search-section {
@@ -74,7 +81,7 @@ span {
   @apply relative flex mx-auto w-[20rem] sm:w-[27rem] md:w-[80%] lg:w-[72%] lg:h-[20rem] border-[1px] lg:mb-24 border-gray-600 md:gap-20 cursor-pointer text-gray-800;
 }
 .right-container {
-  @apply relative grid mx-auto w-[20rem] sm:w-[27rem] md:w-[80%] lg:w-[72%]   h-[18rem] lg:h-[20rem] border-[1px] lg:mb-24 border-gray-600 md:gap-20 cursor-pointer text-gray-800;
+  @apply relative grid mx-auto w-[20rem] sm:w-[27rem] md:w-[80%] lg:w-[72%]   h-[18rem] md:h-[20rem] border-[1px] lg:mb-24 border-gray-600 md:gap-20 cursor-pointer text-gray-800;
 }
 
 .card-container-content {
@@ -93,9 +100,8 @@ span {
   @apply flex justify-end;
 }
 .burger {
-  @apply sticky top-[1rem] right-[2.5%] flex justify-center items-center mt-[1rem] 
-    pt-[1.5em] pe-[1.5em] pb-[1.5em] ps-[2em] outline-none border-none w-14 h-10 
-    transition-all duration-500 ease-out cursor-pointer z-[50];
+  @apply fixed  flex justify-center items-center 
+ outline-none border-none w-14 h-10 transition-all duration-500 ease-out cursor-pointer z-[50];
 }
 
 .burger:before,
@@ -155,9 +161,6 @@ span {
 }
 .sub-nav p:hover {
   @apply text-gray-900;
-}
-.gallery-counter {
-  @apply fixed p-[2em] top-0 left-0 text-gray-800 font-dreamFont decoration-0;
 }
 
 .footer-container {
