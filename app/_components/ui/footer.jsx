@@ -1,11 +1,7 @@
 import {
-  ArrowBigRight,
   ArrowDownRightIcon,
-  CopyrightIcon,
-  Instagram,
   LucideCopyright,
-  LucideInstagram,
-  Twitter,
+  LucideInstagram
 } from "lucide-react";
 import Link from "next/link";
 const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;

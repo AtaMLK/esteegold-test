@@ -2,7 +2,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
 import { useEffect, useRef } from "react";
-import CardImage from "./CardImage";
+import CardImage from "./card-image";
 
 gsap.registerPlugin(ScrollTrigger);
 

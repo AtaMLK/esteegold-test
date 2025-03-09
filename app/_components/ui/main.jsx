@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
-import About from "./About";
-import CardMainLeft from "./CardMainLeft";
-import CardMainRight from "./CardMainRight";
+import About from "./about";
+import CardMainLeft from "./card-image-left";
+import CardMainRight from "./card-image-right";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import Hero from "./Hero";
+import Hero from "./hero";
 import { ScrollTrigger } from "gsap/all";
 
 gsap.registerPlugin(ScrollTrigger);

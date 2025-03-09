@@ -1,10 +1,10 @@
 "use client";
 
+import "@/app/cart/cart.css";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
-import ItemQuantity from "../_components/ItemQuantity";
-import "@/app/cart/cart.css";
+import ItemQuantity from "../_components/ui/item-quantity";
 
 function page() {
   return (
@@ -17,6 +17,7 @@ function page() {
                 src="/images/product/image-1.jpg"
                 className="cart-item-image"
                 alt="item.name"
+                loading="lazy"
               />
             </Link>
             <p className="cart-item-name">name of the product</p>
@@ -40,6 +41,7 @@ function page() {
                 src="/images/product/image-2.jpg"
                 className="cart-item-image"
                 alt="item.name"
+                loading="lazy"
               />
             </Link>
             <p className="cart-item-name">name of the product</p>
@@ -63,6 +65,7 @@ function page() {
                 src="/images/product/image-3.jpg"
                 className="cart-item-image"
                 alt="image-1"
+                loading="lazy"
               />
             </Link>
             <p className="cart-item-name">name of the product</p>
@@ -91,8 +94,8 @@ function page() {
         </div>
         <div className="cart-button mt-8 w-full px-[5%] lg:px-[10%]">
           <Button
-            variant="default"
-            className="w-full border-[1px] border-lightgreen-800 text-sm text-darkgreen-800 bg-lightgreen-400 mt-5"
+            variant="outline"
+            className="w-full border-[1px] text-lightgreen-800 text-sm border-darkgreen-800 bg-lightgreen-400 hover:bg-green-800 hover:border-lightgreen-400 hover:text-lightgreen-200 mt-5 transition-all duration-500"
           >
             <p>Finish You purchase</p>
           </Button>

@@ -94,6 +94,7 @@ export default {
     },
     fontFamily: {
       dreamFont: ["DreamAvenue", "sans-serif"],
+      monoFont:["MonoSpace"]
     },
   },
   plugins: [require("tailwindcss-animate")],

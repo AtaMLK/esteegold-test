@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 
 import { Mouse } from "lucide-react";
 import Link from "next/link";
-import "../product/product.css";
+import "./product.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -119,6 +119,7 @@ function Product() {
                   alt={product.title}
                   fill
                   objectFit="cover"
+                  loading="lazy"
                 />
               </div>
               <div className="item-content">

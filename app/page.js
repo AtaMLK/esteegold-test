@@ -1,11 +1,11 @@
 "use client";
-import Auth from "./_components/auth";
-import Main from "./_components/Main";
+
+import Main from "./_components/ui/Main";
 
 function page() {
   return (
     <div>
-      <Main />
+      <Main/>
     </div>
   );
 }

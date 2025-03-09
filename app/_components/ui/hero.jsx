@@ -22,7 +22,7 @@ function Hero() {
 
       tl.to(heroRef.current, {
         opacity: 1,
-        duration: 4,
+        duration: 2.5,
         ease: "power4.inOut",
       })
         .to(img1.current, {
@@ -78,6 +78,7 @@ function Hero() {
           src="/images/Hero-bg-1.jpg"
           alt="hero-img"
           className="object-cover w-0 md:w-screen h-0 md:h-screen z-5"
+          loading="lazy"
         />
       </div>
       <div className="hero-img absolute top-0 left-0" ref={img2}>
@@ -85,6 +86,7 @@ function Hero() {
           src="/images/Hero-bg-2.jpg"
           alt="hero-img"
           className="object-cover w-0 md:w-screen h-0 md:h-screen z-10"
+          loading="lazy"
         />
       </div>
       <div className="hero-img absolute top-0 right-0" ref={img3}>
@@ -92,6 +94,7 @@ function Hero() {
           src="/images/Hero-bg-3.jpg"
           alt="hero-img"
           className="object-cover w-0 md:w-screen h-0 md:h-screen z-20"
+          loading="lazy"
         />
       </div>
       <div className="hero-img absolute top-0 right-0" ref={img4}>
@@ -99,6 +102,7 @@ function Hero() {
           src="/images/Hero-bg-4.jpg"
           alt="hero-img"
           className="object-cover w-0 md:w-screen h-0 md:h-screen z-30"
+          loading="lazy"
         />
       </div>
       <div className="hero-content">

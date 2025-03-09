@@ -1,6 +1,6 @@
 "use client";
 
-import "../../styles/styles.css";
+import "@/styles/styles.css";
 
 const image = [0, 1];
 
@@ -46,6 +46,7 @@ function CardImage({ file }) {
             src={`/images/${file}/image-${index + 1}.jpg`}
             className="card-container-images transition-transform absolute w-full m-full object-cover rounded-xl"
             alt={`Image ${index + 1}`}
+            loading="lazy"
           />
         ))}
       </div>

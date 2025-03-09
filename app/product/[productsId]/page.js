@@ -2,8 +2,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Checkbox from "../../_components/Checkbox";
-import "./../../product/product.css";
+
+import "../product.css";
 
 import {
   Carousel,
@@ -12,7 +12,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import ItemQuantity from "../../_components/ItemQuantity";
+import Checkbox from "@/app/_components/ui/checkbox";
+import ItemQuantity from "@/app/_components/ui/item-quantity";
+
 
 const stoneType = [
   { index: 1, label: "Diamond" },

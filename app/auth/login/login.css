@@ -1,0 +1,23 @@
+.login-container {
+  @apply relative w-screen h-screen
+    bg-lightgreen-400 opacity-60 flex items-center justify-center;
+}
+
+.login-overlay {
+  @apply flex items-center justify-center w-[80%] md:w-[60%] lg:w-[50%] h-[50%] z-50 bg-gray-100 shadow-gray-600 shadow-lg border-[1px] border-gray-700 rounded-sm;
+}
+
+.login-form {
+  @apply h-full py-10 w-[60%] md:w-[40%] lg:w-[30%];
+}
+
+.title {
+  @apply mb-5;
+}
+
+.label {
+  font-family: "Calibri", @apply font-bold text-xl;
+}
+.input {
+  @apply h-10 w-full text-gray-800 outline-none border-[1px] border-gray-300 px-5 rounded-md mt-2;
+}

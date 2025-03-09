@@ -1,12 +1,12 @@
 "use client";
-import "../../styles/styles.css";
 import gsap from "gsap";
-import Menu from "./Menu";
-import Link from "next/link";
-import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
 import { LucideShoppingBag, Search, User } from "lucide-react";
-import Auth from "./auth";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
+
+import "@/styles/styles.css";
+import Menu from "./Menu";
 
 function Header() {
   const menuRef = useRef(null);
@@ -113,22 +113,26 @@ function Header() {
           </Link>
         </div>
         {/* Search & Cart Icons */}
-        <div className="header-icons opacity-0" ref={searchRef}>
-          <div className="search-section">
-            <input
-              type="text"
-              placeholder="Search"
-              className="outline-none text-sm bg-transparent placeholder:text-gray-700"
-            />
-            <Search className="text-gray-800" />
+        {pathname === "/auth/login" ? (
+          ""
+        ) : (
+          <div className="header-icons opacity-0" ref={searchRef}>
+            <div className="search-section">
+              <input
+                type="text"
+                placeholder="Search"
+                className="outline-none text-sm bg-transparent placeholder:text-gray-700"
+              />
+              <Search className="text-gray-800" />
+            </div>
+            <Link href="/cart">
+              <LucideShoppingBag className="text-gray-800 cursor-pointer text-lg mx-2" />
+            </Link>
+            <Link href="/auth/login">
+              <User />
+            </Link>
           </div>
-          <Link href="/cart">
-            <LucideShoppingBag className="text-gray-800 cursor-pointer text-lg mx-2" />
-          </Link>
-          <Link href="/Login">
-            <User />
-          </Link>
-        </div>
+        )}
       </div>
       {/* Burger Menu */}
       <div className="header-menu">

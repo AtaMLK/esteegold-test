@@ -1,4 +1,4 @@
-import "./../about/about.css";
+import "./about.css";
 
 export const metadata = {
   title: "about",
