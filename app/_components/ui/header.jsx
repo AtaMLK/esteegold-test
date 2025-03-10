@@ -97,6 +97,8 @@ function Header() {
     }
   }, [pathname]);
 
+  const authPathname = ["/auth/login", "/auth/register"];
+
   return (
     <div
       className={`${
@@ -113,7 +115,7 @@ function Header() {
           </Link>
         </div>
         {/* Search & Cart Icons */}
-        {pathname === "/auth/login" ? (
+        {authPathname.includes(pathname) ? (
           ""
         ) : (
           <div className="header-icons opacity-0" ref={searchRef}>

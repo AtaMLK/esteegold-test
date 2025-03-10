@@ -34,7 +34,7 @@ body {
 }
 
 .mouse-icon {
-  @apply absolute hidden md:block md:top-[25rem];
+  @apply absolute hidden md:block md:top-[45rem];
 }
 
 .item-card {

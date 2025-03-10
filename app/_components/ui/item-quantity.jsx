@@ -34,7 +34,7 @@ function ItemQuantity() {
         <Button
           onClick={handleAdd}
           variant="outline"
-          className="p-3 lg:p-4 border-none lg:border-[1px]  border-gray-600 font-bold text-lg"
+          className="p-3 lg:p-4 border-none lg:border-[1px]  border-gray-600 font-bold text-xl"
         >
           +
         </Button>

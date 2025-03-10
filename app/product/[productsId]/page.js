@@ -114,8 +114,8 @@ function page() {
               </div>
               <ItemQuantity />
               <Button
-                variant="default"
-                className="border-[1px] border-lightgreen-800 font-bold text-lg text-darkgreen-800 bg-lightgreen-400 mt-5"
+                variant="outline"
+                className="border-[1px] border-green-800 font-bold text-lg text-darkgreen-800 bg-green-400 mt-5 font-monoFont"
                 onClick={() => {}}
               >
                 Add To Card
@@ -123,8 +123,8 @@ function page() {
             </div>
           </div>
         </div>
-        <div className="product-content m-5 row-start-2 col-span-2 flex justify-center items-center">
-          <p className=" row-start-2 w-full h-100  p-5 border-[1px] border-gray-700 text-sm">
+        <div className="product-content mt-10 mx-5 row-start-2 col-span-2 flex justify-center items-center">
+          <p className="row-start-2 w-full h-100  p-5 border-[1px] border-gray-700 text-sm ">
             of type and scrambled it to make a type specimen book. It has
             survived not only five centuries, but also the leap into electronic
             typesetting, remaining essentially unchanged. It was popularised in
