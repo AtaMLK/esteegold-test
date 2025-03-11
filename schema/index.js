@@ -23,3 +23,15 @@ export const LoginSchema = z.object({
     message: "Password must be at least 6 chars.",
   }),
 });
+
+export const ContactSchema = z.object({
+  subject: z.string().min(10, {
+    message: "Please write your contact subject",
+  }),
+  email: z.string().email({
+    message: "Plaese enter a valid email address",
+  }),
+  Content: z.string().min(20, {
+    message: "Please write your contact details",
+  }),
+});

@@ -93,12 +93,15 @@ function page() {
           </div>
         </div>
         <div className="cart-button mt-8 w-full px-[5%] lg:px-[10%]">
-          <Button
-            variant="outline"
-            className="w-full border-[1px] text-lightgreen-800 text-sm border-darkgreen-800 bg-lightgreen-400 hover:bg-green-800 hover:border-lightgreen-400 hover:text-lightgreen-200 mt-5 transition-all duration-500"
-          >
-            <p>Finish You purchase</p>
-          </Button>
+          <Link href="/thank-you">
+            <Button
+              variant="outline"
+              className="w-full border-[1px] text-lightgreen-800 text-sm border-darkgreen-800 bg-lightgreen-400 hover:bg-green-800 hover:border-lightgreen-400 hover:text-lightgreen-200 mt-5 transition-all duration-500"
+              redirect="/"
+            >
+              <p>Finish You purchase</p>
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

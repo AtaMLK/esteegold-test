@@ -28,7 +28,7 @@ const Map = ({ lat, lng, zoom = 10 }) => {
         />
         <Marker position={[lat, lng]} icon={markerIcon}>
           <Popup>
-            📍 You are here! <br /> ({lat}, {lng})
+            📍 ESTEE GOLD STUDIO! <br /> ({lat}, {lng})
           </Popup>
         </Marker>
       </MapContainer>
