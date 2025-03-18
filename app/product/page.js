@@ -97,7 +97,7 @@ function Product() {
   const positions = ["20rem", "42rem", "70rem", "95rem", "130rem", "150rem"];
 
   return (
-    <div className="products-container">
+    <div className="h-screen w-screen">
       <div className="mouse-icon" ref={mouseRef}>
         <Mouse />
       </div>

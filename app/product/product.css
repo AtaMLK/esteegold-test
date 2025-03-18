@@ -7,10 +7,15 @@ body {
 .circle:hover {
   @apply scale-[95%]
   shadow-gray-500
-    transition-all
-    duration-300
-    shadow-md
-    cursor-pointer;
+  transition-all
+  duration-300
+  shadow-md
+  cursor-pointer;
+}
+
+.products-container {
+  @apply flex flex-col my-10 justify-center items-center gap-20 lg:relative w-full ;
+  height: 100%;
 }
 
 .product-right {
@@ -27,10 +32,6 @@ body {
 
 .slider-image {
   @apply w-full h-full;
-}
-
-.products-container {
-  @apply flex flex-col my-10 justify-center items-center gap-20 lg:relative w-full lg:h-[450dvh];
 }
 
 .mouse-icon {

@@ -123,12 +123,12 @@ function Header() {
               <input
                 type="text"
                 placeholder="Search"
-                className="outline-none text-sm bg-transparent placeholder:text-gray-700"
+                className="outline-none text-sm bg-transparent placeholder:text-gray-900"
               />
-              <Search className="text-gray-800" />
+              <Search className="text-gray-900" />
             </div>
             <Link href="/cart">
-              <LucideShoppingBag className="text-gray-800 cursor-pointer text-lg mx-2" />
+              <LucideShoppingBag className="text-gray-900 cursor-pointer text-lg mx-2" />
             </Link>
             <Link href="/auth/login">
               <User />
