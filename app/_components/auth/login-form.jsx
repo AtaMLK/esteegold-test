@@ -16,8 +16,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useFormStatus } from "react-dom";
 import { useState } from "react";
+import { auth } from "@/app/firebase/firebase";
+import {
+  useCreateUserWithEmailAndPassword,
+  useSendEmailVerification,
+  useSignInWithEmailAndPassword,
+} from "react-firebase-hooks/auth";
+import { useRouter } from "next/navigation";
 
 function LoginForm() {
+  const router = useRouter();
+  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const [isLoading, setIsLoading] = useState();
 
   const { pending } = useFormStatus();
@@ -30,9 +39,19 @@ function LoginForm() {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log("Submitted data:", data);
+    try {
+      const user = await signInWithEmailAndPassword(data.email, data.password);
+      if (user) {
+        router.push("/");
+        console.log(data);
+      }
+    } catch {
+      consolge.error("login message", error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

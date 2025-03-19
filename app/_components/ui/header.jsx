@@ -1,20 +1,41 @@
 "use client";
 import gsap from "gsap";
-import { LucideShoppingBag, Search, User } from "lucide-react";
+import { LucideShoppingBag, Search, User, UserCircle } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 import "@/styles/styles.css";
 import Menu from "./Menu";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/app/firebase/firebase";
 
 function Header() {
+  const [userName, setUserName] = useState("");
   const menuRef = useRef(null);
   const mainRef = useRef(null);
   const titleRef = useRef(null);
   const searchRef = useRef(null);
   const pathname = usePathname();
-  const hasAnimatedRef = useRef(false); // Tracks if animation has already played
+  const hasAnimatedRef = useRef(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserName(user.displayName || "Guest");
+      } else {
+        setUserName("");
+      }
+    });
+
+    if (userName) {
+      router.push("/dashboard");
+    } else if (pathname !== "/auth/login" && pathname !== "/auth/register") {
+      router.push("/auth/login");
+    }
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (pathname !== "/" || hasAnimatedRef.current) {
@@ -130,8 +151,10 @@ function Header() {
             <Link href="/cart">
               <LucideShoppingBag className="text-gray-900 cursor-pointer text-lg mx-2" />
             </Link>
-            <Link href="/auth/login">
-              <User />
+            <Link href={userName ? "/dashboard" : "/auth/login"}>
+              <p className="text-lg">
+                Welcome, {userName ? userName : <User />} <UserCircle />
+              </p>
             </Link>
           </div>
         )}

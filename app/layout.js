@@ -4,6 +4,7 @@ import "../styles/fonts.css";
 import "./globals.css";
 import Footer from "./_components/ui/Footer";
 import Header from "./_components/ui/Header";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
-        <Header/>
+        <Header />
         <main>{children}</main>
-        <Footer/>
+        <Toaster />
+        <Footer />
       </body>
     </html>
   );

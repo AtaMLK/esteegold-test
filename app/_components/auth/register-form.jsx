@@ -1,5 +1,6 @@
 "use client";
 import CardWrapper from "./card-wrapper";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Form,
@@ -16,8 +17,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useFormStatus } from "react-dom";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { auth } from "@/app/firebase/firebase";
+import {
+  useCreateUserWithEmailAndPassword,
+  useSendEmailVerification,
+} from "react-firebase-hooks/auth";
+import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 function RegisterForm() {
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const [createUser] = useCreateUserWithEmailAndPassword(auth);
+  const [sendEmailVerification] = useSendEmailVerification(auth);
   const [isLoading, setIsLoading] = useState(false);
   const { pending } = useFormStatus();
   const form = useForm({
@@ -30,9 +43,27 @@ function RegisterForm() {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setIsLoading(true);
-    console.log("Submitted data:", data);
+    try {
+      const userCredential = await createUser(data.email, data.password);
+      if (userCredential) {
+        const user = userCredential.user;
+
+        await updateProfile(user, { displayName: data.name });
+
+        await sendEmailVerification();
+
+        console.log("user Registration successfully", user);
+
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Login error", error.message);
+    } finally {
+      console.log(data);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -116,8 +147,13 @@ function RegisterForm() {
             type="submit"
             className="w-full bg-green-600 hover:bg-green-800"
             disabled={pending}
+            onClick={() => {
+              toast({
+                description: "Your account created successfully.",
+              });
+            }}
           >
-            {isLoading ? "... Creatin Aaccount" : "Register"}
+            {isLoading ? "... Creatin account" : "Register"}
           </Button>
         </form>
       </Form>

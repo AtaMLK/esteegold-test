@@ -1,12 +1,13 @@
 "use client";
 
 import Main from "./_components/ui/Main";
+import { UserProvider } from "./context/userContext";
 
-function page() {
+function page({ ...props }) {
   return (
-    <div>
-      <Main/>
-    </div>
+    <UserProvider>
+      <Main {...props} />
+    </UserProvider>
   );
 }
 
