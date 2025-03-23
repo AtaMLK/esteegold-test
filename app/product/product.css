@@ -1,5 +1,66 @@
 body {
-  @apply font-dreamFont;
+  @apply font-dreamFont overflow-hidden;
+}
+
+.products-main-container {
+  @apply w-full min-h-screen flex flex-col relative overflow-hidden;
+}
+
+.products-items {
+  @apply  relative flex flex-col items-center justify-center gap-10;
+}
+
+.mouse-icon {
+  @apply absolute hidden md:block left-[50%] md:top-[10rem] xl:top-[45rem];
+}
+
+.item-card {
+  @apply relative w-[20rem] h-[28rem] block shadow-lg shadow-gray-600 object-cover opacity-0;
+}
+.card-item-content {
+  position: absolute;
+  padding: 60px;
+  height: 100%;
+  width: 100%;
+  z-index: 1000;
+  background-color: #595a3b49;
+  opacity: 0;
+  transition: all;
+  transition-duration: 500ms;
+}
+.card-item-content:hover {
+  @apply opacity-100 z-0;
+}
+.card-item-title {
+  @apply font-semibold;
+}
+
+.card-item-details {
+  @apply font-normal z-20;
+}
+
+.product-footer {
+  @apply absolute bottom-0 flex flex-col w-full;
+}
+
+.product-mainbox {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mx-auto;
+}
+
+.slider-image {
+  @apply w-full h-full;
+}
+.product-right {
+  @apply p-10;
+}
+
+.dynamic-product-container {
+  @apply grid grid-cols-1 m-5;
+}
+
+.products-container {
+  @apply flex flex-col my-10 justify-center items-center gap-20 lg:relative w-full;
+  height: 100%;
 }
 .circle {
   @apply flex justify-center items-center w-12 h-12  text-xs border-[1px] border-gray-500 rounded-full;
@@ -11,60 +72,4 @@ body {
   duration-300
   shadow-md
   cursor-pointer;
-}
-
-.products-container {
-  @apply flex flex-col my-10 justify-center items-center gap-20 lg:relative w-full ;
-  height: 100%;
-}
-
-.product-right {
-  @apply /* border-[1px] border-gray-800  */p-10;
-}
-
-.dynamic-product-container {
-  @apply grid grid-cols-1 m-5;
-}
-
-.product-mainbox {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mx-auto;
-}
-
-.slider-image {
-  @apply w-full h-full;
-}
-
-.mouse-icon {
-  @apply absolute hidden md:block md:top-[45rem];
-}
-
-.item-card {
-  @apply w-[20rem] h-[28rem] block lg:absolute shadow-lg shadow-gray-600 object-cover opacity-0;
-}
-.item-content {
-  position: absolute;
-  padding: 60px;
-  height: 100%;
-  width: 100%;
-  z-index: 1000;
-  background-color: #595a3b49;
-  opacity: 0;
-  transition: all;
-  transition-duration: 500ms;
-}
-.item-content:hover {
-  @apply opacity-100 z-0;
-}
-.item-title {
-  @apply font-semibold;
-}
-.item-title {
-  @apply font-semibold;
-}
-.item-details {
-  @apply font-normal z-20;
-}
-
-.product-footer {
-  @apply relative bottom-0 flex flex-col w-full;
 }

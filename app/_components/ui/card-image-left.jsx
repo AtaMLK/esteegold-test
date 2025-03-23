@@ -26,8 +26,8 @@ function CardMainLeft({ file }) {
         ease: "power3.inOut",
         scrollTrigger: {
           trigger: contentRef.current,
-          start: "top 80%",
-          end: "top 60%",
+          start: "top 90%",
+          end: "top 70%",
           scrub: 1,
           immediateRender: false,
         },
@@ -39,8 +39,8 @@ function CardMainLeft({ file }) {
         ease: "power1.out",
         scrollTrigger: {
           trigger: leftContainer.current,
-          start: "top 80%",
-          end: "top 60%",
+          start: "top 90%",
+          end: "top 70%",
           scrub: 1,
           immediateRender: false,
         },
@@ -52,8 +52,8 @@ function CardMainLeft({ file }) {
         ease: "power3.inOut",
         scrollTrigger: {
           trigger: imageRef.current,
-          start: "top 70%",
-          end: "top 50%",
+          start: "top 80%",
+          end: "top 60%",
           scrub: 1,
           immediateRender: false,
         },

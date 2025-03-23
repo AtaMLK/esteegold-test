@@ -14,11 +14,14 @@ const firebaseConfig = {
   storageBucket: "estee-gold-studio.firebasestorage.app",
   messagingSenderId: "259875063589",
   appId: "1:259875063589:web:0c95ff3bcf2bc590e37ccc",
-  measurementId: "G-4W9HCNDZQX"
+  measurementId: "G-4W9HCNDZQX",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+if (typeof window !== "undefined") {
+  // Initialize Firebase Analytics only on the client-side
+  const analytics = getAnalytics(app);
+}
 
 export const auth = getAuth(app);

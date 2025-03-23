@@ -1,14 +1,15 @@
 "use client";
 import gsap from "gsap";
-import { LucideShoppingBag, Search, User, UserCircle } from "lucide-react";
+import { LucideShoppingBag, Search, User } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import "@/styles/styles.css";
-import Menu from "./Menu";
-import { onAuthStateChanged } from "firebase/auth";
+import { UserProvider } from "@/app/context/userContext";
 import { auth } from "@/app/firebase/firebase";
+import "@/styles/styles.css";
+import { onAuthStateChanged } from "firebase/auth";
+import Menu from "./Menu";
 
 function Header() {
   const [userName, setUserName] = useState("");
@@ -18,7 +19,6 @@ function Header() {
   const searchRef = useRef(null);
   const pathname = usePathname();
   const hasAnimatedRef = useRef(false);
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -29,11 +29,6 @@ function Header() {
       }
     });
 
-    if (userName) {
-      router.push("/dashboard");
-    } else if (pathname !== "/auth/login" && pathname !== "/auth/register") {
-      router.push("/auth/login");
-    }
     return () => unsubscribe();
   }, []);
 
@@ -66,10 +61,10 @@ function Header() {
           // Initially hide elements
           gsap.set(mainRef.current, { opacity: 0 });
           gsap.set(titleRef.current, {
-            x: isDesktop ? "55%" : isTablet ? "50%" : "0",
-            y: isDesktop ? 250 : isTablet ? 200 : 0,
+            x: isDesktop ? 600 : isTablet ? 300 : 0,
+            y: isDesktop ? 370 : isTablet ? 320 : 0,
             scale: isDesktop ? 3.5 : isTablet ? 2.5 : 1,
-            opacity: 0,
+            opacity: 1,
           });
           gsap.set(searchRef.current, { opacity: 0 });
           gsap.set(menuRef.current, { x: -270, y: 250, opacity: 0 });
@@ -77,12 +72,12 @@ function Header() {
           // Main container fades in first
           gsap.to(mainRef.current, {
             opacity: 1,
-            duration: 1.5,
+            duration: 0.5,
             ease: "power2.out",
             onComplete: () => {
               // Title animation after mainRef appears
               gsap.to(titleRef.current, {
-                x: isDesktop ? 0 : isTablet ? 5 : 10,
+                x: isDesktop ? 10 : isTablet ? 5 : 0,
                 y: 0,
                 scale: isDesktop ? 1.5 : isTablet ? 1.2 : 1,
                 opacity: 1,
@@ -151,11 +146,13 @@ function Header() {
             <Link href="/cart">
               <LucideShoppingBag className="text-gray-900 cursor-pointer text-lg mx-2" />
             </Link>
-            <Link href={userName ? "/dashboard" : "/auth/login"}>
-              <p className="text-lg">
-                Welcome, {userName ? userName : <User />} <UserCircle />
-              </p>
-            </Link>
+            <UserProvider>
+              <Link href={userName ? "/dashboard" : "/auth/login"}>
+                <p className="text-lg cursor-pointer">
+                  {userName ? `Welcome, ${userName}` : <User />}
+                </p>
+              </Link>
+            </UserProvider>
           </div>
         )}
       </div>

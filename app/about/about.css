@@ -6,8 +6,12 @@ h1 {
   @apply relative w-screen h-screen px-4 lg:px-24 lg:my-5  overflow-hidden flex items-center justify-center;
 }
 
+.about-image-container {
+  @apply absolute top-[20%] md:top-0 w-[85%] h-full opacity-70 object-center;
+}
+
 .about-image {
-  @apply absolute top-[20%] md:top-0 w-[85%] h-screen opacity-70 object-center;
+  @apply object-cover h-full w-full;
 }
 
 .about-content {
