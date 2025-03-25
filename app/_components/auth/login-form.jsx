@@ -1,6 +1,8 @@
 "use client";
 import CardWrapper from "./card-wrapper";
 
+import { auth } from "@/app/firebase/firebase";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,22 +11,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { LoginSchema } from "@/schema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useFormStatus } from "react-dom";
-import { useState } from "react";
-import { auth } from "@/app/firebase/firebase";
-import {
-  useCreateUserWithEmailAndPassword,
-  useSendEmailVerification,
-  useSignInWithEmailAndPassword,
-} from "react-firebase-hooks/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoginSchema } from "@/schema";
+import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useFormStatus } from "react-dom";
+import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { useForm } from "react-hook-form";
 
 function LoginForm() {
+  const { toast } = useToast();
   const router = useRouter();
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const [isLoading, setIsLoading] = useState();
@@ -43,9 +41,13 @@ function LoginForm() {
     setIsLoading(true);
     try {
       const user = await signInWithEmailAndPassword(data.email, data.password);
-      if (user) {
-        router.push("/");
-        console.log(data);
+      {
+        user
+          ? router.push("/dashboard")
+          : toast({
+              variant: "destructive",
+              description: "You should create account first.",
+            });
       }
     } catch {
       consolge.error("login message", error.message);

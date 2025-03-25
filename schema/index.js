@@ -64,5 +64,5 @@ export const PaymentSchema = z.object({
     .regex(/^(0[1-9]|1[0-2])\/(\d{2})$/, {
       message: "Expiry date must be MM/YY",
     }),
-  cvv: z.string().regex(/^[0-9]{3,4}$/, {message: "Asdasdas"}),
+  cvv: z.string().regex(/^[0-9]{3,4}$/, {message: "Cvv should be between 3 and 4 charachters"}),
 });
