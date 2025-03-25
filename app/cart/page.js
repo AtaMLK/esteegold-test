@@ -93,7 +93,7 @@ function page() {
           </div>
         </div>
         <div className="cart-button mt-8 w-full px-[5%] lg:px-[10%]">
-          <Link href="/thank-you">
+          <Link href="/checkout">
             <Button
               variant="outline"
               className="w-full border-[1px] text-lightgreen-800 text-sm border-darkgreen-800 bg-lightgreen-400 hover:bg-green-800 hover:border-lightgreen-400 hover:text-lightgreen-200 mt-5 transition-all duration-500"

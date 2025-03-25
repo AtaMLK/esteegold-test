@@ -4,7 +4,8 @@ body {
   padding: 0;
   width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden
+  overflow-x: hidden;
+  letter-spacing: 0.1rem;
 }
 
 /* * {
@@ -27,14 +28,15 @@ span {
 }
 
 .header-container-absolute {
-  @apply grid grid-cols-12 absolute top-[1%] left-0 z-50 w-full h-20 border-b-2 md:border-0;
+  @apply fixed grid grid-cols-12 left-0 z-50 w-full h-20 border-b-2 md:border-0;
+  background-color: rgba(231, 231, 231, 0.39);
 }
 .header-container-flex {
   @apply grid grid-cols-12 z-50 mt-[18px] w-full h-20 border-b-2 md:border-0;
 }
 
 .header-wrapper {
-  @apply col-span-11 flex items-center justify-between  px-2 md:px-8 lg:px-12 text-gray-700;
+  @apply col-span-11  flex items-center justify-between  px-2 md:px-8 lg:px-12 text-gray-900;
 }
 
 .header-menu {
@@ -45,7 +47,7 @@ span {
   @apply flex items-center gap-3;
 }
 .header-logo {
-  @apply text-2xl font-bold ml-8 text-gray-700;
+  @apply text-2xl font-bold ml-8 text-gray-900;
 }
 
 .hero-container {
@@ -53,15 +55,15 @@ span {
 }
 
 .hero-content {
-  @apply absolute hidden md:flex flex-col   items-center bottom-10 left-5 ms-10 border-[1px] border-gray-600 py-5 px-16 rounded-sm text-gray-700 opacity-0 md:opacity-100 z-20;
+  @apply absolute hidden md:flex flex-col   items-center bottom-10 left-5 ms-10 border-[1px] border-darkgreen-900 py-5 px-16 rounded-sm text-darkgreen-900 opacity-0 md:opacity-100 z-20 bg-gray-600 bg-opacity-30;
 }
 
 .hero-button {
-  @apply border-[1px] border-lightgreen-800 p-5 font-semibold text-base text-darkgreen-800 bg-lightgreen-400 mt-5;
+  @apply border-[1px] border-darkgreen-800 p-5 font-semibold text-base text-darkgreen-800 bg-lightgreen-300 mt-5;
 }
 
 .search-section {
-  @apply hidden lg:flex items-center justify-between px-5 w-0 lg:w-[25rem] md:border-[1px] md:border-gray-800 rounded-full h-12;
+  @apply hidden lg:flex items-center justify-between px-5 w-0 lg:w-[25rem] md:border-[1px] md:border-gray-900 rounded-full h-12;
 }
 
 .card-section {
@@ -107,7 +109,7 @@ span {
 
 .burger:before,
 .burger:after {
-  @apply absolute w-8 h-[0.1rem] bg-gray-700 transition-all duration-500 ease-out will-change-transform;
+  @apply absolute w-8 h-[0.1rem] bg-gray-900 transition-all duration-500 ease-out will-change-transform;
   content: "";
 }
 

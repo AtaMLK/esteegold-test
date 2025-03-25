@@ -4,9 +4,7 @@ import Main from "./_components/ui/Main";
 
 function page() {
   return (
-    <div>
-      <Main/>
-    </div>
+    <Main/>
   );
 }
 

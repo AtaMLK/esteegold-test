@@ -1,11 +1,10 @@
 "use client";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
-import Image from "next/image";
-import { useEffect, useRef } from "react";
-
-import { Mouse } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { Mouse } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { ScrollTrigger } from "gsap/all";
 import "./product.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -45,7 +44,7 @@ function Product() {
         y: 0,
         scrollTrigger: {
           trigger: item,
-          start: "top 80%",
+          start: "top 60%",
           end: "top 30%",
           scrub: 1,
         },
@@ -94,10 +93,10 @@ function Product() {
     },
   ];
 
-  const positions = ["20rem", "42rem", "70rem", "95rem", "130rem", "150rem"];
+  const positions = ["10rem", "22rem", "34rem", "47rem", "62rem", "78rem"];
 
   return (
-    <div className="products-container">
+    <div className="products-main-container">
       <div className="mouse-icon" ref={mouseRef}>
         <Mouse />
       </div>
@@ -122,9 +121,9 @@ function Product() {
                   loading="lazy"
                 />
               </div>
-              <div className="item-content">
-                <h3 className="item-title">{product.title}</h3>
-                <p className="item-details">{product.details}</p>
+              <div className="card-item-content">
+                <h3 className="card-item-title">{product.title}</h3>
+                <p className="card-item-details">{product.details}</p>
               </div>
             </div>
           </Link>

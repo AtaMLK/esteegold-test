@@ -4,17 +4,23 @@ function About() {
   return (
     <div className=" p-10 mx-10 mt-10 border-gray-500 border-[1px] rounded-sm">
       <div className="flex relative items-center justify-center">
-        <img
-          src="/images/Fullscreen.jpg"
-          className="w-80 object-cover rounded-sm opacity-70 shadow-lg shadow-gray-700"
+        <video
+          muted
+          autoPlay
+          playsInline
+          loop
+          className="w-[80%] object-cover rounded-sm opacity-70 shadow-lg shadow-gray-700"
           loading="lazy"
           alt="about"
-        />
+        >
+          <source src="/video/about.mp4" type="video/mp4" />
+          <source src="/video/about.webm" type="video/webm" />
+        </video>
         <Link
           href="/about"
-          className="absolute items-center justify-center font-dreamFont uppercase text-3xl text-gray-900 z-10 cursor-pointer"
+          className="absolute items-center justify-center font-dreamFont uppercase text-4xl text-gray-100 z-10 cursor-pointer"
         >
-          <span href="/about/page.js">Our Story</span>
+          <span href="/about/page.js">ESTEE GOLD STUDIO</span>
         </Link>
         <span className=" absolute w-full z-10 bg-gray-900 opacity-100"></span>
       </div>

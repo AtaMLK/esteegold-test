@@ -30,7 +30,7 @@ function Hero() {
           scale: 1,
           x: 0,
           y: 0,
-          duration: 1,
+          duration: 0.5,
           ease: "power3.out",
         })
         .to(
@@ -40,7 +40,7 @@ function Hero() {
             scale: 1,
             x: 0,
             y: 0,
-            duration: 1.2,
+            duration: 1,
             ease: "power2.inOut",
           },
           "+=0.5"
@@ -64,7 +64,7 @@ function Hero() {
             scale: 1,
             x: 0,
             y: 0,
-            duration: 1,
+            duration: 0.6,
             ease: "power4.inOut",
           },
           "+=0.5"
@@ -91,15 +91,15 @@ function Hero() {
       </div>
       <div className="hero-img absolute top-0 right-0" ref={img3}>
         <img
-          src="/images/Hero-bg-3.jpg"
+          src="/images/Hero-bg-4.jpg"
           alt="hero-img"
-          className="object-cover w-0 md:w-screen h-0 md:h-screen z-20"
+          className="object-cover w-0 md:w-screen h-0 md:h-screen z-20 "
           loading="lazy"
         />
       </div>
       <div className="hero-img absolute top-0 right-0" ref={img4}>
         <img
-          src="/images/Hero-bg-4.jpg"
+          src="/images/Hero-bg-3.jpg"
           alt="hero-img"
           className="object-cover w-0 md:w-screen h-0 md:h-screen z-30"
           loading="lazy"
