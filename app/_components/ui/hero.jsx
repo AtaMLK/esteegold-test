@@ -1,14 +1,19 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { image } from "confetti/src/models";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 
+const images = [0, 1, 2, 3];
+
 function Hero() {
   const heroRef = useRef(null);
-  const img1 = useRef(null);
-  const img2 = useRef(null);
-  const img3 = useRef(null);
-  const img4 = useRef(null);
+  const imgRefs = useRef([
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+  ]);
 
   useEffect(() => {
     if (heroRef.current) {
@@ -73,38 +78,21 @@ function Hero() {
   }, []);
   return (
     <div ref={heroRef} className="hero-container md:mb-[45rem]">
-      <div className="hero-img absolute top-0 left-0" ref={img1}>
-        <img
-          src="/images/Hero-bg-1.jpg"
-          alt="hero-img"
-          className="object-cover w-0 md:w-screen h-0 md:h-screen z-5"
-          loading="lazy"
-        />
-      </div>
-      <div className="hero-img absolute top-0 left-0" ref={img2}>
-        <img
-          src="/images/Hero-bg-2.jpg"
-          alt="hero-img"
-          className="object-cover w-0 md:w-screen h-0 md:h-screen z-10"
-          loading="lazy"
-        />
-      </div>
-      <div className="hero-img absolute top-0 right-0" ref={img3}>
-        <img
-          src="/images/Hero-bg-4.jpg"
-          alt="hero-img"
-          className="object-cover w-0 md:w-screen h-0 md:h-screen z-20 "
-          loading="lazy"
-        />
-      </div>
-      <div className="hero-img absolute top-0 right-0" ref={img4}>
-        <img
-          src="/images/Hero-bg-3.jpg"
-          alt="hero-img"
-          className="object-cover w-0 md:w-screen h-0 md:h-screen z-30"
-          loading="lazy"
-        />
-      </div>
+      {images.map((img, index) => (
+        <div
+          className="hero-img absolute top-0 left-0"
+          ref={imgRefs.current[index + 1]}
+          key={index}
+        >
+          <img
+            src={`/images/Hero-bg-${index + 1}.jpg`}
+            alt="hero-img"
+            className="object-cover w-0 md:w-screen h-0 md:h-screen z-10"
+            loading="lazy"
+          />
+        </div>
+      ))}
+
       <div className="hero-content">
         <p>Wear your lovely pet</p>
         <Button variant="default" className="hero-button">
@@ -116,26 +104,3 @@ function Hero() {
 }
 
 export default Hero;
-
-/*  // Use just one static cursor image for debugging
-  const cursorImage = "/images/cursor/cursor1.png";
-
-  const [cursor, setCursor] = useState("auto");
-
-  function handleMouseOver() {
-    // Preload the cursor image
-    const img = new Image();
-    img.src = "/images/cursor/cursor1.png";
-    // When the image is successfully loaded, update the cursor
-    img.onload = () => {
-      setCursor(`url(${cursorImage}) 16 16, auto`); // Apply the cursor style with the image
-    };
-  }
-
-  function handleMouseOut() {
-    setCursor("auto"); // Reset to default cursor when mouse leaves
-  } */
-
-/* onMouseEnter={handleMouseOver}
-      onMouseLeave={handleMouseOut}
-      style={{ cursor }} // Apply the cursor style to the entire div */
