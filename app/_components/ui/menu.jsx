@@ -3,8 +3,17 @@ import gsap from "gsap";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+const menuItems = [
+  { name: "Home", url: "/", src: "image-1.jpg" },
+  { name: "Product", url: "/product", src: "image-2.jpg" },
+  { name: "Contact", url: "/contact", src: "image-3.jpg" },
+  { name: "About", url: "/about", src: "image-4.jpg" },
+];
+
 function Menu() {
+  const [itemHover, setItemHover] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeImage, setActiveImage] = useState(menuItems[0].src); // Default image
   const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
 
   useEffect(() => {
@@ -59,7 +68,7 @@ function Menu() {
         {
           bottom: "10%",
           opacity: 1,
-          duration: 1 
+          duration: 1,
         },
         "<"
       );
@@ -72,8 +81,8 @@ function Menu() {
     }
   }, [isOpen]);
 
-  function handleClick(){
-    setIsOpen(false)
+  function handleClick() {
+    setIsOpen(false);
   }
 
   return (
@@ -84,33 +93,46 @@ function Menu() {
       >
         <span></span>
       </button>
-      <div className={`overlay ${isOpen ? "flex" : "hidden"}`}>
-        <div className="overlay-menu ">
-          <div className="menu-item ">
-            <Link href="/" onClick={handleClick}>
-              <h1 id="active">Home</h1>
+      <div className={`overlay ${isOpen ? "grid grid-cols-2 " : "hidden"} `}>
+        <div className="overlay-content col-span-1">
+          <div className="overlay-menu ">
+            <div className="menu-item ">
+              <ul>
+                {menuItems.map((item, index) => (
+                  <Link
+                    href={item.url}
+                    key={index}
+                    onClick={handleClick}
+                    onMouseEnter={() => {
+                      setItemHover(true);
+                      setActiveImage(item.src);
+                    }}
+                    onMouseLeave={() => setItemHover(false)}
+                  >
+                    <h1 id={`${itemHover ? "active" : ""}`}>{item.name}</h1>
+                  </Link>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="sub-nav">
+            <Link href="#" onClick={handleClick}>
+              <p>Twitter</p>
             </Link>
-            <Link href="/product" onClick={handleClick}>
-              <h1>Product</h1>
+            <Link href={instagramUrl} target="_blank" onClick={handleClick}>
+              <p>Instagram</p>
             </Link>
-            <Link href="/contact" onClick={handleClick}>
-              <h1>Contact</h1>
-            </Link>
-            <Link href="/about" onClick={handleClick}>
-              <h1>About</h1>
+            <Link href="#" onClick={handleClick}>
+              <p>Facebook</p>
             </Link>
           </div>
         </div>
-        <div className="sub-nav">
-          <Link href="#" onClick={handleClick}>
-            <p>Twitter</p>
-          </Link>
-          <Link href={instagramUrl} target="_blank" onClick={handleClick}>
-            <p>Instagram</p>
-          </Link>
-          <Link href="#" onClick={handleClick}>
-            <p>Facebook</p>
-          </Link>
+        <div className="overlay-bg ">
+          <img
+            src={`/images/Gallery/${activeImage}`}
+            alt={`${activeImage}`}
+            className="overlay-image"
+          />
         </div>
       </div>
     </>

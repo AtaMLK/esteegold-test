@@ -55,7 +55,7 @@ span {
 }
 
 .hero-content {
-  @apply absolute hidden md:flex flex-col   items-center bottom-10 left-5 ms-10 border-[1px] border-darkgreen-900 py-5 px-16 rounded-sm text-darkgreen-900 opacity-0 md:opacity-100 z-20 bg-gray-600 bg-opacity-30;
+  @apply absolute hidden md:flex flex-col items-center bottom-10 left-5 ms-10 py-5 px-16  text-darkgreen-300 z-20;
 }
 
 .hero-button {
@@ -130,20 +130,32 @@ span {
 }
 
 .overlay {
-  @apply fixed top-0 left-0 w-full h-full bg-gray-100 will-change-transform z-[20];
+  @apply fixed top-0 left-0 w-full h-screen bg-gray-100 will-change-transform z-[20];
 }
 .overlay-menu {
-  @apply fixed top-0 right-0 w-full h-full flex gap-[1em] justify-center items-center bg-gray-50;
+  @apply fixed top-0 lg:left-[10%] w-full h-screen flex items-center justify-center lg:justify-start gap-[1em];
+}
+.overlay-bg {
+  @apply  hidden lg:flex h-screen items-center justify-center p-24 col-start-2 bg-no-repeat bg-cover bg-center bg-opacity-50  bg-purple-300 ;
+}
+.overlay-image {
+  @apply items-center justify-center border-gray-600 max-w-full max-h-full;
 }
 .menu-item {
   @apply flex cursor-pointer uppercase font-dreamFont flex-col text-gray-800 text-3xl;
 }
+.menu-item h1:hover {
+  -webkit-text-stroke: 2px rgba(89, 90, 59, 0.76);
+  color: rgba(131, 133, 99, 0.76);
+}
 
 .menu-item h1 {
-  @apply relative text-center text-6xl h-[80%] will-change-transform;
+  @apply relative text-center text-7xl h-[80%] will-change-transform;
+  -webkit-text-stroke: 1px rgba(89, 90, 59, 0.76);
+  color: transparent;
+  transition: all 0.3s ease-in-out;
 }
 .menu-item h1:hover {
-  letter-spacing: 0.075em;
   transition: all;
   transition-duration: 500ms;
 }

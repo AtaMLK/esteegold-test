@@ -2,10 +2,21 @@
 import { Button } from "@/components/ui/button";
 import { useUser } from "../context/userContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { History, Settings2Icon, ShoppingBasketIcon } from "lucide-react";
+import Orders from "../_components/ui/Orders";
+import OrderHistory from "../_components/ui/OrderHistory";
+import Setting from "../_components/ui/Setting";
+
+const menuItems = [
+  { title: "Orders ", icon: <ShoppingBasketIcon />, content: <Orders /> },
+  { title: "Order History", icon: <History />, content: <OrderHistory /> },
+  { title: "Setting", icon: <Settings2Icon />, content: <Setting /> },
+];
 
 function Dashboard() {
   const { user, logout } = useUser();
+  const [selectedItem, setSelectedItem] = useState(menuItems[0]);
   const router = useRouter();
 
   useEffect(() => {
@@ -16,46 +27,52 @@ function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      await logout(); // Firebase'den çıkış yap
-      router.push("/"); // Ana sayfaya yönlendir
+      await logout();
+      router.push("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
   return (
-    <div className="dashbord-container px-20 mt-8 grid  grid-cols-12 gap-14">
-      <div className="title-menu  col-start-1 col-span-3 border-[1px]  reounded-md p-6">
+    <div className="dashbord-container px-4 lg:px-20 mt-8 grid  grid-cols-12 gap-4 lg:gap-14">
+      <div className="flex flex-col gap-8 title-menu col-start-1 col-span-3 border-[1px] reounded-md p-6">
         <div className="title">
-          <div className="py-6">
-            <h1>Welcome {user?.displayName || "user"}!</h1>
-            <p>Logo</p>
+          <div className="m-6">
+            <h1 className="text-2xl uppercase">
+              Welcome {user?.displayName || "user"}!
+            </h1>
           </div>
-
-          <Button onClick={handleLogout}>Logout</Button>
         </div>
-        <div className="menu">
-          <div className="py-6">
-            <h1>shopping cart!</h1>
-            <p>cart</p>
-          </div>
-          <div className="py-6">
-            <h1>shopping history!</h1>
-            <p>history</p>
-          </div>
-          <div className="py-6 mb-5">
-            <h1>profile setting</h1>
-            <p>update profile</p>
-          </div>
-          <Button variant="outline" onClick={handleLogout}>
-            Logout
-          </Button>
-        </div>
+        <ul>
+          {menuItems.map((item, index) => (
+            <li
+              key={index}
+              className={`flex items-center py-4 cursor-pointer ${
+                selectedItem === item
+                  ? "p-6 rounded-lg bg-lightgreen-500 text-darkgreen-700"
+                  : ""
+              } `}
+              onClick={() => setSelectedItem(item)}
+            >
+              <div className="flex items-center gap-4">
+                <span className="">{item.icon}</span>
+                <h3 className="hidden  md:block">{item.title}</h3>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <Button
+          variant="outline"
+          onClick={handleLogout}
+          className="bg-darkgreen-500 text-lightgreen-300 hover:bg-lightgreen-600 hover:text-darkgreen-900 transition-all duration-100"
+        >
+          Logout
+        </Button>
       </div>
       <div className="title-content col-start-4 col-span-9 ">
         <div className="w-full h-full border-[1px] border-gray-300  px-10 py-16 ">
-          Lorem amsldk jalksdjla jaldj akkdjalskdjla sdalskdjal ksjdasdjalsj
-          dlaskdjl askjdla skjdla
+          <h2 className="text-3xl">{selectedItem.content}</h2>
         </div>
       </div>
     </div>
