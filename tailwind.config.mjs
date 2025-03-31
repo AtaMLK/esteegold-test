@@ -12,7 +12,7 @@ export default {
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        gold: "#CFB53B",
+        gold: "#FED50B",
         silver: "#E5E4E2",
         darkgreen: {
           100: "#d9ece6", // Lightest shade
@@ -93,8 +93,9 @@ export default {
       },
     },
     fontFamily: {
-      dreamFont: ["DreamAvenue", "sans-serif"],
-      monoFont:["MonoSpace"]
+      railWayFont: ["DreamAvenue", "sans-serif"],
+      monoFont: ["MonoSpace"],
+      railWayFont: ["Railway", "sans-serif"],
     },
   },
   plugins: [require("tailwindcss-animate")],

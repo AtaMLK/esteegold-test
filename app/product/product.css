@@ -1,5 +1,5 @@
 body {
-  @apply font-dreamFont overflow-hidden;
+  @apply font-railWayFont overflow-hidden;
 }
 
 .products-main-container {
@@ -7,7 +7,7 @@ body {
 }
 
 .products-items {
-  @apply  relative flex flex-col items-center justify-center gap-10;
+  @apply relative flex flex-col items-center justify-center gap-10;
 }
 
 .mouse-icon {
@@ -43,33 +43,67 @@ body {
   @apply absolute bottom-0 flex flex-col w-full;
 }
 
-.product-mainbox {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 mx-auto;
+.dynamic-product-container {
+  @apply w-screen h-full px-14;
 }
 
+.product-mainbox {
+  @apply grid grid-cols-1 grid-rows-1 md:grid-cols-2 gap-10 md:gap-2 mx-auto;
+}
+.product-price {
+  @apply my-5  flex justify-start items-center gap-2 text-darkgreen-700 font-semibold;
+}
+.product-material {
+  @apply flex flex-col items-start gap-3 justify-center mb-4;
+}
+.product-name {
+  @apply font-semibold text-4xl text-gray-800;
+}
+.product-left {
+  @apply flex justify-center items-center mx-auto;
+}
 .slider-image {
   @apply w-full h-full;
 }
-.product-right {
-  @apply p-10;
-}
 
-.dynamic-product-container {
-  @apply grid grid-cols-1 m-5;
+.product-right {
+  @apply py-1 px-14 mt-8;
 }
 
 .products-container {
-  @apply flex flex-col my-10 justify-center items-center gap-20 lg:relative w-full;
+  @apply flex justify-center items-center lg:relative w-full;
   height: 100%;
 }
+.product-content {
+  @apply mt-20 mx-5 row-start-2 col-span-2 flex justify-center items-center;
+}
 .circle {
-  @apply flex justify-center items-center w-12 h-12  text-xs border-[1px] border-gray-500 rounded-full;
+  @apply flex justify-center items-center w-8 h-8 rounded-full;
 }
 .circle:hover {
-  @apply scale-[95%]
-  shadow-gray-500
+  @apply scale-[92%]
+  shadow-lg
   transition-all
-  duration-300
-  shadow-md
+  duration-500  
+  shadow-gray-400
+  
+ 
   cursor-pointer;
+}
+.selected-color {
+  @apply w-8 h-8
+  shadow-md
+  transition-all
+  duration-500  
+  rounded-full
+  shadow-gray-300
+  cursor-pointer;
+}
+
+.arrow-left,
+.arrow-right {
+  @apply absolute  h-8 w-8 rounded-full bg-transparent text-darkgreen-100 border-none hover:h-16 hover:w-16 hover:bg-darkgreen-100 hover:text-darkgreen-900 transition-all duration-500 hover:cursor-pointer hover:rounded-full;
+}
+.addtocart-button {
+  @apply h-40 w-40 rounded-full border-[1px] outline-double  border-green-800  font-bold text-lg text-darkgreen-800 transition-all duration-300 bg-lightgreen-400 mt-5 hover:bg-green-900 hover:text-white;
 }

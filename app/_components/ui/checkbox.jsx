@@ -1,12 +1,13 @@
+import { Check } from "lucide-react";
 import { useState } from "react";
-function Checkbox() {
+function Checkbox({check}) {
   const [checked, setChecked] = useState(false);
   return (
     <label className="flex items-center space-x-2 justify-center cursor-pointer">
       <input
         type="checkbox"
-        checked={checked}
         onChange={() => setChecked(!checked)}
+        checked={check} 
         className="hidden peer"
         
       />

@@ -1,10 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Button } from "@/components/ui/button";
-
 import "../product.css";
 
+import ItemQuantity from "@/app/_components/ui/item-quantity";
 import {
   Carousel,
   CarouselContent,
@@ -12,13 +11,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import Checkbox from "@/app/_components/ui/checkbox";
-import ItemQuantity from "@/app/_components/ui/item-quantity";
+import { EuroIcon } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import Link from "next/link";
 
+const productColor = [{ color: "gold" }, { color: "silver" }];
 
-const stoneType = [
-  { index: 1, label: "Diamond" },
-  { index: 2, label: "Artifitial Diamond" },
+const productImages = [
+  { imgUrl: "/images/gallery/image-1.jpg" },
+  { imgUrl: "/images/gallery/image-2.jpg" },
+  { imgUrl: "/images/gallery/image-3.jpg" },
 ];
 
 const necklesSizes = [
@@ -26,41 +29,44 @@ const necklesSizes = [
   { index: 2, options: 45 },
 ];
 
-function page() {
+/* const stoneType = [
+  { index: 1, label: "Diamond" },
+  { index: 2, label: "Artifitial Diamond" },
+]; */
+
+function ProductId() {
+  const [isSelected, setIsSelected] = useState(false);
   const handleChange = (e) => {
     e.preventDefault();
     setSelectedOption(e.target.value);
   };
+
   return (
     <>
-      <div className="w-full h-full mb-28"></div>
+      <div className="w-full h-full mt-16"></div>
       <div className="dynamic-product-container">
         <div className="product-mainbox">
-          <div className="product-left w-full">
+          <div className="product-left w-[75%] flex items-center justify-center">
             <div className="slider">
               <Carousel>
                 <CarouselContent>
-                  <CarouselItem>
-                    <img
-                      src="./../images/gallery/image-1.JPG"
-                      alt="slider"
-                      className="slider-image"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src="./../images/gallery/image-2.JPG"
-                      className="slider-image"
-                      alt="slider"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <img
-                      src="./../images/gallery/image-3.JPG"
-                      className="slider-image"
-                      alt="slider"
-                    />
-                  </CarouselItem>
+                  {productImages.map((image, index) => {
+                    return (
+                      <CarouselItem
+                        key={index}
+                        className="relative w-[150px] h-[500px] lg:w-[200px] lg:h-[700px]"
+                      >
+                        <Image
+                          src={image.imgUrl}
+                          className="slider-image"
+                          alt="slider"
+                          fill
+                          objectFit="cover"
+                          loading="lazy"
+                        />
+                      </CarouselItem>
+                    );
+                  })}
                 </CarouselContent>
                 <CarouselPrevious />
                 <CarouselNext />
@@ -68,20 +74,41 @@ function page() {
             </div>
           </div>
           <div className="product-right justify-start relative">
-            <div className="product-right-details flex flex-col gap-2">
-              <h2 className="product-name font-semibold text-lg">
-                Product Name
-              </h2>
-              <h3 className="product-price font-semibold my-5"> 180.00 $</h3>
-              <div className="product-material flex flex-col flex-center gap-3 justify-start mb-3">
-                <h2 className="product-name font-semibold text-lg">
-                  Choose Color
-                </h2>
-                <div className="product-color flex gap-5">
-                  <div className="circle bg-gold">Gold</div>
-                  <div className="circle bg-silver">
-                    <p>Silver</p>
-                  </div>
+            <div className="product-right-details flex flex-col gap-1">
+              <h2 className="product-name">Product Name have a name</h2>
+              <p className="mt-2 text-xl">description about your product</p>
+              <h3 className="product-price ">
+                <EuroIcon className="h-8 w-8" />
+                <span className="text-4xl font-normal"> 69.00</span>
+              </h3>
+              <p className=" my-2 text-xl">Available in stock</p>
+              <p className=" text-xl">FREE SHIPPING OVER 150 EUROS</p>
+              <Link href="/shipping-return-policy" target="blink">
+                <p>View More</p>
+              </Link>
+
+              <div className="product-material  mt-4">
+                <h2 className="font-semibold text-2xl">Choose Color</h2>
+                <div className="flex  items-center justify-start gap-8">
+                  {productColor.map((colors, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center justify-center gap-2 my-2 w-10 h-10 border-[1px] rounded-full border-gray-600"
+                      >
+                        <div
+                          className={`${
+                            !isSelected === index ? "circle" : "selected-color"
+                          } bg-${colors.color}
+                        `}
+                          onClick={() => {
+                            setIsSelected(!isSelected);
+                            console.log(colors.color);
+                          }}
+                        ></div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               <div className="Length">
@@ -89,8 +116,11 @@ function page() {
                   name="Select Length"
                   id="options"
                   onChange={handleChange}
-                  className="border-[1px] border-gray-700 w-14 h-8 rounded-sm"
+                  className="border-[1px] border-gray-700 text-xl  h-8 mb-10 rounded-sm"
                 >
+                  <option value="" disabled selected>
+                    Select Length
+                  </option>
                   {necklesSizes.map((option, index) => (
                     <option value={option.options} key={index}>
                       {option.options}
@@ -98,24 +128,10 @@ function page() {
                   ))}
                 </select>
               </div>
-              <div className="product-stone">
-                <h3 className="font-semibold">Choose your Glime </h3>
-                {stoneType.map((stone, index) => {
-                  return (
-                    <div
-                      className="flex items-center gap-2 justify-start my-2"
-                      key={index}
-                    >
-                      <Checkbox />
-                      <p className=" text-sx ">{stone.label}</p>
-                    </div>
-                  );
-                })}
-              </div>
               <ItemQuantity />
               <Button
                 variant="outline"
-                className="border-[1px] border-green-800 font-bold text-lg text-darkgreen-800 bg-green-400 mt-5 font-monoFont"
+                className="addtocart-button"
                 onClick={() => {}}
               >
                 Add To Card
@@ -123,19 +139,78 @@ function page() {
             </div>
           </div>
         </div>
-        <div className="product-content mt-10 mx-5 row-start-2 col-span-2 flex justify-center items-center">
-          <p className="row-start-2 w-full h-100  p-5 border-[1px] border-gray-700 text-sm ">
-            of type and scrambled it to make a type specimen book. It has
-            survived not only five centuries, but also the leap into electronic
-            typesetting, remaining essentially unchanged. It was popularised in
-            the 1960s with the release of Letraset sheets containing Lorem Ipsum
-            passages, and more recently with desktop publishing software like
-            Aldus PageMaker including versions of Lorem Ipsum.
+        <div className="product-content ">
+          <p className="row-start-2 w-full h-full p-16 border-[1px] border-gray-700 text-sm ">
+            <strong>Our</strong> jewelry workshop combines artisanal expertise
+            with personalization, giving birth to exceptional bespoke pieces. A
+            unique customer experience, where exclusivity, authenticity and
+            elegance meet. Our jewelry is designed to be worn every day, with a
+            focus on quality and durability. We use only the finest materials,
+            including ethically sourced diamonds and precious metals. Our
+            jewelry is made to last, with a timeless design that will never go
+            out of
           </p>
+        </div>
+
+        <div className="mt-8 px-14">
+          <Carousel>
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {productImages.map((image, index) => {
+                return (
+                  <CarouselItem
+                    key={index}
+                    className="relative group lg:basis-1/3 md:basis-1/2 pl-2 lg:pl-4 rounded-lg "
+                  >
+                    <div className="relative">
+                      <img
+                        src={image.imgUrl}
+                        className="slider-image"
+                        alt="slider"
+                      />
+                      <div
+                        className="slider-content absolute w-full px-2 bottom-4 flex items-center justify-between opacity-0 translate-y-6 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:cursor-pointer
+                      group-hover:translate-y-0"
+                      >
+                        <div className="flex items-center justify-start gap-4">
+                          {productColor.map((colors, index) => {
+                            return (
+                              <div
+                                key={index}
+                                className="flex items-center justify-center gap-1 my-2 w-10 h-10 border-[1px] rounded-full border-gray-600"
+                              >
+                                <div
+                                  className={`${
+                                    !isSelected === index
+                                      ? "circle"
+                                      : "selected-color"
+                                  } bg-${colors.color}
+                        `}
+                                  onClick={() => {
+                                    setIsSelected(!isSelected);
+                                    console.log(colors.color);
+                                  }}
+                                ></div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <p className="text-gray-200 me-4 flex items-center justify-center">
+                          <EuroIcon />
+                          39.99
+                        </p>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </div>
       </div>
     </>
   );
 }
 
-export default page;
+export default ProductId;

@@ -9,13 +9,13 @@ body {
 }
 
 /* * {
-  @apply font-dreamFont;
+  @apply font-railWayFont;
 } */
 
 h1,
 h2,
 h3 {
-  @apply font-dreamFont;
+  @apply font-railWayFont;
 }
 
 p,
@@ -24,7 +24,7 @@ span {
 }
 
 .mainpage-container {
-  @apply relative flex flex-col gap-10 font-dreamFont mb-0 w-full min-h-screen;
+  @apply relative flex flex-col gap-10 font-railWayFont mb-0 w-full min-h-screen;
 }
 
 .header-container-absolute {
@@ -59,7 +59,7 @@ span {
 }
 
 .hero-button {
-  @apply border-[1px] border-darkgreen-800 p-5 font-semibold text-base text-darkgreen-800 bg-lightgreen-300 mt-5;
+  @apply border-none p-5 font-semibold text-base text-darkgreen-300 bg-transparent mt-1;
 }
 
 .search-section {
@@ -136,13 +136,13 @@ span {
   @apply fixed top-0 lg:left-[10%] w-full h-screen flex items-center justify-center lg:justify-start gap-[1em];
 }
 .overlay-bg {
-  @apply  hidden lg:flex h-screen items-center justify-center p-24 col-start-2 bg-no-repeat bg-cover bg-center bg-opacity-50  bg-purple-300 ;
+  @apply hidden lg:flex h-screen items-center justify-center p-24 col-start-2 bg-no-repeat bg-cover bg-center bg-opacity-50  bg-purple-300;
 }
 .overlay-image {
   @apply items-center justify-center border-gray-600 max-w-full max-h-full;
 }
 .menu-item {
-  @apply flex cursor-pointer uppercase font-dreamFont flex-col text-gray-800 text-3xl;
+  @apply flex cursor-pointer uppercase font-railWayFont flex-col text-gray-800 text-3xl;
 }
 .menu-item h1:hover {
   -webkit-text-stroke: 2px rgba(89, 90, 59, 0.76);
@@ -172,7 +172,7 @@ span {
   -translate-x-[50%] sm:-translate-x-36  lg:translate-x-[50%] opacity-0;
 }
 .sub-nav p {
-  @apply font-dreamFont text-xl text-gray-500 transition-all duration-500;
+  @apply font-railWayFont text-xl text-gray-500 transition-all duration-500;
 }
 .sub-nav p:hover {
   @apply text-gray-900;

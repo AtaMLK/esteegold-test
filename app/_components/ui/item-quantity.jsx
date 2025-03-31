@@ -20,7 +20,7 @@ function ItemQuantity() {
         <Button
           onClick={handleDeduct}
           variant="outline"
-          className="p-3 lg:p-4 border-none lg:border-[1px] border-gray-600"
+          className="p-3 lg:p-4 border-none lg:border-[1px] border-gray-600 font-bold  text-xl"
         >
           &#8722;
         </Button>

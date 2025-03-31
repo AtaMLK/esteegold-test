@@ -18,7 +18,7 @@ function About() {
         </video>
         <Link
           href="/about"
-          className="absolute items-center justify-center font-dreamFont uppercase text-4xl text-gray-100 z-10 cursor-pointer"
+          className="absolute items-center justify-center font-railWayFont uppercase text-4xl text-gray-100 z-10 cursor-pointer"
         >
           <span href="/about/page.js">ESTEE GOLD STUDIO</span>
         </Link>

@@ -70,7 +70,7 @@ function CardMainLeft({ file }) {
           <CardImage file={file} />
         </div>
         <h2 className=" absolute left-[70%] top-[50%] md:hidden text-3xl text-bold me-10 uppercase text-gray-600">
-          <span className=" font-dreamFont bg-gradient-to-r from-gray-400 to-gray-900 bg-clip-text text-transparent font-extrabold">
+          <span className=" font-railWayFont bg-gradient-to-r from-gray-400 to-gray-900 bg-clip-text text-transparent font-extrabold">
             product
           </span>
         </h2>

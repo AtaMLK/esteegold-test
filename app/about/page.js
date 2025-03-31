@@ -20,10 +20,7 @@ function About() {
             Estee Gold Studio
           </h2>
           <p className="text-gray-900 text-xl font-normal">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
-            condimentum turpis in eros facilisis, nec consequat tortor ultrices.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
-            condimentum turpis in eros facilisis, nec consequat tortor ultrices.
+          Our jewels are made with ethical and traceable raw materials, for a more equitable and sustainable jewelry, respectful of the environment and workers.
           </p>
         </div>
       </div>
