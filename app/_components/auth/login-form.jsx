@@ -1,7 +1,8 @@
 "use client";
+
+import { signInWithGoogle, singInWithEmail } from "@/app/_lib/auth";
 import CardWrapper from "./card-wrapper";
 
-import { auth } from "@/app/firebase/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -12,22 +13,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "@/schema";
 import { useToast } from "@/hooks/use-toast";
+import { LoginSchema } from "@/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 
 function LoginForm() {
-  const { toast } = useToast();
   const router = useRouter();
-  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
-  const [isLoading, setIsLoading] = useState();
-
+  const { toast } = useToast();
   const { pending } = useFormStatus();
+  const [isLoading, setIsLoading] = useState();
 
   const form = useForm({
     resolver: zodResolver(LoginSchema),
@@ -40,19 +38,23 @@ function LoginForm() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const user = await signInWithEmailAndPassword(data.email, data.password);
-      {
-        user
-          ? router.push("/dashboard")
-          : toast({
-              variant: "destructive",
-              description: "You should create account first.",
-            });
+      const user = await singInWithEmail(data.email, data.password); // Use the correct function
+      if (user) {
+        router.push("/dashboard"); // Redirect to dashboard if user exists
+      } else {
+        toast({
+          variant: "destructive",
+          description: "You should create an account first.",
+        });
       }
-    } catch {
-      consolge.error("login message", error.message);
+    } catch (error) {
+      console.error("Login error", error.message); // Log detailed error
+      toast({
+        variant: "destructive",
+        description: error.message, // Display error message
+      });
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading state
     }
   };
 
@@ -101,14 +103,24 @@ function LoginForm() {
           </div>
 
           {/* Submit Button */}
-          <Button
-            variant="outline"
-            type="submit"
-            className="w-full text-green-200 bg-green-600 border-green-700 hover:bg-green-800"
-            disabled={pending}
-          >
-            {isLoading ? "...Loading " : "Login"}
-          </Button>
+          <div>
+            <Button
+              variant="outline"
+              type="submit"
+              className="w-full text-green-200 bg-green-600 border-green-700 hover:bg-green-800"
+              disabled={pending}
+            >
+              {isLoading ? "...Loading " : "Login"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => signInWithGoogle()}
+              className="w-full mt-2 text-white bg-blue-400 border-blue-900 hover:bg-red-500"
+              disabled={pending}
+            >
+              Login With Google
+            </Button>
+          </div>
         </form>
       </Form>
     </CardWrapper>

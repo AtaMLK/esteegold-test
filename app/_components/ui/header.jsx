@@ -6,10 +6,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { UserProvider } from "@/app/context/userContext";
-import { auth } from "@/app/firebase/firebase";
 import "@/styles/styles.css";
-import { onAuthStateChanged } from "firebase/auth";
 import Menu from "./Menu";
+import { supabase } from "@/app/_lib/supabase";
 
 function Header() {
   const [userName, setUserName] = useState("");
@@ -21,15 +20,11 @@ function Header() {
   const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserName(user.displayName || "Guest");
-      } else {
-        setUserName("");
-      }
-    });
-
-    return () => unsubscribe();
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserName(user ? user.email : "");
+    };
+    getUser();
   }, []);
 
   useEffect(() => {

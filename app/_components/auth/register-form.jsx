@@ -1,7 +1,6 @@
 "use client";
 import CardWrapper from "./card-wrapper";
 import { useToast } from "@/hooks/use-toast";
-
 import {
   Form,
   FormControl,
@@ -15,24 +14,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useFormStatus } from "react-dom";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/app/firebase/firebase";
-import {
-  useCreateUserWithEmailAndPassword,
-  useSendEmailVerification,
-} from "react-firebase-hooks/auth";
-import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { signUpWithEmail } from "@/app/_lib/auth";
+import { supabase } from "@/app/_lib/supabase";
 
 function RegisterForm() {
   const { toast } = useToast();
   const router = useRouter();
-
-  const [createUser] = useCreateUserWithEmailAndPassword(auth);
-  const [sendEmailVerification] = useSendEmailVerification(auth);
   const [isLoading, setIsLoading] = useState(false);
-  const { pending } = useFormStatus();
+
   const form = useForm({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -46,22 +37,23 @@ function RegisterForm() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const userCredential = await createUser(data.email, data.password);
-      if (userCredential) {
-        const user = userCredential.user;
+      const { user, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: { full_name: data.name },
+        },
+      });
 
-        await updateProfile(user, { displayName: data.name });
+      if (error) throw error;
+      console.log("User registered successfully", user);
 
-        await sendEmailVerification();
-
-        console.log("user Registration successfully", user);
-
-        router.push("/");
-      }
+      toast({ description: "Your account has been created successfully." });
+      router.push("/");
     } catch (error) {
-      console.error("Login error", error.message);
+      console.error("Registration error", error.message);
+      toast({ description: error.message, variant: "destructive" });
     } finally {
-      console.log(data);
       setIsLoading(false);
     }
   };
@@ -146,14 +138,9 @@ function RegisterForm() {
             variant="outline"
             type="submit"
             className="w-full bg-green-600 hover:bg-green-800"
-            disabled={pending}
-            onClick={() => {
-              toast({
-                description: "Your account created successfully.",
-              });
-            }}
+            disabled={isLoading}
           >
-            {isLoading ? "... Creatin account" : "Register"}
+            {isLoading ? "... Creating account" : "Register"}
           </Button>
         </form>
       </Form>
