@@ -17,6 +17,8 @@ function CardImage({ file }) {
       img.style.transform = `translate(${randomX}px, ${randomY}px) `;
       img.style.transition =
         "transform 0.4s ease-in-out, z-index 0.3s ease-in-out";
+        img.style.width="15rem"
+        img.style.height="15rem"
     });
   };
 
@@ -24,6 +26,9 @@ function CardImage({ file }) {
     const images = e.currentTarget.querySelectorAll(".card-container-images");
     images.forEach((img) => {
       img.style.transform = " translateX(0) translateY(0)";
+      img.style.width="100%"
+        img.style.height="100%"
+      img.style.objectFit = "cover";
     });
   };
 

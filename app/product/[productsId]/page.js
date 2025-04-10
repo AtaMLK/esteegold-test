@@ -88,7 +88,7 @@ function ProductId() {
               </Link>
 
               <div className="product-material  mt-4">
-                <h2 className="font-semibold text-2xl">Choose Color</h2>
+                <h2 className="font-semibold text-2xl ">Choose Color</h2>
                 <div className="flex  items-center justify-start gap-8">
                   {productColor.map((colors, index) => {
                     return (
@@ -118,7 +118,7 @@ function ProductId() {
                   onChange={handleChange}
                   className="border-[1px] border-gray-700 text-xl  h-8 mb-10 rounded-sm"
                 >
-                  <option value="" disabled selected>
+                  <option value="" selected>
                     Select Length
                   </option>
                   {necklesSizes.map((option, index) => (
@@ -212,5 +212,4 @@ function ProductId() {
     </>
   );
 }
-
 export default ProductId;

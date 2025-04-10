@@ -20,7 +20,7 @@ function Hero() {
       tl.to(imgRefs.current[index], {
         zIndex: 1,
         opacity: 1,
-        duration: 0.2 ,
+        duration: 0.2,
         ease: "power3.inOut",
         onStart: () => {
           setActiveIndex(index);
@@ -79,7 +79,7 @@ function Hero() {
       <div
         ref={contentRef}
         className="hero-content absolute bottom-10 text-center bg-trasnparent p-4 rounded-lg "
-        style={{ position: "absolute", ...contentPositions[activeIndex]  }}
+        style={{ position: "absolute", ...contentPositions[activeIndex] }}
       >
         <p className="text-md font-normal text-lightgreen-200">
           Wear your lovely pet

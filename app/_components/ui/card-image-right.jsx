@@ -78,8 +78,8 @@ function CardMainRight({ file }) {
         >
           <CardImage file={file} />
         </div>
-        <h2 className="absolute right-[80%] sm:right-[70%] top-[50%] md:hidden text-3xl text-bold me-10 uppercase text-gray-600">
-          <span className="font-railWayFont bg-gradient-to-r from-gray-900 to-gray-400 bg-clip-text text-transparent font-extrabold">
+        <h2 className="font-dreamFont absolute right-[80%] sm:right-[70%] top-[50%] md:hidden text-3xl text-bold me-10 uppercase text-gray-600">
+          <span className="bg-gradient-to-r from-gray-900 to-gray-400 bg-clip-text text-transparent font-extrabold">
             Gallery
           </span>
         </h2>

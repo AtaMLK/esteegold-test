@@ -93,7 +93,7 @@ export default {
       },
     },
     fontFamily: {
-      railWayFont: ["DreamAvenue", "sans-serif"],
+      dreamFont: ["DreamAvenue", "sans-serif"],
       monoFont: ["MonoSpace"],
       railWayFont: ["Railway", "sans-serif"],
     },
