@@ -9,7 +9,7 @@ const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
 
 function Footer() {
   return (
-    <div className="footer-container">
+    <div className="footer-container ">
       <div className="footer-content ms-10 mb-5 ">
         <div className="footer-contactitems flex flex-col gap-2 ">
           <Link href="/contact">
@@ -19,7 +19,7 @@ function Footer() {
             <p>about</p>
           </Link>
           <Link href="/specialOrder">
-            <p>Order Your Design</p>
+            <p>Design your requested Rings</p>
           </Link>
           <Link href={instagramUrl} target="_blank">
             <LucideInstagram />

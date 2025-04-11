@@ -81,15 +81,15 @@ function Hero() {
         className="hero-content absolute bottom-10 text-center bg-trasnparent p-4 rounded-lg "
         style={{ position: "absolute", ...contentPositions[activeIndex] }}
       >
-        <p className="text-md font-normal text-lightgreen-200">
+        <p className="text-lg font-normal text-gray-700">
           Wear your lovely pet
         </p>
 
         {/* Progress Bar */}
-        <div className="relative w-full h-[3px] bg-lightgreen-300 mt-2 overflow-hidden rounded-full">
+        <div className="relative w-full h-[3px] bg-lightgreen-500 mt-2 overflow-hidden rounded-full">
           <div
             ref={progressBarRef}
-            className="absolute left-0 top-0 h-full bg-darkgreen-300"
+            className="absolute left-0 top-0 h-full bg-darkgreen-600"
             style={{ width: "0%" }}
           />
         </div>

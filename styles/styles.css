@@ -38,7 +38,7 @@ span {
   @apply flex items-center gap-3;
 }
 .header-logo {
-  @apply text-5xl font-dreamFont font-bold ml-8 text-gray-900;
+  @apply text-4xl font-dreamFont font-bold ml-8 text-gray-900;
 }
 
 .hero-container {
@@ -171,5 +171,6 @@ span {
 
 .footer-container {
   font-family: monospace;
-  margin: 4rem;
+  padding: 4rem;
+  @apply bg-darkgreen-600 text-lightgreen-100;
 }

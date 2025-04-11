@@ -143,7 +143,7 @@ function Header() {
             </Link>
             <UserProvider>
               <Link href={userName ? "/dashboard" : "/auth/login"}>
-                <p className="text-lg cursor-pointer">
+                <p className="text-lg cursor-pointer ">
                   {userName ? `Welcome, ${userName}` : <User />}
                 </p>
               </Link>
