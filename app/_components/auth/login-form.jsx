@@ -1,6 +1,6 @@
 "use client";
 
-import { signInWithGoogle, singInWithEmail } from "@/app/_lib/auth";
+import { signInWithGoogle, signInWithEmail } from "@/app/_lib/auth";
 import CardWrapper from "./card-wrapper";
 
 import { Button } from "@/components/ui/button";
@@ -38,9 +38,9 @@ function LoginForm() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const user = await singInWithEmail(data.email, data.password); // Use the correct function
+      const user = await signInWithEmail(data.email, data.password); // Use the correct function
       if (user) {
-        router.push("/dashboard"); // Redirect to dashboard if user exists
+        router.push("/"); // Redirect to dashboard if user exists
       } else {
         toast({
           variant: "destructive",

@@ -5,13 +5,23 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
+        setUser(session?.user || null);
+      } catch (error) {
+        console.error("Error fetching user:", error.message);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
@@ -25,12 +35,17 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (err) {
+      console.error("Error logging out:", err.message);
+      throw err; // Rethrow the error to handle it in the calling function
+    }
   };
 
   return (
-    <UserContext.Provider value={{ user, logout }}>
+    <UserContext.Provider value={{ user, logout, loading }}>
       {children}
     </UserContext.Provider>
   );

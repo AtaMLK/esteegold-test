@@ -1,12 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useUser } from "../context/userContext";
+import { History, Settings2Icon, ShoppingBasketIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { History, Settings2Icon, ShoppingBasketIcon } from "lucide-react";
-import Orders from "../_components/ui/Orders";
 import OrderHistory from "../_components/ui/OrderHistory";
+import Orders from "../_components/ui/Orders";
 import Setting from "../_components/ui/Setting";
+import { useUser } from "../context/userContext";
 
 const menuItems = [
   { title: "Orders ", icon: <ShoppingBasketIcon />, content: <Orders /> },
@@ -16,6 +16,7 @@ const menuItems = [
 
 function Dashboard() {
   const { user, logout } = useUser();
+  const [isLoggingout , setIsLoggingout] = useState(false)
   const [selectedItem, setSelectedItem] = useState(menuItems[0]);
   const router = useRouter();
 
@@ -26,11 +27,11 @@ function Dashboard() {
   }, [user, router]);
 
   const handleLogout = async () => {
+    setIsLoggingout(true)
     try {
       await logout();
       router.push("/");
     } catch (error) {
-      console.error("Logout error:", error);
     }
   };
 
@@ -67,7 +68,7 @@ function Dashboard() {
           onClick={handleLogout}
           className="bg-darkgreen-500 text-lightgreen-300 hover:bg-lightgreen-600 hover:text-darkgreen-900 transition-all duration-100"
         >
-          Logout
+          {isLoggingout ? "Loging Out..." : "Logout"}
         </Button>
       </div>
       <div className="title-content col-start-4 col-span-9 ">

@@ -12,6 +12,7 @@ function Hero() {
   const contentRef = useRef(null);
   const progressBarRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [sectionWidth, setSectionWidth] = useState(0);
 
   useEffect(() => {
     const tl = gsap.timeline({ repeat: -1 });
@@ -43,17 +44,22 @@ function Hero() {
     });
   }, []);
 
-  // Calculate content positions dynamically
-  const containerPadding = 5 * 16; // 5rem in pixels
-  const sectionWidth = (window.innerWidth - 2 * containerPadding) / 4;
+  useEffect(() => {
+    const containerPadding = 5 * 16;
+    const width = (window.innerWidth - 2 * containerPadding) / 4;
+    setSectionWidth(width);
+  }, []);
 
+  // Calculate content positions dynamically
+   const containerPadding = 5 * 16; // 5rem in pixels
+
+  
   const contentPositions = [
     { left: `${containerPadding}px ` }, // First section
     { left: `${containerPadding + sectionWidth}px` }, // Second section
     { left: `${containerPadding + sectionWidth * 2}px ` }, // Third section
     { left: ` ${containerPadding + sectionWidth * 3}px -10px` }, // Fourth section
   ];
-
   return (
     <div
       ref={heroRef}
