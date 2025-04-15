@@ -6,7 +6,7 @@ import CardImage from "./card-image";
 
 gsap.registerPlugin(ScrollTrigger);
 
-function CardMainRight({ file }) {
+function CardImageRight({ file }) {
   const contentRef = useRef(null);
   const rightContainer = useRef(null);
   const imageRef = useRef(null);
@@ -66,9 +66,9 @@ function CardMainRight({ file }) {
   return (
     <div className="right-container " ref={rightContainer}>
       <div className="card-content content-right -left-[10%]" ref={contentRef}>
-        <h2 className="text-3xl text-bold">Gallery</h2>
+        <h2 className="text-3xl text-bold">Design yourself</h2>
         <p className=" flex justify-start text-wrap ms-10">
-          you can select all the shiny jeweles in the full verion of our shops.
+          you can design your ring as you want and we will make it for you.
         </p>
       </div>
       <div className="relative col-start-2">
@@ -88,4 +88,4 @@ function CardMainRight({ file }) {
   );
 }
 
-export default CardMainRight;
+export default CardImageRight;

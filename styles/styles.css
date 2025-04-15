@@ -171,7 +171,7 @@ span {
 
 .footer-container {
   font-family: monospace;
-  padding: 4rem;  
+  padding: 4rem;
   @apply bg-darkgreen-600 text-lightgreen-100;
 }
 
@@ -180,11 +180,14 @@ span {
   @apply flex items-center justify-center my-4 w-screen bg-gray-400;
 }
 .filter-selection {
-  @apply w-[1/8] h-1/2 xl:absolute text-lg right-10 top-4 bg-transparent text-black outline-none px-4 border-b-2 border-gray-900 ;
+  @apply w-[1/8] h-1/2 xl:absolute text-lg right-10 top-4 bg-transparent text-black outline-none px-4 border-b-2 border-gray-900;
 }
 .category-container {
-  @apply w-full flex flex-col items-center justify-center xl:grid xl:grid-cols-4 gap-5 md:gap-2  px-10 ;
+  @apply w-full flex flex-col items-center justify-center xl:grid xl:grid-cols-4 gap-5 md:gap-2  px-10;
 }
 .category-list {
   @apply w-full h-full col-start-1 flex flex-col gap-8 xl:ps-12 xl:pt-20 mt-5 mb-10 transition-all duration-300;
+}
+.category-items-card_content {
+  @apply absolute h-0 w-full bottom-0 left-0 flex items-center justify-between opacity-50 bg-gray-800  group-hover:h-[20%] transition-all duration-500 text-white px-4 text-lg;
 }

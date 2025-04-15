@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import "/styles/styles.css";
+import ItemCards from "../_components/ui/ItemCards";
 
 const categories = [
   {
@@ -128,37 +129,7 @@ function CategoriesPage() {
           )}
         </div>
         {/* category image */}
-        <div className="category-items-card col-start-2 col-span-3 grid grid-cols-1  md:grid-cols-2 xl:grid-cols-3 gap-16 cursor-pointer mx-5">
-          {categories.map((category, index) => {
-            return (
-              <div
-                className={`item-card relative group ${
-                  index % 2 === 1 ? "md:mt-20" : ""
-                }`}
-                key={category.id}
-              >
-                <img
-                  src={category.src}
-                  alt={category.title}
-                  className="w-full h-[36rem]"
-                />
-                <div
-                  className={`w-full h-0 overflow-hidden group group-hover:h-full absolute bottom-0 left-0 group-hover:top-0 transition-all duration-500 `}
-                >
-                  <img
-                    src={category.src2}
-                    alt={category.title}
-                    className="w-full h-full "
-                  />
-                  <div className="absolute h-0 w-full bottom-0 left-0 flex items-center justify-between opacity-50 bg-gray-800  group-hover:h-[20%] transition-all duration-400 text-white px-4 text-lg ">
-                    <p>{category.title}</p>
-                    <p>{category.price}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <ItemCards categories={categories} />
       </div>
     </div>
   );

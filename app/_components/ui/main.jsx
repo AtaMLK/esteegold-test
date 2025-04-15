@@ -7,6 +7,63 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import Hero from "./hero";
 import { ScrollTrigger } from "gsap/all";
+import ItemCards from "./ItemCards";
+
+const categories = [
+  {
+    id: "1",
+    title: "Rings",
+    details: "rings are the best thing that",
+    src: "/images/Products-page/Combinations.jpg",
+    src2: "/images/Products-page/Earings-title.jpg",
+    type: "old fashioned",
+  },
+  {
+    id: "2",
+    title: "Necklaces",
+    details: "necklaces are the best thing that",
+    src: "/images/Products-page/Wedding-ring.jpg",
+    src2: "/images/Products-page/rings-title.jpg",
+    price: "100 €",
+    type: "minimalistic",
+  },
+  {
+    id: "3",
+    title: "Bracelets",
+    details: "bracelets are the best thing that",
+    src: "/images/Products-page/Earings-title.jpg",
+    src2: "/images/Products-page/rings-title.jpg",
+    price: "100 €",
+    type: "modern",
+  },
+  {
+    id: "4",
+    title: "Rings",
+    details: "rings are the best thing that",
+    src: "/images/Products-page/rings-title.jpg",
+    src2: "/images/Products-page/Earings-title.jpg",
+    price: "100 €",
+    type: "minimalistic",
+  },
+  {
+    id: "5",
+    title: "Necklaces",
+    details: "necklaces are the best thing that",
+    src: "/images/Products-page/hand Combinations.jpg",
+    src2: "/images/Products-page/rings-title.jpg",
+    price: "100 €",
+    type: "minimalistic",
+  },
+  {
+    id: "6",
+    title: "earrings",
+    details: "bracelets are the best thing that",
+    src: "/images/Products-page/necklesses-title.jpg",
+    src2: "/images/Products-page/Wedding-ring.jpg",
+    price: "100 €",
+    type: "realistic",
+  },
+];
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,6 +119,7 @@ function Main() {
           <CardMainRight file="Gallery" />
         </Link>
       </div>
+      <ItemCards categories={categories} />
       <About />
     </div>
   );
