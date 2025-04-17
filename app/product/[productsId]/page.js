@@ -15,8 +15,9 @@ import { EuroIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
+import MiniSlider from "@/app/_components/ui/MiniSlider";
 
-const productColor = [{ color: "gold" }, { color: "silver" }];
+const productColor = ["bg-gold", "bg-silver"];
 
 const productImages = [
   { imgUrl: "/images/gallery/image-1.jpg" },
@@ -28,11 +29,6 @@ const necklesSizes = [
   { index: 1, options: 40 },
   { index: 2, options: 45 },
 ];
-
-/* const stoneType = [
-  { index: 1, label: "Diamond" },
-  { index: 2, label: "Artifitial Diamond" },
-]; */
 
 function ProductId() {
   const [isSelected, setIsSelected] = useState(false);
@@ -87,23 +83,22 @@ function ProductId() {
                 <p>View More</p>
               </Link>
 
-              <div className="product-material  mt-4">
+              <div className="product-material mt-4">
                 <h2 className="font-semibold text-2xl ">Choose Color</h2>
                 <div className="flex  items-center justify-start gap-8">
-                  {productColor.map((colors, index) => {
+                  {productColor.map((color, index) => {
                     return (
                       <div
                         key={index}
                         className="flex items-center justify-center gap-2 my-2 w-10 h-10 border-[1px] rounded-full border-gray-600"
                       >
                         <div
-                          className={`${
-                            !isSelected === index ? "circle" : "selected-color"
-                          } bg-${colors.color}
+                          className={`h-full w-full ${color} ${
+                            isSelected === index ? "circle" : "selected-color"
+                          }
                         `}
                           onClick={() => {
-                            setIsSelected(!isSelected);
-                            console.log(colors.color);
+                            setIsSelected(index);
                           }}
                         ></div>
                       </div>
@@ -152,62 +147,7 @@ function ProductId() {
           </p>
         </div>
 
-        <div className="mt-8 px-14">
-          <Carousel>
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {productImages.map((image, index) => {
-                return (
-                  <CarouselItem
-                    key={index}
-                    className="relative group lg:basis-1/3 md:basis-1/2 pl-2 lg:pl-4 rounded-lg "
-                  >
-                    <div className="relative">
-                      <img
-                        src={image.imgUrl}
-                        className="slider-image"
-                        alt="slider"
-                      />
-                      <div
-                        className="slider-content absolute w-full px-2 bottom-4 flex items-center justify-between opacity-0 translate-y-6 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:cursor-pointer
-                      group-hover:translate-y-0"
-                      >
-                        <div className="flex items-center justify-start gap-4">
-                          {productColor.map((colors, index) => {
-                            return (
-                              <div
-                                key={index}
-                                className="flex items-center justify-center gap-1 my-2 w-10 h-10 border-[1px] rounded-full border-gray-600"
-                              >
-                                <div
-                                  className={`${
-                                    !isSelected === index
-                                      ? "circle"
-                                      : "selected-color"
-                                  } bg-${colors.color}
-                        `}
-                                  onClick={() => {
-                                    setIsSelected(!isSelected);
-                                    console.log(colors.color);
-                                  }}
-                                ></div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <p className="text-gray-200 me-4 flex items-center justify-center">
-                          <EuroIcon />
-                          39.99
-                        </p>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </div>
+        <MiniSlider productImages={productImages} />
       </div>
     </>
   );

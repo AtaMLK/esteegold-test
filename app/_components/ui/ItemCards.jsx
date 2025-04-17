@@ -1,6 +1,8 @@
-function ItemCards({categories}) {
+function ItemCards({ categories, gap }) {
   return (
-    <div className="category-items-card col-start-2 col-span-3 grid grid-cols-1  md:grid-cols-2 xl:grid-cols-3 gap-16 cursor-pointer mx-5">
+    <div
+      className={`category-items-card col-start-2 col-span-3 grid grid-cols-1  md:grid-cols-2 xl:grid-cols-3  cursor-pointer mx-5 gap-${gap}`}
+    >
       {categories.map((category, index) => {
         return (
           <div

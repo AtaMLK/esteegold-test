@@ -42,11 +42,15 @@ span {
 }
 
 .hero-container {
-  @apply relative flex w-screen h-[7rem] md:min-h-screen mb-28;
+  @apply relative h-0 w-0 overflow-hidden xl:flex xl:w-screen xl:h-screen mb-2;
+}
+
+.hero-images {
+  @apply absolute top-0 left-0 w-full h-full opacity-0 transition-opacity duration-500;
 }
 
 .hero-content {
-  @apply absolute hidden md:flex flex-col items-center bottom-10 left-5 ms-10 py-5 px-16  text-darkgreen-300 z-20;
+  @apply absolute hidden md:flex flex-col items-center bottom-10 left-5 ms-10 py-5 px-16 text-darkgreen-300 z-20;
 }
 
 .hero-button {
@@ -54,7 +58,7 @@ span {
 }
 
 .search-section {
-  @apply hidden lg:flex items-center justify-between px-5 w-0 lg:w-[25rem] md:border-[1px] md:border-gray-900 rounded-full h-12;
+  @apply hidden lg:flex items-center justify-between px-5 w-0 lg:w-[15rem] xl:w-[25rem] md:border-[1px] md:border-gray-900 rounded-full h-12;
 }
 
 .card-section {
@@ -172,7 +176,7 @@ span {
 .footer-container {
   font-family: monospace;
   padding: 4rem;
-  @apply bg-darkgreen-600 text-lightgreen-100;
+  @applytext-lightgreen-100;
 }
 
 /* category styles */

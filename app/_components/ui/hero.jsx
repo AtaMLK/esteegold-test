@@ -44,32 +44,29 @@ function Hero() {
     });
   }, []);
 
+  const containerPadding = 5 * 12;
   useEffect(() => {
-    const containerPadding = 5 * 16;
     const width = (window.innerWidth - 2 * containerPadding) / 4;
     setSectionWidth(width);
   }, []);
 
   // Calculate content positions dynamically
-   const containerPadding = 5 * 16; // 5rem in pixels
-
-  
   const contentPositions = [
     { left: `${containerPadding}px ` }, // First section
-    { left: `${containerPadding + sectionWidth}px` }, // Second section
+    { left: `${containerPadding + sectionWidth}px ` }, // Second section
     { left: `${containerPadding + sectionWidth * 2}px ` }, // Third section
-    { left: ` ${containerPadding + sectionWidth * 3}px -10px` }, // Fourth section
+    { left: `${containerPadding + sectionWidth * 3}px ` }, // Fourth section
   ];
   return (
     <div
       ref={heroRef}
-      className="relative hero-container md:mb-[45rem] overflow-hidden"
+      className=" hero-container "
     >
       {images.map((_, index) => (
         <div
           key={index}
           ref={(el) => (imgRefs.current[index] = el)}
-          className="absolute top-0 left-0 w-full h-full opacity-0 transition-opacity duration-500"
+          className="hero-images"
           style={{ zIndex: index === activeIndex ? 2 : 0 }}
         >
           <img

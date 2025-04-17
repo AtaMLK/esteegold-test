@@ -129,7 +129,7 @@ function CategoriesPage() {
           )}
         </div>
         {/* category image */}
-        <ItemCards categories={categories} />
+        <ItemCards categories={categories} gap={"16"} />
       </div>
     </div>
   );

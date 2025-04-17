@@ -66,6 +66,11 @@ body {
   @apply w-full h-full;
 }
 
+.slider-content {
+  @apply absolute w-full px-2 bottom-4 flex items-center justify-between opacity-0 translate-y-6 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:cursor-pointer
+  group-hover:translate-y-0;
+}
+
 .product-right {
   @apply py-1 px-14 mt-8;
 }
@@ -78,25 +83,24 @@ body {
   @apply mt-20 mx-5 row-start-2 col-span-2 flex justify-center items-center;
 }
 .circle {
-  @apply flex justify-center items-center w-8 h-8 rounded-full;
+  @apply flex justify-center items-center w-8 h-8 rounded-full  border-[1px] border-gray-600;
 }
 .circle:hover {
-  @apply scale-[92%]
+  @apply scale-[110%]
   shadow-lg
   transition-all
   duration-500  
   shadow-gray-400
-  
- 
   cursor-pointer;
 }
+
 .selected-color {
   @apply w-8 h-8
   shadow-md
+  scale-[92%]
   transition-all
   duration-500  
   rounded-full
-  shadow-gray-300
   cursor-pointer;
 }
 

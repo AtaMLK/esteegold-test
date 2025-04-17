@@ -8,6 +8,7 @@ import gsap from "gsap";
 import Hero from "./hero";
 import { ScrollTrigger } from "gsap/all";
 import ItemCards from "./ItemCards";
+import MiniSlider from "./MiniSlider";
 
 const categories = [
   {
@@ -87,13 +88,13 @@ function Main() {
 
         gsap.set(mainRef.current, {
           opacity: 0,
-          y: isDesktop ? 200 : isTablet ? 100 : 20,
+          y: isDesktop ? 200 : /*  isTablet ? 100 : */ 0,
         });
 
         gsap.to(mainRef.current, {
           opacity: 1,
           y: 0,
-          duration: isDesktop ? 1.5 : isTablet ? 1.2 : 1,
+          duration: isDesktop ? 1.5 : /* isTablet ? 1.2 : 1 */ 0,
           ease: "power.out",
           scrollTrigger: {
             trigger: mainRef.current,
@@ -111,7 +112,8 @@ function Main() {
   return (
     <div className="mainpage-container" ref={mainRef} style={{ opacity: 0 }}>
       <Hero />
-      <div className="card-section">
+      <MiniSlider />
+      <div className="card-section my-20">
         <Link href="/product">
           <CardMainLeft file="Product" />
         </Link>
@@ -119,7 +121,6 @@ function Main() {
           <CardMainRight file="Gallery" />
         </Link>
       </div>
-      <ItemCards categories={categories} />
       <About />
     </div>
   );
