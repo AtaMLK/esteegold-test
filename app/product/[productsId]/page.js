@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import { EuroIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import MiniSlider from "@/app/_components/ui/MiniSlider";
 
@@ -36,6 +36,20 @@ function ProductId() {
     e.preventDefault();
     setSelectedOption(e.target.value);
   };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data: products, error } = await supabase
+        .from("products")
+        .select("*");
+      if (error) {
+        console.error("Error in fetching product", error.message);
+      } else {
+        fetchProducts(products);
+        console.log(products);
+      }
+    };
+  }, []);
 
   return (
     <>

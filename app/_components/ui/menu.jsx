@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const menuItems = [
-  { name: "Home", url: "/", src: "image-1.jpg" },
-  { name: "Product", url: "/product", src: "image-2.jpg" },
-  { name: "Contact", url: "/contact", src: "image-3.jpg" },
-  { name: "About", url: "/about", src: "image-4.jpg" },
+  { name: "Home", url: "/", src: "imagee-1.jpg" },
+  { name: "Product", url: "/product", src: "imagee-2.jpg" },
+  { name: "Contact", url: "/contact", src: "imagee-3.jpg" },
+  { name: "About", url: "/about", src: "imagee-4.jpg" },
 ];
 
 function Menu() {
@@ -66,7 +66,8 @@ function Menu() {
       timeLine.to(
         ".sub-nav",
         {
-          bottom: "10%",
+          bottom: "07%",
+          left: "58%",
           opacity: 1,
           duration: 1,
         },

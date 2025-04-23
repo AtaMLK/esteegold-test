@@ -16,7 +16,7 @@ export default function CheckoutButton() {
         setLoading(false);
       }, 2000);
     } catch (error) {
-      console.error("Ödeme hatası:", error);
+      console.error("Ödeme hatasi:", error);
       setLoading(false);
     }
   };

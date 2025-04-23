@@ -41,7 +41,7 @@ function RegisterForm() {
         email: data.email,
         password: data.password,
         options: {
-          data: { full_name: data.name },
+          data: { name: data.name },
         },
       });
 

@@ -11,6 +11,7 @@ import Menu from "./Menu";
 import { supabase } from "@/app/_lib/supabase";
 
 function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const menuRef = useRef(null);
   const mainRef = useRef(null);
@@ -21,8 +22,11 @@ function Header() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserName(user ? user.email : "");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUserName(user.user_metadata?.name || "");
+      setIsLoggedIn(true);
     };
     getUser();
   }, []);
@@ -142,7 +146,7 @@ function Header() {
               <LucideShoppingBag className="text-gray-900 cursor-pointer text-lg mx-2" />
             </Link>
             <UserProvider>
-              <Link href={userName ? "/dashboard" : "/auth/login"}>
+              <Link href={isLoggedIn ? "/dashboard" : "/auth/login"}>
                 <p className="text-lg cursor-pointer ">
                   {userName ? `Welcome, ${userName}` : <User />}
                 </p>

@@ -163,7 +163,7 @@ span {
 }
 
 .sub-nav {
-  @apply absolute bottom-[5%] left-[50%] flex gap-[0.5em] 
+  @apply absolute bottom-[1%] left-[50%] flex gap-[0.5em] 
   -translate-x-[50%] sm:-translate-x-36  lg:translate-x-[50%] opacity-0;
 }
 .sub-nav p {

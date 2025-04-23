@@ -3,7 +3,8 @@ body {
 }
 
 .products-main-container {
-  @apply w-full min-h-screen flex flex-col relative overflow-hidden;
+  min-height: calc(100vh + 125rem);
+  @apply w-full min-h-[screen] flex flex-col relative;
 }
 
 .products-items {
@@ -13,10 +14,10 @@ body {
 .mouse-icon {
   @apply absolute hidden md:block left-[50%] md:top-[10rem] xl:top-[45rem];
 }
-
 .item-card {
-  @apply relative w-[20rem] h-[28rem] block shadow-lg shadow-gray-600 object-cover opacity-0;
+  @apply relative w-[20rem] h-[28rem] block shadow-lg shadow-gray-600 object-cover;
 }
+
 .card-item-content {
   position: absolute;
   padding: 60px;

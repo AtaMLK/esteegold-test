@@ -1,13 +1,12 @@
 "use client";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/all";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import About from "./about";
 import CardMainLeft from "./card-image-left";
 import CardMainRight from "./card-image-right";
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
 import Hero from "./hero";
-import { ScrollTrigger } from "gsap/all";
-import ItemCards from "./ItemCards";
 import MiniSlider from "./MiniSlider";
 
 const categories = [
@@ -69,6 +68,7 @@ const categories = [
 gsap.registerPlugin(ScrollTrigger);
 
 function Main() {
+
   const mainRef = useRef(null);
 
   useEffect(() => {
@@ -125,5 +125,4 @@ function Main() {
     </div>
   );
 }
-
 export default Main;
