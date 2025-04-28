@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import ItemQuantity from "../_components/ui/item-quantity";
+import Image from "next/image";
 
 function page() {
   return (
@@ -12,12 +13,13 @@ function page() {
       <div className="cart-wrapper  ">
         <div className="cart-box">
           <div className="cart-items ">
-            <Link href={"/product/Id"}>
-              <img
+            <Link href={"/product/productId"}>  
+              <Image
                 src="/images/product/image-1.jpg"
                 className="cart-item-image"
                 alt="item.name"
                 loading="lazy"
+                fill
               />
             </Link>
             <p className="cart-item-name">name of the product</p>
@@ -37,11 +39,12 @@ function page() {
         <div className="cart-box">
           <div className="cart-items">
             <Link href={"/product/Id"}>
-              <img
+              <Image
                 src="/images/product/image-2.jpg"
                 className="cart-item-image"
                 alt="item.name"
                 loading="lazy"
+                fill
               />
             </Link>
             <p className="cart-item-name">name of the product</p>
@@ -61,11 +64,12 @@ function page() {
         <div className="cart-box ">
           <div className="cart-items">
             <Link href={"/product/Id"}>
-              <img
+              <Image
                 src="/images/product/image-3.jpg"
                 className="cart-item-image"
                 alt="image-1"
                 loading="lazy"
+                fill
               />
             </Link>
             <p className="cart-item-name">name of the product</p>

@@ -4,7 +4,7 @@ function About() {
   return (
     <div className=" p-10 mx-10 mt-10 border-gray-500 border-[1px] rounded-sm">
       <div className="flex relative items-center justify-center">
-        <video
+        {/* <video
           muted
           autoPlay
           playsInline
@@ -15,7 +15,7 @@ function About() {
         >
           <source src="/video/about.mp4" type="video/mp4" />
           <source src="/video/about.webm" type="video/webm" />
-        </video>
+        </video> */}
         <Link
           href="/about"
           className="absolute items-center justify-center font-railWayFont uppercase text-4xl text-gray-100 z-10 cursor-pointer"

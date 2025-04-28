@@ -13,17 +13,14 @@ import {
 } from "@/components/ui/carousel";
 import { EuroIcon } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import MiniSlider from "@/app/_components/ui/MiniSlider";
+import { useProducts } from "@/app/context/Productcontext";
+import { useParams } from "next/navigation";
+import Spinner from "@/app/_components/ui/Spinner";
 
-const productColor = ["bg-gold", "bg-silver"];
-
-const productImages = [
-  { imgUrl: "/images/gallery/image-1.jpg" },
-  { imgUrl: "/images/gallery/image-2.jpg" },
-  { imgUrl: "/images/gallery/image-3.jpg" },
-];
+const productColor = ["bg-gold", "bg-silver", "bg-roseGold"];
 
 const necklesSizes = [
   { index: 1, options: 40 },
@@ -32,47 +29,52 @@ const necklesSizes = [
 
 function ProductId() {
   const [isSelected, setIsSelected] = useState(false);
+  const { products, loading } = useProducts();
+
+  const params = useParams();
+  const { id } = params;
+
+  console.log(id);
+  const product = products.find((p) => p.id === String(id));
+  if (!id) {
+    return (
+      <p className="flex items-center justify-center w-full text-3xl text-gray-800 h-72">
+        Invalid Product ID
+      </p>
+    );
+  }
+  if (loading) return <Spinner />;
+  if (!product) {
+    return (
+      <p className=" flex items-center justify-center w-full  text-3xl text-gray-800 h-72">
+        product Not Found
+      </p>
+    );
+  }
   const handleChange = (e) => {
     e.preventDefault();
     setSelectedOption(e.target.value);
   };
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const { data: products, error } = await supabase
-        .from("products")
-        .select("*");
-      if (error) {
-        console.error("Error in fetching product", error.message);
-      } else {
-        fetchProducts(products);
-        console.log(products);
-      }
-    };
-  }, []);
-
   return (
-    <>
-      <div className="w-full h-full mt-16"></div>
+    <div className="w-full h-full mt-16">
       <div className="dynamic-product-container">
         <div className="product-mainbox">
-          <div className="product-left w-[75%] flex items-center justify-center">
+          <div className="product-left ">
             <div className="slider">
               <Carousel>
                 <CarouselContent>
-                  {productImages.map((image, index) => {
+                  {product.product_images?.map((image, index) => {
                     return (
                       <CarouselItem
                         key={index}
                         className="relative w-[150px] h-[500px] lg:w-[200px] lg:h-[700px]"
                       >
                         <Image
-                          src={image.imgUrl}
-                          className="slider-image"
+                          src={image.image_url}
+                          className=""
                           alt="slider"
                           fill
                           objectFit="cover"
-                          loading="lazy"
                         />
                       </CarouselItem>
                     );
@@ -83,22 +85,24 @@ function ProductId() {
               </Carousel>
             </div>
           </div>
-          <div className="product-right justify-start relative">
+          <div className="product-right ">
             <div className="product-right-details flex flex-col gap-1">
-              <h2 className="product-name">Product Name have a name</h2>
-              <p className="mt-2 text-xl">description about your product</p>
+              <h2 className="product-name">{product.name}</h2>
+              <p className="mt-2 text-xl">
+                {product?.description || "Hand made crafted with love"}
+              </p>
               <h3 className="product-price ">
                 <EuroIcon className="h-8 w-8" />
-                <span className="text-4xl font-normal"> 69.00</span>
+                <span className="text-3xl font-normal"> {product?.price}</span>
               </h3>
               <p className=" my-2 text-xl">Available in stock</p>
               <p className=" text-xl">FREE SHIPPING OVER 150 EUROS</p>
-              <Link href="/shipping-return-policy" target="blink">
-                <p>View More</p>
+              <Link href="/shipping" target="blink">
+                <p className="text-blue-800 underline">View More</p>
               </Link>
 
               <div className="product-material mt-4">
-                <h2 className="font-semibold text-2xl ">Choose Color</h2>
+                <h2 className="font-semibold text-[1.25rem] ">Choose Color</h2>
                 <div className="flex  items-center justify-start gap-8">
                   {productColor.map((color, index) => {
                     return (
@@ -161,9 +165,9 @@ function ProductId() {
           </p>
         </div>
 
-        <MiniSlider productImages={productImages} />
+        <MiniSlider productImages={product.product_images} />
       </div>
-    </>
+    </div>
   );
 }
 export default ProductId;

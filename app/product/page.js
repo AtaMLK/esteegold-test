@@ -1,26 +1,29 @@
 "use client";
 import gsap from "gsap";
-import Link from "next/link";
-import Image from "next/image";
-import { Mouse } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { ScrollTrigger } from "gsap/all";
-import "./product.css";
-import { supabase } from "../_lib/supabase";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import Spinner from "../_components/ui/Spinner";
-import { PuffLoader } from "react-spinners";
+import { supabase } from "../_lib/supabase";
+import "./product.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Product() {
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
   const mouseRef = useRef();
+
+  const positions = ["10rem", "17rem", "24rem", "31rem"];
+
   useEffect(() => {
     // Scroll to top on reload
     window.scrollTo(0, 0);
     const items = document.querySelectorAll(".item-card");
 
-    gsap.set(mouseRef.current, { opacity: 0.5 });
+    /*   gsap.set(mouseRef.current, { opacity: 0.5 });
 
     // Blinking effect
     gsap.to(mouseRef.current, {
@@ -39,7 +42,7 @@ function Product() {
         start: "top+=100", // Adjust this value to control when it disappears
         scrub: true,
       },
-    });
+    }); */
 
     items.forEach((item) => {
       gsap.set(item, { opacity: 0.1, y: 100 });
@@ -56,9 +59,6 @@ function Product() {
     });
   }, []);
 
-  const positions = ["10rem", "22rem", "34rem", "47rem", "62rem", "78rem"];
-  const [categories, setCategories] = useState([]);
-
   useEffect(() => {
     const fetchCategories = async () => {
       let { data: categories, error } = await supabase
@@ -70,49 +70,42 @@ function Product() {
         setCategories(categories);
       }
     };
-    isLoading ? <PuffLoader/> : fetchCategories(), setIsLoading(false);
-  }, [categories, isLoading]);
+    isLoading ? <Spinner /> : fetchCategories(), setIsLoading(false);
+  }, [isLoading]);
 
   return (
     <div className="products-main-container">
       <div className="mouse-icon" ref={mouseRef}>
-        <Mouse />
+        {/* <Mouse /> */}
       </div>
       <div className="products-items">
-        {categories.map(
-          (category, index) => (
-            console.log("Fetched categories:", category.image_url),
-            (
-              // Wrap each card in a Link to its detail page
-              <Link href={`/product/${category.id}`} key={category.id}>
-                <div
-                  className={`item-card ${
-                    // Optionally add your positioning classes based on index
-                    index % 2 === 0 ? "left-[15rem]" : "right-[13rem]"
-                  }  
-             `}
-                  style={{ top: positions[index] }}
-                >
-                  <div className="item-image">
-                    <Image
-                      src={category.image_url}
-                      alt={category.title}
-                      fill
-                      /* sizes="100%" */
-                      style={{ objectFit: "cover" }}
-                      /* loading="lazy" */
-                      /*  quality={85} */
-                    />
-                  </div>
-                  <div className="card-item-content">
-                    <h3 className="card-item-title">{category.title}</h3>
-                    <p className="card-item-details">{category.details}</p>
-                  </div>
-                </div>
-              </Link>
-            )
-          )
-        )}
+        {categories.map((category, index) => (
+          // Wrap each card in a Link to its detail page
+          <Link href={`/categories/${category.id}`} key={category.title}>
+            <div
+              className={`item-card ${
+                // Optionally add your positioning classes based on index
+                index % 2 === 0 ? "left-[15rem]" : "right-[13rem]"
+              }  
+              `}
+              style={{ top: positions[index] }}
+            >
+              <div className="relative w-[20rem] h-[28rem]">
+                <Image
+                  src={category.image_url}
+                  alt={category.title}
+                  fill
+                  style={{ objectFit: "cover" }}
+                  loading="lazy"
+                />
+              </div>
+              <div className="card-item-content">
+                <h3 className="card-item-title">{category.title}</h3>
+                <p className="card-item-details">{category.details}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

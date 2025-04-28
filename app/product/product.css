@@ -8,29 +8,40 @@ body {
 }
 
 .products-items {
-  @apply relative flex flex-col items-center justify-center gap-10;
+  @apply relative w-full h-full flex flex-col items-center justify-center gap-10;
 }
 
-.mouse-icon {
+/* .mouse-icon {
   @apply absolute hidden md:block left-[50%] md:top-[10rem] xl:top-[45rem];
-}
+} */
+
 .item-card {
-  @apply relative w-[20rem] h-[28rem] block shadow-lg shadow-gray-600 object-cover;
+  @apply relative w-[20rem] h-[28rem] block shadow-lg shadow-gray-600 object-cover overflow-hidden cursor-pointer;
+}
+.item-card-image {
+  @apply w-full h-full absolute top-0 left-0 rounded-lg object-cover;
+}
+.item-card-hover {
+  @apply w-full h-full absolute top-0 left-0 opacity-0 transition-all duration-500;
+}
+.item-card-hover:hover {
+  @apply opacity-100 z-50;
 }
 
 .card-item-content {
   position: absolute;
+  top: 0;
   padding: 60px;
-  height: 100%;
+  height: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 50;
   background-color: #595a3b49;
   opacity: 0;
   transition: all;
   transition-duration: 500ms;
 }
-.card-item-content:hover {
-  @apply opacity-100 z-0;
+.item-card:hover .card-item-content {
+  @apply opacity-100 z-0 h-full top-0;
 }
 .card-item-title {
   @apply font-semibold;
@@ -49,19 +60,22 @@ body {
 }
 
 .product-mainbox {
-  @apply grid grid-cols-1 grid-rows-1 md:grid-cols-2 gap-10 md:gap-2 mx-auto;
+  @apply grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 gap-10 md:gap-2;
 }
 .product-price {
-  @apply my-5  flex justify-start items-center gap-2 text-darkgreen-700 font-semibold;
+  @apply my-5 flex justify-start items-center gap-2 text-darkgreen-700 font-semibold;
 }
 .product-material {
   @apply flex flex-col items-start gap-3 justify-center mb-4;
 }
 .product-name {
-  @apply font-semibold text-4xl text-gray-800;
+  @apply font-semibold text-3xl text-gray-800;
 }
 .product-left {
-  @apply flex justify-center items-center mx-auto;
+  @apply mx-auto w-full h-full p-10;
+}
+.product-right {
+  @apply flex justify-start relative;
 }
 .slider-image {
   @apply w-full h-full;

@@ -22,7 +22,7 @@
     "confetti": "^2.0.6",
     "embla-carousel-react": "^8.5.2",
     "firebase": "^11.4.0",
-    "framer-motion": "^12.5.0",
+    "framer-motion": "^12.9.2",
     "genkit": "^1.0.5",
     "gsap": "^3.12.7",
     "iyzipay": "^2.0.64",

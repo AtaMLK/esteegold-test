@@ -14,6 +14,7 @@ export default {
         foreground: "hsl(var(--foreground))",
         gold: "#FED50B",
         silver: "#E5E4E2",
+        roseGold: "##B76E79",
         darkgreen: {
           100: "#d9ece6", // Lightest shade
           200: "#b3d9cc",

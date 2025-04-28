@@ -25,8 +25,13 @@ function Header() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setUserName(user.user_metadata?.name || "");
-      setIsLoggedIn(true);
+      if (user) {
+        setUserName(user.user_metadata?.name || "");
+        setIsLoggedIn(true);
+      } else {
+        setUserName("");
+        setIsLoggedIn(false);
+      }
     };
     getUser();
   }, []);
