@@ -4,7 +4,7 @@ import "@/app/cart/cart.css";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
-import ItemQuantity from "../_components/ui/item-quantity";
+import ItemQuantity from "../../_components/ui/item-quantity";
 import Image from "next/image";
 
 function page() {

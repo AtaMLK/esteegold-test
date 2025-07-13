@@ -1,20 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { useState } from "react";
-import ItemCards from "../../_components/ui/ItemCards";
-import { useProducts } from "@/app/context/Productcontext";
+import { useProductStore } from "@/app/_lib/ProductStore";
 import "/styles/styles.css";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/router";
-import Spinner from "@/app/_components/ui/Spinner";
-
-/* const uniqueType = Array.from(new Set(categories.map((cat) => cat.type))); */
+import ItemCards from "../../_components/ui/ItemCards";
+import Spinner from "../../_components/ui/Spinner";
 
 function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isSelected, setIsSelected] = useState(false);
-  const { products, loading } = useProducts();
-  const { categoryId } = useParams();
+  const { products, loading } = useProductStore();
 
   const uniqueCat = Array.from(
     new Set(products.map((cat) => cat.categories?.title))
@@ -22,15 +17,14 @@ function CategoriesPage() {
 
   const filteredProducts = selectedCategory
     ? products.filter(
-        (product) => product.categories?.title === selectedCategory
+        (product) => product.categories.title === selectedCategory
       )
     : products;
-
   if (loading) {
     return <Spinner />;
   }
   return (
-    <div className="w-screen h-full bg-gray-200 pb-24 over">
+    <div className="w-screen h-full bg-gray-200 pb-24">
       {/* Hero image section */}
       <div className="category-hero-container ">
         <img
@@ -44,7 +38,7 @@ function CategoriesPage() {
       <div className="xl:h-36 h-20 w-full opacity-50 z-0 relative flex items-center justify-center">
         <select
           className="filter-selection mb-10"
-          value={selectedCategory.length ? selectedCategory : ""}
+          value={selectedCategory}
           onChange={(e) => {
             setSelectedCategory(e.target.value);
           }}
@@ -71,7 +65,9 @@ function CategoriesPage() {
                 className={`ms-4 -rotate-90 hover:cursor-pointer font-normal text-3xl transition-all duration-500 ${
                   isSelected ? "rotate-90" : ""
                 } `}
-                onClick={() => setIsSelected(!isSelected)}
+                onClick={() =>
+                  setIsSelected(!isSelected, console.log(isSelected))
+                }
               >
                 &gt;
               </span>

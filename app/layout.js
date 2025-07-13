@@ -1,13 +1,11 @@
 "use client";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../styles/fonts.css";
-
 import { Toaster } from "@/components/ui/toaster";
+import { Geist, Geist_Mono } from "next/font/google";
+
+import "../styles/fonts.css";
 import Footer from "./_components/ui/Footer";
 import Header from "./_components/ui/Header";
-import { UserProvider } from "./context/userContext";
 import "./globals.css";
-import { ProductProvider } from "./context/Productcontext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,14 +28,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
-        <ProductProvider>
-          <UserProvider>
-            <Header />
-            <main>{children}</main>
-            <Toaster />
-            <Footer />
-          </UserProvider>
-        </ProductProvider>
+        <Header />
+        <main>{children}</main>
+        <Toaster />
+        <Footer />
       </body>
     </html>
   );

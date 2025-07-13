@@ -1,9 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import "../product.css";
-
 import ItemQuantity from "@/app/_components/ui/item-quantity";
+import MiniSlider from "@/app/_components/ui/MiniSlider";
+import Spinner from "@/app/_components/ui/Spinner";
+import { useProductStore } from "@/app/_lib/ProductStore";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -13,12 +14,10 @@ import {
 } from "@/components/ui/carousel";
 import { EuroIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
 import Link from "next/link";
-import MiniSlider from "@/app/_components/ui/MiniSlider";
-import { useProducts } from "@/app/context/Productcontext";
 import { useParams } from "next/navigation";
-import Spinner from "@/app/_components/ui/Spinner";
+import { useEffect, useState } from "react";
+import "../product.css";
 
 const productColor = ["bg-gold", "bg-silver", "bg-roseGold"];
 
@@ -29,12 +28,14 @@ const necklesSizes = [
 
 function ProductId() {
   const [isSelected, setIsSelected] = useState(false);
-  const { products, loading } = useProducts();
-
+  const { products, loading, error, fetchProducts } = useProductStore();
   const params = useParams();
   const { id } = params;
 
-  console.log(id);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   const product = products.find((p) => p.id === String(id));
   if (!id) {
     return (
@@ -43,8 +44,8 @@ function ProductId() {
       </p>
     );
   }
-  if (loading) return <Spinner />;
-  if (!product) {
+/*   if (loading) return <Spinner />;
+ */  if (!product) {
     return (
       <p className=" flex items-center justify-center w-full  text-3xl text-gray-800 h-72">
         product Not Found
@@ -55,6 +56,7 @@ function ProductId() {
     e.preventDefault();
     setSelectedOption(e.target.value);
   };
+
   return (
     <div className="w-full h-full mt-16">
       <div className="dynamic-product-container">
@@ -131,7 +133,7 @@ function ProductId() {
                   onChange={handleChange}
                   className="border-[1px] border-gray-700 text-xl  h-8 mb-10 rounded-sm"
                 >
-                  <option value="" selected>
+                  <option selected>
                     Select Length
                   </option>
                   {necklesSizes.map((option, index) => (

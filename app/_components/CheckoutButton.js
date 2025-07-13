@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Loading from "./loading/loading";
 
 export default function CheckoutButton() {
   const [loading, setLoading] = useState(false);
@@ -10,13 +9,13 @@ export default function CheckoutButton() {
     try {
       const response = await fetch("/api/payment", { method: "POST" });
       const data = await response.json();
-      console.log("Ödeme Sonucu:", data);
+      console.log("Payment result:", data);
 
       setTimeout(() => {
         setLoading(false);
       }, 2000);
     } catch (error) {
-      console.error("Ödeme hatasi:", error);
+      console.error("Payment error:", error);
       setLoading(false);
     }
   };
@@ -31,7 +30,7 @@ export default function CheckoutButton() {
         }`}
       >
         
-        {loading ? "Ödeme Yapılıyor..." : "Ödeme Yap"}
+        {loading ? "Payment in process..." : "Pay"}
       </button>
     </div>
   );

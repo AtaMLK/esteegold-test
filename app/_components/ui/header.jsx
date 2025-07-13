@@ -1,24 +1,25 @@
 "use client";
+
+import "@/styles/styles.css";
 import gsap from "gsap";
 import { LucideShoppingBag, Search, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-
-import { UserProvider } from "@/app/context/userContext";
-import "@/styles/styles.css";
 import Menu from "./Menu";
+import { useAuthStore } from "@/app/_lib/authStore";
 import { supabase } from "@/app/_lib/supabase";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
-  const menuRef = useRef(null);
-  const mainRef = useRef(null);
-  const titleRef = useRef(null);
-  const searchRef = useRef(null);
-  const pathname = usePathname();
   const hasAnimatedRef = useRef(false);
+  const user = useAuthStore();
+  const pathname = usePathname();
+  const searchRef = useRef(null);
+  const titleRef = useRef(null);
+  const mainRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -26,8 +27,9 @@ function Header() {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        setUserName(user.user_metadata?.name || "");
+        setUserName(user?.user_metadata.name || "");
         setIsLoggedIn(true);
+        console.log(user);
       } else {
         setUserName("");
         setIsLoggedIn(false);
@@ -116,8 +118,7 @@ function Header() {
       return () => mm.revert(); // Cleanup GSAP media queries on unmount
     }
   }, [pathname]);
-
-  const authPathname = ["/auth/login", "/auth/register"];
+  const authPathname = ["/login", "/register"];
 
   return (
     <div
@@ -150,17 +151,19 @@ function Header() {
             <Link href="/cart">
               <LucideShoppingBag className="text-gray-900 cursor-pointer text-lg mx-2" />
             </Link>
-            <UserProvider>
-              <Link href={isLoggedIn ? "/dashboard" : "/auth/login"}>
+
+            {user && (
+              <Link href={isLoggedIn ? "/dashboard" : "/login"}>
                 <p className="text-lg cursor-pointer ">
                   {userName ? `Welcome, ${userName}` : <User />}
                 </p>
               </Link>
-            </UserProvider>
+            )}
           </div>
         )}
       </div>
-      {/* Burger Menu */}
+      {/*       Burger Menu
+       */}
       <div className="header-menu">
         <Menu ref={menuRef} />
       </div>

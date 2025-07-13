@@ -13,9 +13,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 
 import { useForm } from "react-hook-form";
-import BankCard from "../_components/ui/Moving3DCard";
-import CheckoutButton from "../_components/CheckoutButton";
-import Loading from "../_components/loading/loading";
+import BankCard from "../../_components/ui/Moving3DCard";
+import CheckoutButton from "../../_components/CheckoutButton";
+import Loading from "../../_components/loading/loading";
 
 function CheckOut() {
   const [isLoading, setIsLoading] = useState();

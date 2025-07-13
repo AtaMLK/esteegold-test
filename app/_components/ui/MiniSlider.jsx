@@ -1,4 +1,4 @@
-import { useProducts } from "@/app/context/Productcontext";
+import { useProductStore } from "@/app/_lib/ProductStore";
 import {
   Carousel,
   CarouselContent,
@@ -9,13 +9,19 @@ import {
 import { EuroIcon } from "lucide-react";
 import Spinner from "./Spinner";
 import Link from "next/link";
+import { useEffect } from "react";
 
 const productColor = ["gold", "silver"];
 
 function MiniSlider() {
-  const { products, loading } = useProducts();
+  const { products, loading, fetchProducts, errro } = useProductStore();
 
-  if (loading) return <Spinner />;
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  if (loading || !products.length) return <Spinner />;
+
   let allImages = [];
 
   products.forEach((product) => {

@@ -16,13 +16,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signUpWithEmail } from "@/app/_lib/auth";
+import { useAuthStore } from "@/app/_lib/authStore";
 import { supabase } from "@/app/_lib/supabase";
 
 function RegisterForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { signUpWithEmail } = useAuthStore();
 
   const form = useForm({
     resolver: zodResolver(RegisterSchema),
@@ -62,7 +63,7 @@ function RegisterForm() {
     <CardWrapper
       label="Create an account"
       title="Register"
-      backButtonHref="/auth/login"
+      backButtonHref="/login"
       backButtonLabel="Already have an account? Login here"
     >
       <Form {...form}>

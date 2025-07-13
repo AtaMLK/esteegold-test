@@ -1,12 +1,17 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { History, Settings2Icon, ShoppingBasketIcon } from "lucide-react";
+import {
+  History,
+  Settings2Icon,
+  ShoppingBasketIcon,
+  UserCircle2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import OrderHistory from "../_components/ui/OrderHistory";
-import Orders from "../_components/ui/Orders";
-import Setting from "../_components/ui/Setting";
-import { useUser } from "../context/userContext";
+import Orders from "@/app/_components/ui/Orders";
+import Setting from "@/app/_components/ui/Setting";
+import OrderHistory from "@/app/_components/ui/OrderHistory";
+import { useAuthStore } from "@/app/_lib/authStore";
 
 const menuItems = [
   { title: "Orders ", icon: <ShoppingBasketIcon />, content: <Orders /> },
@@ -15,33 +20,33 @@ const menuItems = [
 ];
 
 function Dashboard() {
-  const { user, logout } = useUser();
-  const [isLoggingout , setIsLoggingout] = useState(false)
+  const [isLoggingout, setIsLoggingout] = useState(false);
   const [selectedItem, setSelectedItem] = useState(menuItems[0]);
   const router = useRouter();
+  const { user, logout } = useAuthStore();
 
   useEffect(() => {
     if (!user) {
-      router.push("/auth/login");
+      router.push("/login");
     }
   }, [user, router]);
 
   const handleLogout = async () => {
-    setIsLoggingout(true)
+    setIsLoggingout(true);
     try {
       await logout();
       router.push("/");
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   return (
     <div className="dashbord-container px-4 lg:px-20 mt-8 grid  grid-cols-12 gap-4 lg:gap-14">
       <div className="flex flex-col gap-8 title-menu col-start-1 col-span-3 border-[1px] reounded-md p-6">
         <div className="title">
-          <div className="m-6">
-            <h1 className="text-2xl uppercase">
-              Welcome {user?.displayName || "user"}!
+          <div className="m-6 flex items-center gap-2">
+            <UserCircle2 />
+            <h1 className="text-md lg:text-md uppercase">
+              Welcome {user?.user_metadata.name || " user "}!
             </h1>
           </div>
         </div>

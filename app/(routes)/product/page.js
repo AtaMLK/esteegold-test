@@ -4,9 +4,9 @@ import { ScrollTrigger } from "gsap/all";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import Spinner from "../_components/ui/Spinner";
-import { supabase } from "../_lib/supabase";
+import { supabase } from "@/app/_lib/supabase";
 import "./product.css";
+import Spinner from "@/app/_components/ui/Spinner";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,27 +22,6 @@ function Product() {
     // Scroll to top on reload
     window.scrollTo(0, 0);
     const items = document.querySelectorAll(".item-card");
-
-    /*   gsap.set(mouseRef.current, { opacity: 0.5 });
-
-    // Blinking effect
-    gsap.to(mouseRef.current, {
-      opacity: 0,
-      duration: 0.5,
-      repeat: -1,
-      yoyo: true,
-      ease: "power1.inOut",
-    });
-
-    // Fade out on scroll
-    gsap.to(mouseRef.current, {
-      opacity: 0,
-      scrollTrigger: {
-        trigger: "body",
-        start: "top+=100", // Adjust this value to control when it disappears
-        scrub: true,
-      },
-    }); */
 
     items.forEach((item) => {
       gsap.set(item, { opacity: 0.1, y: 100 });

@@ -1,17 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import Spinner from "@/app/_components/ui/Spinner";
+import { useProductStore } from "@/app/_lib/ProductStore";
+import { useParams } from "next/navigation";
 import { useState } from "react";
-import { useProducts } from "@/app/context/Productcontext";
+import ItemCards from "../../../_components/ui/ItemCards";
 import "/styles/styles.css";
-import ItemCards from "../_components/ui/ItemCards";
-import Spinner from "../_components/ui/Spinner";
-
 
 function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isSelected, setIsSelected] = useState(false);
-  const { products, loading } = useProducts();
-
+  const { products, loading } = useProductStore();
+  const { categoryId } = useParams();
 
   const uniqueCat = Array.from(
     new Set(products.map((cat) => cat.categories?.title))
@@ -19,14 +19,15 @@ function CategoriesPage() {
 
   const filteredProducts = selectedCategory
     ? products.filter(
-        (product) => product.categories.title === selectedCategory
+        (product) => product.categories?.title === selectedCategory
       )
     : products;
+
   if (loading) {
-    return <Spinner/>;
+    return <Spinner />;
   }
   return (
-    <div className="w-screen h-full bg-gray-200 pb-24">
+    <div className="w-screen h-full bg-gray-200 pb-24 over">
       {/* Hero image section */}
       <div className="category-hero-container ">
         <img
@@ -40,7 +41,7 @@ function CategoriesPage() {
       <div className="xl:h-36 h-20 w-full opacity-50 z-0 relative flex items-center justify-center">
         <select
           className="filter-selection mb-10"
-          value={selectedCategory}
+          value={selectedCategory.length ? selectedCategory : ""}
           onChange={(e) => {
             setSelectedCategory(e.target.value);
           }}
@@ -67,9 +68,7 @@ function CategoriesPage() {
                 className={`ms-4 -rotate-90 hover:cursor-pointer font-normal text-3xl transition-all duration-500 ${
                   isSelected ? "rotate-90" : ""
                 } `}
-                onClick={() =>
-                  setIsSelected(!isSelected, console.log(isSelected))
-                }
+                onClick={() => setIsSelected(!isSelected)}
               >
                 &gt;
               </span>

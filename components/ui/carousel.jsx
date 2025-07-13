@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import classNames from "classnames";
 import { Button } from "@/components/ui/button";
-import "@/app/product/product.css";
+import "@/app/(routes)/product/product.css";
 
 const CarouselContext = React.createContext(null);
 

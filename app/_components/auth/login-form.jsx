@@ -1,8 +1,6 @@
 "use client";
-
-import { signInWithGoogle, signInWithEmail } from "@/app/_lib/auth";
+import { useAuthStore } from "@/app/_lib/authStore";
 import CardWrapper from "./card-wrapper";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -26,6 +24,7 @@ function LoginForm() {
   const { toast } = useToast();
   const { pending } = useFormStatus();
   const [isLoading, setIsLoading] = useState();
+  const { signInWithEmail, signInWithGoogle } = useAuthStore();
 
   const form = useForm({
     resolver: zodResolver(LoginSchema),
@@ -62,7 +61,7 @@ function LoginForm() {
     <CardWrapper
       label="Login to your account"
       title="Login"
-      backButtonHref="/auth/register"
+      backButtonHref="/register"
       backButtonLabel="Dont have account ? Create here"
     >
       <Form {...form}>

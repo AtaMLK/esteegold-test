@@ -1,20 +1,21 @@
 "use client";
+import { useProductStore } from "@/app/_lib/ProductStore";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import About from "./about";
 import CardMainLeft from "./card-image-left";
 import CardMainRight from "./card-image-right";
 import Hero from "./hero";
 import MiniSlider from "./MiniSlider";
-import { useProducts } from "@/app/context/Productcontext";
 import Spinner from "./Spinner";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Main() {
-  const { products, loading } = useProducts();
+  const { products, loading, error, fetchProducts } = useProductStore();
+
   const mainRef = useRef(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function Main() {
         let { isDesktop, isTablet, isMobile } = context.conditions;
 
         gsap.set(mainRef.current, {
-          opacity: 0,
+          opacity: 1,
           y: isDesktop ? 50 : 0,
         });
 
@@ -54,11 +55,15 @@ function Main() {
     );
     return () => mm.revert(); // Cleanup GSAP media queries on unmount
   }, []);
-  if (loading) return <Spinner />;
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   return (
     <div className="mainpage-container" ref={mainRef} style={{ opacity: 0 }}>
       <Hero />
-      <MiniSlider />
+       <MiniSlider />
       <div className="card-section my-20">
         <Link href="/product">
           <CardMainLeft file="Product" />
