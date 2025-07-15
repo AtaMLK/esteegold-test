@@ -4,7 +4,7 @@ import Spinner from "@/app/_components/ui/Spinner";
 import { useProductStore } from "@/app/_lib/ProductStore";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import ItemCards from "../../../_components/ui/ItemCards";
+import ItemCards from "@/app/_components/ui/ItemCards";
 import "/styles/styles.css";
 
 function CategoriesPage() {

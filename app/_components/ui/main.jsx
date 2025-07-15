@@ -9,7 +9,6 @@ import CardMainLeft from "./card-image-left";
 import CardMainRight from "./card-image-right";
 import Hero from "./hero";
 import MiniSlider from "./MiniSlider";
-import Spinner from "./Spinner";
 
 gsap.registerPlugin(ScrollTrigger);
 

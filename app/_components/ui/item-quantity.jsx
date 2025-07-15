@@ -1,45 +1,49 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-function ItemQuantity() {
-  const [itemValue, setItemValue] = useState(0);
+function ItemQuantity({ initial = 1, onChange }) {
+  const [itemValue, setItemValue] = useState(initial);
 
-  function handleDeduct() {
-    if (itemValue > 0) {
-      setItemValue((prevValue) => prevValue - 1);
-    }
-    console.log(itemValue);
-  }
-  function handleAdd() {
-    setItemValue((prevValue) => prevValue + 1);
-    console.log(itemValue);
-  }
+  //on any changes parent
+  useEffect(() => {
+    if (onChange) onChange(itemValue);
+  }, [itemValue, onChange]);
+
+  const handleDeduct = () => {
+    setItemValue((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleAdd = () => {
+    setItemValue((prev) => prev + 1);
+  };
+
   return (
-    <>
-      <div className="add-item-counter flex justify-start">
-        <Button
-          onClick={handleDeduct}
-          variant="outline"
-          className="p-3 lg:p-4 border-none lg:border-[1px] border-gray-600 font-bold  text-xl"
-        >
-          &#8722;
-        </Button>
+    <div className="add-item-counter flex justify-start items-center">
+      <Button
+        onClick={handleDeduct}
+        variant="outline"
+        className="p-2 lg:p-4 border border-gray-400 font-bold text-xl"
+      >
+        −
+      </Button>
 
-        <input
-          type="textarea"
-          value={itemValue}
-          readOnly
-          className="w-10 lg:w-20 h-10 text-center text-gray-900  border-gray-900 outline-none text-sm lg:text-xl"
-        />
-        <Button
-          onClick={handleAdd}
-          variant="outline"
-          className="p-3 lg:p-4 border-none lg:border-[1px]  border-gray-600 font-bold text-xl"
-        >
-          +
-        </Button>
-      </div>
-    </>
+      <input
+        type="number"
+        value={itemValue}
+        readOnly
+        className="w-10 lg:w-16 h-10 mx-2 text-center text-gray-900 border border-gray-400 outline-none text-sm lg:text-xl rounded"
+      />
+
+      <Button
+        onClick={handleAdd}
+        variant="outline"
+        className="p-2 lg:p-4 border border-gray-400 font-bold text-xl"
+      >
+        +
+      </Button>
+    </div>
   );
 }
 

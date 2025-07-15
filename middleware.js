@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function middleware(req) {
   const token = req.cookies.get("sb-access-token")?.value;
 
-  const isAdminPath = req.nextUrl.pathname.startWith("/admin");
+  const isAdminPath = req.nextUrl.pathname.startsWith("/admin");
 
   if (isAdminPath) {
     if (!token) {

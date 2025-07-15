@@ -118,7 +118,7 @@ function Header() {
       return () => mm.revert(); // Cleanup GSAP media queries on unmount
     }
   }, [pathname]);
-  const authPathname = ["/login", "/register"];
+  const authPathname = ["/login", "/register","admin/*"];
 
   return (
     <div

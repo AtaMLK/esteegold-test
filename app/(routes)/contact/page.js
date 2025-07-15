@@ -28,7 +28,7 @@ function Contact() {
       content: "",
     },
   });
-  const DynamicMap = dynamic(() => import("../_components/ui/map"), {
+  const DynamicMap = dynamic(() => import("@/app/_components/ui/map"), {
     ssr: false,
   });
   const onSubmit = (data) => {

@@ -2,7 +2,7 @@
 
 import ItemQuantity from "@/app/_components/ui/item-quantity";
 import MiniSlider from "@/app/_components/ui/MiniSlider";
-import Spinner from "@/app/_components/ui/Spinner";
+import { useOrderStore } from "@/app/_lib/orderStore";
 import { useProductStore } from "@/app/_lib/ProductStore";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,12 +12,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { motion } from "framer-motion";
 import { EuroIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import "../product.css";
+import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/app/_lib/authStore";
 
 const productColor = ["bg-gold", "bg-silver", "bg-roseGold"];
 
@@ -29,12 +32,45 @@ const necklesSizes = [
 function ProductId() {
   const [isSelected, setIsSelected] = useState(false);
   const { products, loading, error, fetchProducts } = useProductStore();
+  const { setOrder, createOrder, fetchOrders } = useOrderStore();
+  const { user } = useAuthStore();
+  const { toast } = useToast();
   const params = useParams();
   const { id } = params;
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (user?.id) {
+      createOrder(user.id);
+      fetchOrders();
+    }
+  }, [user]);
+  const handleAddToCart = async () => {
+    try {
+      if (!user?.id) {
+        console.error("User not logged in");
+        return;
+      }
+
+      const order = await createOrder(user.id);
+      console.log("Created order:", order);
+
+      await setOrder({
+        productId: product.id,
+        orderId: order.id,
+        quantity: 1,
+        unit_price: product.price,
+      });
+      toast({
+        variant: "default",
+        description: "Item added to your cart",
+      });
+    } catch (error) {
+      toast({
+        variant: "default",
+        description: ("Error adding product to order:", error.message),
+      });
+    }
+  };
 
   const product = products.find((p) => p.id === String(id));
   if (!id) {
@@ -44,8 +80,7 @@ function ProductId() {
       </p>
     );
   }
-/*   if (loading) return <Spinner />;
- */  if (!product) {
+  if (!product) {
     return (
       <p className=" flex items-center justify-center w-full  text-3xl text-gray-800 h-72">
         product Not Found
@@ -54,7 +89,7 @@ function ProductId() {
   }
   const handleChange = (e) => {
     e.preventDefault();
-    setSelectedOption(e.target.value);
+    setIsSelected(e.target.value);
   };
 
   return (
@@ -87,7 +122,7 @@ function ProductId() {
               </Carousel>
             </div>
           </div>
-          <div className="product-right ">
+          <div className="product-right">
             <div className="product-right-details flex flex-col gap-1">
               <h2 className="product-name">{product.name}</h2>
               <p className="mt-2 text-xl">
@@ -126,16 +161,14 @@ function ProductId() {
                   })}
                 </div>
               </div>
-              <div className="Length">
+              <div className="">
                 <select
                   name="Select Length"
                   id="options"
                   onChange={handleChange}
-                  className="border-[1px] border-gray-700 text-xl  h-8 mb-10 rounded-sm"
+                  className="border-[1px] border-gray-700 text-md  h-8 mb-10 rounded-sm "
                 >
-                  <option selected>
-                    Select Length
-                  </option>
+                  <option>Select Length</option>
                   {necklesSizes.map((option, index) => (
                     <option value={option.options} key={index}>
                       {option.options}
@@ -144,13 +177,20 @@ function ProductId() {
                 </select>
               </div>
               <ItemQuantity />
-              <Button
-                variant="outline"
-                className="addtocart-button"
-                onClick={() => {}}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1, scale: 1.05 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ duration: 0.5 }}
               >
-                Add To Card
-              </Button>
+                <Button
+                  variant="outline"
+                  className="addtocart-button items-center"
+                  onClick={handleAddToCart}
+                >
+                  Add To Card
+                </Button>
+              </motion.div>
             </div>
           </div>
         </div>

@@ -12,22 +12,23 @@ export const useProductStore = create((set) => ({
     set({ loading: true, error: null });
 
     try {
-      const { data, error } = await supabase.from("products").select(`
-          id,
-          name,
-          price,
-          stock,
-          material,
-          categories:categoriy_id (
-            id,
-            title,
-            image_url
-          ),
-          product_images (
-            id,
-            image_url,
-            is_primary
-          )
+      const { data, error } = await supabase.from("products").select(`id,
+            name,
+            price,
+            stock,
+            material,
+            Description,
+            categories:category_id (
+              id,
+              title,
+              image_url,
+              details
+            ),
+            product_images (
+              id,
+              image_url,
+              is_primary
+            )
         `);
 
       if (error) throw error;

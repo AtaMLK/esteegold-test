@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useProductStore } from "@/app/_lib/ProductStore";
 import "/styles/styles.css";
-import ItemCards from "../../_components/ui/ItemCards";
-import Spinner from "../../_components/ui/Spinner";
+import ItemCards from "@/app/_components/ui/ItemCards";
+import Spinner from "@/app/_components/ui/Spinner";
 
 function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState("");

@@ -124,5 +124,5 @@ body {
   @apply absolute  h-8 w-8 rounded-full bg-transparent text-darkgreen-100 border-none hover:h-16 hover:w-16 hover:bg-darkgreen-100 hover:text-darkgreen-900 transition-all duration-500 hover:cursor-pointer hover:rounded-full;
 }
 .addtocart-button {
-  @apply h-40 w-40 rounded-full border-[1px] outline-double  border-green-800  font-bold text-lg text-darkgreen-800 transition-all duration-300 bg-lightgreen-400 mt-5 hover:bg-green-900 hover:text-white;
+  @apply h-40 w-40 rounded-full border-[1px] outline-double  border-green-800  font-bold text-lg text-darkgreen-800 transition-all duration-300 bg-lightgreen-400 mt-5 hover:bg-green-900 shadow-xl shadow-green-700/60 hover:text-white hover:scale-[98%];
 }

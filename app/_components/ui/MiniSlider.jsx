@@ -11,13 +11,13 @@ import Spinner from "./Spinner";
 import Link from "next/link";
 import { useEffect } from "react";
 
-const productColor = ["gold", "silver"];
 
 function MiniSlider() {
-  const { products, loading, fetchProducts, errro } = useProductStore();
+  const { products, loading, fetchProducts, error } = useProductStore();
 
   useEffect(() => {
     fetchProducts();
+    console.log(products);
   }, []);
 
   if (loading || !products.length) return <Spinner />;
