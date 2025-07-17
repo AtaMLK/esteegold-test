@@ -9,7 +9,7 @@ function ItemQuantity({ initial = 1, onChange }) {
   //on any changes parent
   useEffect(() => {
     if (onChange) onChange(itemValue);
-  }, [itemValue, onChange]);
+  }, [itemValue]);
 
   const handleDeduct = () => {
     setItemValue((prev) => Math.max(prev - 1, 0));

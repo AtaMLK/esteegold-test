@@ -7,131 +7,99 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "../cart/cart.css";
 
 function CartPage() {
-  const { orders, error, loading, fetchOrders, setOrders, createOrder } =
+  const { orders, fetchOrders, updateQuantity, deleteOrderItem } =
     useOrderStore();
   const { user } = useAuthStore();
+  const [guestCart, setGuestCart] = useState([]);
 
   useEffect(() => {
     if (user?.id) {
-      createOrder(user.id);
       fetchOrders();
+      console.log(orders);
+    } else {
+      const stored = localStorage.getItem("guest_cart");
+      setGuestCart(JSON.parse(stored || "[]"));
+      console.log(orders);
     }
-  }, [user]);
+  }, [user?.id]);
 
-  const totalQuantity = orders.reduce((acc, item) => acc + item.quantity, 0);
-  const totalPrice = orders.reduce(
+  const items = user?.id ? orders : guestCart;
+  const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
+  const totalPrice = items.reduce(
     (acc, item) => acc + item.unit_price * item.quantity,
     0
   );
 
+  const handleQuantityChange = (newQuantity, item) => {
+    if (user?.id) {
+      updateQuantity(item.id, newQuantity);
+    } else {
+      const updated = guestCart.map((g) =>
+        g.productId === item.productId ? { ...g, quantity: newQuantity } : g
+      );
+      setGuestCart(updated);
+      localStorage.setItem("guest_cart", JSON.stringify(updated));
+    }
+  };
+
+  const handleDelete = (item) => {
+    if (user?.id) {
+      deleteOrderItem(item.id);
+    } else {
+      const updated = guestCart.filter((g) => g.productId !== item.productId);
+      setGuestCart(updated);
+      localStorage.setItem("guest_cart", JSON.stringify(updated));
+    }
+  };
+
   return (
     <div className="cart-container">
-      <div className="cart-wrapper  ">
-        <div className="cart-box">
-          {orders.map((item) => (
-            <div key={item.id} className="cart-box">
-              <div className="cart-items">
-                <Link href={`/product/${item.product.id}`}>
-                  <Image
-                    src={item.product?.product_images?.[0]?.image_url || "  "}
-                    className="cart-item-image"
-                    alt={item.product.name}
-                    width={100}
-                    height={100}
-                  />
-                </Link>
-                <p className="cart-item-name">{item.product.name}</p>
+      <div className="cart-wrapper">
+        <div className="cart-box flex flex-col gap-4">
+          {items.map((item, index) => (
+            <div
+              key={index}
+              className="cart-items flex items-center justify-between w-full gap-6 border-b py-4"
+            >
+              <Image
+                src={item.product?.image_url?.[0] || null}
+                alt="Product"
+                width={80}
+                height={80}
+                className="rounded-full"
+              />
+              <div className="flex-1">
+                <p className="text-lg font-medium">{item.product?.name}</p>
+                <p className="text-sm text-gray-600">{item.unit_price}$</p>
               </div>
-              <div className="cart-item-price">
-                <p>
-                  {item.unit_price} <span>$</span>
-                </p>
-              </div>
-              <div className="cart-items-quantity ">
-                <ItemQuantity
-                  quantity={item.quantity}
-                  productId={item.product.id}
-                />
-              </div>
-              <div className="cart-items-delete">
-                <Trash2 className="text-red-400 " />
-              </div>
+              <ItemQuantity
+                quantity={item.quantity}
+                onChange={(val) => handleQuantityChange(val, item)}
+              />
+              <Trash2
+                className="text-red-500 cursor-pointer"
+                onClick={() => handleDelete(item)}
+              />
             </div>
           ))}
         </div>
-        {/* <div className="cart-box">
-          <div className="cart-items">
-            <Link href={"/product/Id"}>
-              <Image
-                src="/images/product/image-2.jpg"
-                className="cart-item-image"
-                alt="item.name"
-                loading="lazy"
-                fill
-              />
-            </Link>
-            <p className="cart-item-name">name of the product</p>
-          </div>
-          <div className="cart-item-price">
-            <p>
-              48 <span>$</span>
-            </p>
-          </div>
-          <div className="cart-items-quantity">
-            <ItemQuantity />
-          </div>
-          <div className="cart-items-delete">
-            <Trash2 className="text-red-400 " />
-          </div>
+
+        <div className="cart-total max-w-md mt-6 flex items-center justify-between text-lg gap-4">
+          <p>
+            Total :{" "}
+            <span className="text-lg font-bold mx-2">{totalQuantity}</span>
+            Pcs
+          </p>
+          <p>{totalPrice.toFixed(2)} $</p>
         </div>
-        <div className="cart-box ">
-          <div className="cart-items">
-            <Link href={"/product/Id"}>
-              <Image
-                src="/images/product/image-3.jpg"
-                className="cart-item-image"
-                alt="image-1"
-                loading="lazy"
-                fill
-              />
-            </Link>
-            <p className="cart-item-name">name of the product</p>
-          </div>
-          <div className="cart-item-price">
-            <p>
-              118 <span>$</span>
-            </p>
-          </div>
-          <div className="cart-items-quantity ">
-            <ItemQuantity />
-          </div>
-          <div className="cart-items-delete">
-            <Trash2 className="text-red-400" />
-          </div>
-        </div> */}
-        <div className="cart-total mb-16 pb-6 flex items-center justify-end  gap-10 me-2 right-0 mt-8 border-b-2 border-gray-800 text-lg text-gray-900">
-          <div className="cart-total-amount text-sm lg:text-xl flex gap-4">
-            <span>{totalQuantity}</span> Pcs of your ambition
-          </div>
-          <div className="cart-total-quantity">
-            <p className="text-sm lg:text-2xl ">
-              {totalPrice} <span className="font-bold">$</span>
-            </p>
-          </div>
-        </div>
-        <div className="cart-button mt-8 w-full px-[5%] lg:px-[10%]">
-          <Link href="/checkout">
-            <Button
-              variant="outline"
-              className="w-full border-[1px] text-lightgreen-800 text-sm border-darkgreen-800 bg-lightgreen-400 hover:bg-green-800 hover:border-lightgreen-400 hover:text-lightgreen-200 mt-5 transition-all duration-500"
-              redirect="/"
-            >
-              <p>Finish You purchase</p>
-            </Button>
+
+        <div className="cart-button mt-6">
+          <Link href={user?.id ? "/checkout" : "/login"}>
+            <Button className="w-full">Finish Your Purchase</Button>
           </Link>
         </div>
       </div>
