@@ -14,8 +14,8 @@ import OrderHistory from "@/app/_components/ui/OrderHistory";
 import { useAuthStore } from "@/app/_lib/authStore";
 
 const menuItems = [
-  { title: "Orders ", icon: <ShoppingBasketIcon />, content: <Orders /> },
-  { title: "Order History", icon: <History />, content: <OrderHistory /> },
+  { title: "Current Order ", icon: <ShoppingBasketIcon />, content: <Orders /> },
+  { title: "Ordered History", icon: <History />, content: <OrderHistory /> },
   { title: "Setting", icon: <Settings2Icon />, content: <Setting /> },
 ];
 
@@ -45,8 +45,8 @@ function Dashboard() {
         <div className="title">
           <div className="m-6 flex items-center gap-2">
             <UserCircle2 />
-            <h1 className="text-md lg:text-md uppercase">
-              Welcome {user?.user_metadata.name || " user "}!
+            <h1 className="text-sm font-bold uppercase">
+              Welcome {user?.user_metadata.name || " user "}
             </h1>
           </div>
         </div>

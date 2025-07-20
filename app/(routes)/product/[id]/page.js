@@ -32,70 +32,76 @@ const necklesSizes = [
 function ProductId() {
   const [isSelected, setIsSelected] = useState(false);
   const { products, loading, error, fetchProducts } = useProductStore();
-  const { setOrder, createOrder, fetchOrders } = useOrderStore();
+  const { setOrder, createOrder, transferGuestCart } = useOrderStore();
+  const [quantity, setQuantity] = useState(null);
   const { user } = useAuthStore();
   const { toast } = useToast();
   const params = useParams();
   const { id } = params;
 
   useEffect(() => {
+    if (!products.length) fetchProducts();
+  }, []);
+
+  useEffect(() => {
     if (user?.id) {
-      createOrder(user.id);
-      fetchOrders();
+      transferGuestCart(user.id);
     }
-  }, [user]);
+  }, [user?.id]);
+
   const handleAddToCart = async () => {
+    const product = products.find((p) => p.id === String(id));
+    if (!product) return;
+
+    if (!user?.id) {
+      const existing = JSON.parse(localStorage.getItem("guest_cart") || "[]");
+      const found = existing.find((item) => item.productId === product.id);
+      const updated = found
+        ? existing.map((item) =>
+            item.productId === product.id
+              ? {
+                  ...item,
+                  quantity: item.quantity + quantity,
+                  image: product?.product_images?.[0]?.image_url,
+                }
+              : item
+          )
+        : [
+            ...existing,
+            {
+              productId: product.id,
+              quantity,
+              unit_price: product.price,
+              image: product?.product_images?.[0]?.image_url,
+            },
+          ];
+
+      localStorage.setItem("guest_cart", JSON.stringify(updated));
+      toast({ description: "Item added to guest cart" });
+      return;
+    }
+
     try {
-      if (!user?.id) {
-        console.error("User not logged in");
-        return;
-      }
-
       const order = await createOrder(user.id);
-      console.log("Created order:", order);
-
       await setOrder({
         productId: product.id,
         orderId: order.id,
-        quantity: 1,
+        quantity,
         unit_price: product.price,
       });
-      toast({
-        variant: "default",
-        description: "Item added to your cart",
-      });
+      toast({ description: "Item added to your cart" });
     } catch (error) {
-      toast({
-        variant: "default",
-        description: ("Error adding product to order:", error.message),
-      });
+      toast({ description: error.message });
     }
   };
 
   const product = products.find((p) => p.id === String(id));
-  if (!id) {
-    return (
-      <p className="flex items-center justify-center w-full text-3xl text-gray-800 h-72">
-        Invalid Product ID
-      </p>
-    );
-  }
-  if (!product) {
-    return (
-      <p className=" flex items-center justify-center w-full  text-3xl text-gray-800 h-72">
-        product Not Found
-      </p>
-    );
-  }
-  const handleChange = (e) => {
-    e.preventDefault();
-    setIsSelected(e.target.value);
-  };
+  if (!id || !product) return <p>Invalid or missing product</p>;
 
   return (
     <div className="w-full h-full mt-16">
       <div className="dynamic-product-container">
-        <div className="product-mainbox">
+        <div className="product-mainbox w-[80%] ">
           <div className="product-left ">
             <div className="slider">
               <Carousel>
@@ -108,9 +114,9 @@ function ProductId() {
                       >
                         <Image
                           src={image.image_url}
-                          className=""
+                          width={500}
+                          height={1000}
                           alt="slider"
-                          fill
                           objectFit="cover"
                         />
                       </CarouselItem>
@@ -125,15 +131,15 @@ function ProductId() {
           <div className="product-right">
             <div className="product-right-details flex flex-col gap-1">
               <h2 className="product-name">{product.name}</h2>
-              <p className="mt-2 text-xl">
+              <p className="mt-2 text-lg">
                 {product?.description || "Hand made crafted with love"}
               </p>
               <h3 className="product-price ">
                 <EuroIcon className="h-8 w-8" />
-                <span className="text-3xl font-normal"> {product?.price}</span>
+                <span className="text-xl font-normal"> {product?.price}</span>
               </h3>
-              <p className=" my-2 text-xl">Available in stock</p>
-              <p className=" text-xl">FREE SHIPPING OVER 150 EUROS</p>
+              <p className=" my-2 text-lg">Available in stock</p>
+              <p className=" text-lg">FREE SHIPPING OVER 150 EUROS</p>
               <Link href="/shipping" target="blink">
                 <p className="text-blue-800 underline">View More</p>
               </Link>
@@ -161,11 +167,10 @@ function ProductId() {
                   })}
                 </div>
               </div>
-              <div className="">
+              {/* <div className="">
                 <select
                   name="Select Length"
                   id="options"
-                  onChange={handleChange}
                   className="border-[1px] border-gray-700 text-md  h-8 mb-10 rounded-sm "
                 >
                   <option>Select Length</option>
@@ -175,8 +180,8 @@ function ProductId() {
                     </option>
                   ))}
                 </select>
-              </div>
-              <ItemQuantity />
+              </div> */}
+              <ItemQuantity initial={1} onChange={(val) => setQuantity(val)} />
               <motion.div
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1, scale: 1.05 }}

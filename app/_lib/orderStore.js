@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { supabase } from "./supabase";
-import { useAuthStore } from "./authStore";
 
 export const useOrderStore = create((set) => ({
   orders: [],
@@ -11,8 +10,38 @@ export const useOrderStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const { data, error } = await supabase.from("ordered_items").select(`
-          id,quantity,unit_price,product:product_id (id,name,price,stockmaterial,Description,categories:category_id (id,title,image_url,details),product_images(id,image_url,is_primary)),order:order_id (id,order_date,user_id,status,total_price,shipping_address,notes)
-        `);
+          id,
+        quantity,
+        unit_price,
+        product:product_id (
+          id,
+          name,
+          price,
+          stock,
+          material,
+          Description,
+          categories:category_id (
+            id,
+            title,
+            image_url,
+            details
+          ),
+          product_images (
+            id,
+            image_url,
+            is_primary
+          )
+        ),
+        order:order_id (
+          id,
+          order_date,
+          user_id,
+          status,
+          total_price,
+          shipping_address,
+          notes
+        )
+      `);
       if (error) throw error;
       set({ orders: data || [] });
     } catch (err) {
@@ -31,7 +60,7 @@ export const useOrderStore = create((set) => ({
         .eq("product_id", productId)
         .eq("order_id", orderId)
         .maybeSingle();
-      if (!findError && findError !== "PGRST116") throw error;
+      if (!findError && findError !== "PGRST116") throw findError;
 
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
@@ -41,7 +70,7 @@ export const useOrderStore = create((set) => ({
           .update({ quantity: newQuantity })
           .eq("id", existingItem.id);
 
-        if (updateError) throw error;
+        if (updateError) throw updateError;
       } else {
         // add new order if not exist
         const { error: insertError } = await supabase
@@ -56,11 +85,12 @@ export const useOrderStore = create((set) => ({
           ]);
         if (insertError) throw insertError;
       }
+
       //update the cart
       await useOrderStore.getState().fetchOrders();
-    } catch (err) {
-      console.error("Error setting order", err.message);
-      set({ error: err.message });
+    } catch (insertError) {
+      console.error("Error setting order", insertError.message);
+      set({ error: insertError.message });
     } finally {
       set({ loading: false });
     }
@@ -107,15 +137,90 @@ export const useOrderStore = create((set) => ({
     }
     await useOrderStore.getState().fetchOrders();
   },
-  orderQuantity: async (newQuantity, itemId) => {
+  updateQuantity: async (newQuantity, itemId) => {
     const { error: quantityError } = await supabase
       .from("ordered_items")
       .update({ quantity: newQuantity })
       .eq("id", itemId);
-    if (!quantityError) {
+    if (quantityError) {
+      console.error(
+        "Erro Changing quantity",
+        quantityError.message || quantityError
+      );
+    }
+  },
+  transferGuestCart: async (userId) => {
+    const guestCart = JSON.parse(localStorage.getItem("guest_cart") || "[]");
+
+    if (!userId || guestCart.length === 0) return;
+
+    try {
+      // get or create order for user
+      const { data: existingOrder, error: fetchError } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "pending")
+        .maybeSingle();
+
+      let orderId;
+
+      if (existingOrder) {
+        orderId = existingOrder.id;
+      } else {
+        const { data: newOrder, error: newOrderError } = await supabase
+          .from("orders")
+          .insert([
+            {
+              user_id: userId,
+              order_date: new Date().toISOString(),
+              status: "pending",
+              total_price: 0,
+              shipping_address: "",
+              notes: "",
+            },
+          ])
+          .select()
+          .single();
+        if (newOrderError) throw newOrderError;
+        orderId = newOrder.id;
+      }
+
+      // adding or updating items
+      for (const item of guestCart) {
+        const { data: existingItem, error: findError } = await supabase
+          .from("ordered_items")
+          .select("*")
+          .eq("product_id", item.productId)
+          .eq("order_id", orderId)
+          .maybeSingle();
+
+        if (existingItem) {
+          const newQuantity = existingItem.quantity + item.quantity;
+          await supabase
+            .from("ordered_items")
+            .update({ quantity: newQuantity })
+            .eq("id", existingItem.id);
+        } else {
+          await supabase.from("ordered_items").insert([
+            {
+              product_id: item.productId,
+              order_id: orderId,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+            },
+          ]);
+        }
+      }
+
+      // Deleteing guest card
+      localStorage.removeItem("guest_cart");
+      set({ guestCart: [] });
+
+      //Updatin the list
       await useOrderStore.getState().fetchOrders();
-    } else {
-      console.error("Erro Changing quantity", quantityError);
+    } catch (error) {
+      console.error("Error transferring guest cart:", error.message);
     }
   },
 }));

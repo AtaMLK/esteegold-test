@@ -8,7 +8,10 @@ export const useAuthStore = create((set) => ({
   fetchUser: async () => {
     set({ loading: true });
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       if (error) throw error;
       set({ user: session?.user || null });
     } catch (error) {
@@ -31,22 +34,25 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ✅ Sign Up
-  signUpWithEmail: async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-    set({ user: data?.user || null });
-    return data.user;
-  },
-
   // ✅ Sign In
   signInWithEmail: async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error) throw error;
+    if (error) {
+      coansole.error("Login error", error.message);
+    }
     set({ user: data.user || null });
+    console.log("Login result", data);
+    return data.user;
+  },
+
+  // ✅ Sign Up
+  signUpWithEmail: async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    set({ user: data?.user || null });
     return data.user;
   },
 

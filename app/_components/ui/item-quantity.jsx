@@ -24,7 +24,7 @@ function ItemQuantity({ initial = 1, onChange }) {
       <Button
         onClick={handleDeduct}
         variant="outline"
-        className="p-2 lg:p-4 border border-gray-400 font-bold text-xl"
+        className="w-8 h-8 p-1 border border-gray-400 font-bold text-md"
       >
         −
       </Button>
@@ -33,13 +33,13 @@ function ItemQuantity({ initial = 1, onChange }) {
         type="number"
         value={itemValue}
         readOnly
-        className="w-10 lg:w-16 h-10 mx-2 text-center text-gray-900 border border-gray-400 outline-none text-sm lg:text-xl rounded"
+        className="w-8 h-8 border border-gray-400 outline-none text-sm text-center rounded text-stone-700 mx-2"
       />
 
       <Button
         onClick={handleAdd}
         variant="outline"
-        className="p-2 lg:p-4 border border-gray-400 font-bold text-xl"
+        className="w-8 h-8 p-1 border border-gray-400 font-bold text-md"
       >
         +
       </Button>

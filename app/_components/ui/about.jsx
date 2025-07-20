@@ -18,13 +18,15 @@ function About() {
         </video> */}
         <Link
           href="/about"
-          className="absolute items-center justify-center font-railWayFont uppercase text-4xl text-gray-100 z-10 cursor-pointer"
+          className="absolute items-center justify-center font-railWayFont uppercase text-4xl text-gray-100 z-10 cursor-pointer "
         >
-          <span href="/about/page.js">ESTEE GOLD STUDIO</span>
+          <span href="/about/page.js" className="text-stone-500">
+            ESTEE GOLD STUDIO
+          </span>
         </Link>
-        <span className=" absolute w-full z-10 bg-gray-900 opacity-100"></span>
+        {/* <span className=" absolute w-full z-10 bg-gray-900 opacity-100"></span> */}
       </div>
-      <p className="text-xs mt-5 p-5 text-justify border-[1px] rounded-md">
+      <p className="text-xs mt-5 p-5 text-justify border-[1px] rounded-md py-10">
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium
         doloribus laudantium et ad quasi amet culpa earum quia dolores nostrum
         maxime explicabo ratione, quos assumenda cumque ea reprehenderit

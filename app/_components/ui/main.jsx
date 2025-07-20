@@ -67,7 +67,7 @@ function Main() {
         <Link href="/product">
           <CardMainLeft file="Product" />
         </Link>
-        <Link href="/gallery">
+        <Link href="/custom_product">
           <CardMainRight file="Gallery" />
         </Link>
       </div>
