@@ -62,7 +62,7 @@ function Main() {
   return (
     <div className="mainpage-container" ref={mainRef} style={{ opacity: 0 }}>
       <Hero />
-       <MiniSlider />
+      <MiniSlider />
       <div className="card-section my-20">
         <Link href="/product">
           <CardMainLeft file="Product" />

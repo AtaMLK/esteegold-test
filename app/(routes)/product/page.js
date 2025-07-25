@@ -71,7 +71,7 @@ function Product() {
             >
               <div className="relative w-[20rem] h-[28rem]">
                 <Image
-                  src={category.image_url}
+                  src={category?.image_url}
                   alt={category.title}
                   fill
                   style={{ objectFit: "cover" }}

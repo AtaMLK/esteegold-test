@@ -5,6 +5,7 @@ import { useProductStore } from "@/app/_lib/ProductStore";
 import "/styles/styles.css";
 import ItemCards from "@/app/_components/ui/ItemCards";
 import Spinner from "@/app/_components/ui/Spinner";
+import { boolean } from "zod";
 
 function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -12,14 +13,17 @@ function CategoriesPage() {
   const { products, loading } = useProductStore();
 
   const uniqueCat = Array.from(
-    new Set(products.map((cat) => cat.categories?.title))
+    new Set(products.map((cat) => cat.categories?.title).filter(boolean))
   );
 
   const filteredProducts = selectedCategory
     ? products.filter(
-        (product) => product.categories.title === selectedCategory
+        (product) =>
+          product.categories.title === selectedCategory &&
+          product.product_images &&
+          product.product_images.length > 0
       )
-    : products;
+    : products.filter((p) => p.product_images && p.product_images.length > 0);
   if (loading) {
     return <Spinner />;
   }
@@ -46,8 +50,8 @@ function CategoriesPage() {
           <option value="" className="text-gray-800">
             All Categories
           </option>
-          {uniqueCat.map((cat, index) => (
-            <option key={index} value={cat} className="text-gray-800">
+          {uniqueCat.map((cat) => (
+            <option key={cat} value={cat} className="text-gray-800">
               {cat}
             </option>
           ))}
@@ -58,23 +62,21 @@ function CategoriesPage() {
       <div className="category-container">
         {/* category list  */}
         <div className="category-list">
-          <div className="flex item-center justify-center">
+          <div className="flex items-center justify-center">
             <h3 className="font-dreamFont flex items-center text-2xl font-semibold text-gray-800 mb-2">
               Categories
               <span
                 className={`ms-4 -rotate-90 hover:cursor-pointer font-normal text-3xl transition-all duration-500 ${
                   isSelected ? "rotate-90" : ""
                 } `}
-                onClick={() =>
-                  setIsSelected(!isSelected, console.log(isSelected))
-                }
+                onClick={() => setIsSelected(!isSelected)}
               >
                 &gt;
               </span>
             </h3>
           </div>
 
-          {isSelected ? (
+          {isSelected && (
             <ul className=" flex flex-col gap-2 items-center justify-center">
               {uniqueCat.map((cat, index) => (
                 <li
@@ -86,8 +88,6 @@ function CategoriesPage() {
                 </li>
               ))}
             </ul>
-          ) : (
-            ""
           )}
         </div>
         {/* Product images  */}

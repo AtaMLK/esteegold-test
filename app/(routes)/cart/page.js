@@ -70,7 +70,7 @@ function CartPage() {
 
   const handleQuantityChange = async (newQuantity, item) => {
     if (user?.id) {
-      await updateQuantity(item.id, newQuantity);
+      await updateQuantity(newQuantity, item.id);
       await fetchOrders();
     } else {
       const updated = guestCart.map((g) =>
@@ -89,7 +89,6 @@ function CartPage() {
       const updated = guestCart.filter((g) => g.productId !== item.id);
       setGuestCart(updated);
       localStorage.setItem("guest_cart", JSON.stringify(updated));
-      console.log(updated);
     }
   };
 
@@ -114,7 +113,7 @@ function CartPage() {
                   <h2 className="cart-item-name">{item.product?.name}</h2>
                   <p className="cart-item-price">{item.unit_price} $</p>
                   <ItemQuantity
-                    quantity={item.quantity}
+                    initial={item.quantity}
                     onChange={(val) => handleQuantityChange(val, item)}
                   />
                   <Trash2
@@ -140,7 +139,7 @@ function CartPage() {
                   <p className="col-span-2 col-start-7">{item.price}$</p>
                   <ItemQuantity
                     className="col-span-3 col-start-8"
-                    quantity={item.quantity}
+                    initial={item.quantity}
                     onChange={(val) => handleQuantityChange(val, item)}
                   />
                   <Trash2

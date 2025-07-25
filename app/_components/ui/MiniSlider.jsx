@@ -11,7 +11,6 @@ import Spinner from "./Spinner";
 import Link from "next/link";
 import { useEffect } from "react";
 
-
 function MiniSlider() {
   const { products, loading, fetchProducts, error } = useProductStore();
 
@@ -32,6 +31,7 @@ function MiniSlider() {
           price: product.price,
           productId: product.id,
           primary: img.is_primary,
+          material: product.material,
         });
       });
     }
@@ -61,7 +61,10 @@ function MiniSlider() {
                         alt="slider"
                       />
                       <div className="slider-content ">
-                        <div className="flex items-center justify-start gap-4 circle"></div>
+                        <div
+                          className="flex items-center justify-start gap-4 circle"
+                          style={{ background: imgObj.material }}
+                        ></div>
                         <p className="text-gray-200 me-4 flex items-center justify-center">
                           <EuroIcon />
                           {imgObj.price}

@@ -1,145 +1,137 @@
 "use client";
 
+import { useAuthStore } from "@/app/_lib/authStore";
+import { supabase } from "@/app/_lib/supabase";
 import "@/styles/styles.css";
-import gsap from "gsap";
+import { motion, useAnimation } from "framer-motion";
 import { LucideShoppingBag, Search, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Menu from "./Menu";
-import { useAuthStore } from "@/app/_lib/authStore";
-import { supabase } from "@/app/_lib/supabase";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
-  const hasAnimatedRef = useRef(false);
   const user = useAuthStore();
   const pathname = usePathname();
-  const searchRef = useRef(null);
-  const titleRef = useRef(null);
-  const mainRef = useRef(null);
-  const menuRef = useRef(null);
+
+  const mainControls = useAnimation();
+  const titleControls = useAnimation();
+  const searchControls = useAnimation();
+  const menuControls = useAnimation();
+
+  const authPathname = ["/login", "/register", "admin/*"];
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUserName(user?.user_metadata.name || "");
-        setIsLoggedIn(true);
-        console.log(user);
-      } else {
-        setUserName("");
-        setIsLoggedIn(false);
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          setUserName(session.user.user_metadata?.name || "");
+          setIsLoggedIn(true);
+        } else {
+          setUserName("");
+          setIsLoggedIn(false);
+        }
       }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
     };
-    getUser();
   }, []);
 
   useEffect(() => {
-    if (pathname !== "/" || hasAnimatedRef.current) {
-      window.scroll(0, 0);
-      // Ensure all elements are fully visible if not on homepage
-      gsap.set(
-        [mainRef.current, titleRef.current, searchRef.current, menuRef.current],
-        {
-          visibility: "visible",
+    async function runAnimations() {
+      if (pathname !== "/") {
+        // اگر صفحه اصلی نیست، همه ویژوال‌ها رو بلافاصله نشون بده
+        await Promise.all([
+          mainControls.set({ opacity: 1 }),
+          titleControls.set({ x: 0, y: 0, scale: 1, opacity: 1 }),
+          searchControls.set({ opacity: 1 }),
+          menuControls.set({ x: 0, y: 0, opacity: 1 }),
+        ]);
+        return;
+      }
+
+      // صفحه اصلی: انیمیشن مرحله‌ای
+
+      const width = window.innerWidth;
+      const isDesktop = width >= 1024;
+      const isTablet = width >= 768 && width < 1024;
+      const isMobile = width < 768;
+
+      // شروع: حالت مخفی و خارج از صفحه با مقیاس بزرگ
+      await Promise.all([
+        mainControls.set({ opacity: 0 }),
+        titleControls.set({
+          x: isDesktop ? 600 : isTablet ? 300 : 0,
+          y: isDesktop ? 370 : isTablet ? 320 : 0,
+          scale: isDesktop ? 3.5 : isTablet ? 2.5 : 1,
           opacity: 1,
-        }
-      );
-      return;
+        }),
+        searchControls.set({ opacity: 0 }),
+        menuControls.set({ x: -270, y: 250, opacity: 0 }),
+      ]);
+
+      // نمایش کل container
+      await mainControls.start({
+        opacity: 1,
+        transition: { duration: 0.5, ease: "easeOut" },
+      });
+
+      // حرکت لوگو به موقعیت نهایی و کاهش مقیاس
+      await titleControls.start({
+        x: isDesktop ? 10 : isTablet ? 5 : 0,
+        y: 0,
+        scale: isDesktop ? 1.5 : isTablet ? 1.2 : 1,
+        opacity: 1,
+        transition: { duration: isMobile ? 0 : 2, ease: "easeInOut" },
+      });
+
+      // نمایش سرچ و منو به صورت همزمان بعد از لوگو
+      await Promise.all([
+        searchControls.start({
+          opacity: 1,
+          transition: { duration: 1, ease: "easeInOut", delay: 1 },
+        }),
+        menuControls.start({
+          x: 0,
+          y: 0,
+          opacity: 1,
+          transition: { duration: 1, ease: "easeInOut", delay: 1 },
+        }),
+      ]);
     }
 
-    if (titleRef.current && searchRef.current && mainRef.current) {
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        {
-          isDesktop: "(min-width: 1024px)", // Large screens
-          isTablet: "(min-width: 768px) and (max-width: 1023px)", // Tablets
-          isMobile: "(max-width: 767px)", // Phones
-        },
-        (context) => {
-          let { isDesktop, isTablet, isMobile } = context.conditions;
-
-          // Initially hide elements
-          gsap.set(mainRef.current, { opacity: 0 });
-          gsap.set(titleRef.current, {
-            x: isDesktop ? 600 : isTablet ? 300 : 0,
-            y: isDesktop ? 370 : isTablet ? 320 : 0,
-            scale: isDesktop ? 3.5 : isTablet ? 2.5 : 1,
-            opacity: 1,
-          });
-          gsap.set(searchRef.current, { opacity: 0 });
-          gsap.set(menuRef.current, { x: -270, y: 250, opacity: 0 });
-
-          // Main container fades in first
-          gsap.to(mainRef.current, {
-            opacity: 1,
-            duration: 0.5,
-            ease: "power2.out",
-            onComplete: () => {
-              // Title animation after mainRef appears
-              gsap.to(titleRef.current, {
-                x: isDesktop ? 10 : isTablet ? 5 : 0,
-                y: 0,
-                scale: isDesktop ? 1.5 : isTablet ? 1.2 : 1,
-                opacity: 1,
-                duration: isMobile ? 0 : 2,
-                ease: "power4.inOut",
-              });
-
-              // SearchRef appears 1 second after mainRef
-              gsap.to(searchRef.current, {
-                opacity: 1,
-                duration: 1,
-                ease: "power4.inOut",
-                delay: 1,
-              });
-
-              // Menu appears at the same time as searchRef
-              gsap.to(menuRef.current, {
-                x: 0,
-                y: 0,
-                opacity: 1,
-                duration: 1,
-                ease: "power4.inOut",
-                delay: 1,
-              });
-            },
-          });
-
-          hasAnimatedRef.current = true; // Marks animation as played
-        }
-      );
-
-      return () => mm.revert(); // Cleanup GSAP media queries on unmount
-    }
-  }, [pathname]);
-  const authPathname = ["/login", "/register","admin/*"];
+    runAnimations();
+  }, [pathname, mainControls, titleControls, searchControls, menuControls]);
 
   return (
-    <div
+    <motion.div
       className={`${
         pathname === "/" ? "header-container-absolute" : "header-container-flex"
       }`}
-      ref={mainRef}
+      animate={mainControls}
+      initial={{ opacity: 0 }}
     >
-      {/* Header content (Logo + Search) */}
       <div className="header-wrapper">
-        {/* Logo */}
-        <div className="header-logo opacity-0" ref={titleRef}>
+        <motion.div
+          className="header-logo"
+          animate={titleControls}
+          initial={false}
+        >
           <Link href="/">
             <h1>Estee Gold Studio</h1>
           </Link>
-        </div>
-        {/* Search & Cart Icons */}
-        {authPathname.includes(pathname) ? (
-          ""
-        ) : (
-          <div className="header-icons opacity-0" ref={searchRef}>
+        </motion.div>
+
+        {authPathname.includes(pathname) ? null : (
+          <motion.div
+            className="header-icons"
+            animate={searchControls}
+            initial={{ opacity: 0 }}
+          >
             <div className="search-section">
               <input
                 type="text"
@@ -152,22 +144,27 @@ function Header() {
               <LucideShoppingBag className="text-gray-900 cursor-pointer text-lg mx-2" />
             </Link>
 
-            {user && (
-              <Link href={isLoggedIn ? "/dashboard" : "/login"}>
-                <p className="text-lg cursor-pointer ">
-                  {userName ? `Welcome, ${userName}` : <User />}
-                </p>
+            {isLoggedIn ? (
+              <Link href="/dashboard">
+                <p className="text-lg cursor-pointer">Welcome, {userName}</p>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <User className="text-lg cursor-pointer" />
               </Link>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
-      {/*       Burger Menu
-       */}
-      <div className="header-menu">
-        <Menu ref={menuRef} />
-      </div>
-    </div>
+
+      <motion.div
+        className="header-menu"
+        animate={menuControls}
+        initial={{ x: -270, y: 250, opacity: 0 }}
+      >
+        <Menu ref={null} />
+      </motion.div>
+    </motion.div>
   );
 }
 
