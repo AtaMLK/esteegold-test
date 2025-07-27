@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { jwtDecode } from "jwt-decode";
 
 export async function middleware(req) {
   const token = req.cookies.get("sb-access-token")?.value;
@@ -11,28 +11,23 @@ export async function middleware(req) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-    );
+    try {
+      const decoded = jwtDecode(token);
+      const email = decoded?.email;
 
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser(token);
-
-    if (error || !user) {
+      const adminEmails = ["setareh@gmail.com", "admin@admin.com"];
+      if (!adminEmails.includes(email)) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    } catch (err) {
+      console.error("JWT decode error:", err);
       return NextResponse.redirect(new URL("/login", req.url));
     }
-
-    const adminEmails = ["setareh@gmail.com", "admin@admin.com"];
-    if (!adminEmails.includes(user.email)) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
   }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/app/admin/:path*"],
 };

@@ -37,23 +37,32 @@ function LoginForm() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const user = await signInWithEmail(data.email, data.password); // Use the correct function
+      const user = await signInWithEmail(data.email, data.password);
+      console.log("Logged in user:", user);
+
       if (user) {
-        router.push("/"); // Redirect to dashboard if user exists
+        const adminEmails = ["setareh@gmail.com", "admin@admin.com"];
+        if (adminEmails.includes(user.email)) {
+          console.log("User is admin, redirecting to /admin");
+          router.push("/admin");
+        } else {
+          console.log("User is normal, redirecting to /");
+          router.push("/");
+        }
       } else {
         toast({
           variant: "destructive",
-          description: "You should create an account first.",
+          message: "You should create an account first.",
         });
       }
     } catch (error) {
-      console.error("Login error", error.message); // Log detailed error
+      console.error("Login error", error.message);
       toast({
         variant: "destructive",
-        description: error.message, // Display error message
+        message: error.message,
       });
     } finally {
-      setIsLoading(false); // Stop loading state
+      setIsLoading(false);
     }
   };
 

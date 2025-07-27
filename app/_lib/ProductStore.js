@@ -1,43 +1,80 @@
 import { create } from "zustand";
-import { supabase } from "@/app/_lib/supabase";
+import { supabase } from "./supabase";
+import { toast } from "@/hooks/use-toast";
 
 export const useProductStore = create((set) => ({
   products: [],
   loading: false,
-  error: null,
 
   fetchProducts: async () => {
-    /* const state = get(); // get access to current state
-    if (state.loading) return; // don't fetch again while loading */
-    set({ loading: true, error: null });
-
+    set({ loading: true });
     try {
-      const { data, error } = await supabase.from("products").select(`id,
-            name,
-            price,
-            stock,
-            material,
-            Description,
-            categories:category_id (
-              id,
-              title,
-              image_url,
-              details
-            ),
-            product_images (
-              id,
-              image_url,
-              is_primary
-            )
-        `);
+      const { data, error } = await supabase
+        .from("products")
+        .select(
+          `
+          id,
+          name,
+          price,
+          material,
+          stock,
+          description,
+          product_images (
+            id,
+            image_url,
+            is_primary
+          )
+        `
+        )
+        .order("created_at", { ascending: false });
 
-      if (error) throw error;
-
-      set({ products: data || [] });
+      if (error) {
+        console.error("Error fetching products:", error.message);
+        toast({
+          title: "Error fetching products",
+          description: error.message,
+          // you can add more toast options here
+        });
+        set({ loading: false });
+      } else {
+        set({ products: data || [], loading: false });
+        // Optional success toast:
+        // toast({ title: "Products loaded successfully" });
+      }
     } catch (err) {
-      console.error("⛔ error in fetchProducts:", err.message);
-    } finally {
+      console.error("Unexpected error:", err);
+      toast({
+        title: "Unexpected error",
+        description: err.message || String(err),
+      });
       set({ loading: false });
+    }
+  },
+
+  deleteProduct: async (id) => {
+    try {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) {
+        console.error("Error deleting product:", error.message);
+        toast({
+          title: "Error deleting product",
+          description: error.message,
+        });
+      } else {
+        set((state) => ({
+          products: state.products.filter((p) => p.id !== id),
+        }));
+        toast({
+          title: "Product deleted",
+          description: "The product was deleted successfully.",
+        });
+      }
+    } catch (err) {
+      console.error("Unexpected error during delete:", err);
+      toast({
+        title: "Unexpected error",
+        description: err.message || String(err),
+      });
     }
   },
 }));

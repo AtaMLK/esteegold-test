@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { useState } from "react";
-import { useProductStore } from "@/app/_lib/ProductStore";
+import { use } from "@/app/_lib/ProductStore";
 import "/styles/styles.css";
 import ItemCards from "@/app/_components/ui/ItemCards";
 import Spinner from "@/app/_components/ui/Spinner";

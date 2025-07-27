@@ -1,10 +1,8 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Geist, Geist_Mono } from "next/font/google";
-
 import "../styles/fonts.css";
-import Footer from "./_components/ui/Footer";
-import Header from "./_components/ui/Header";
+import LayoutClientWrapper from "./_components/LayoutClientWrapper";
 import "./globals.css";
+import ToastContainer from "./_components/ui/ToastContainer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,12 +23,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased relative font-inter`}
       >
-{/*         <Header />
- */}        <main>{children}</main>
-        <Toaster />
-        <Footer />
+        {/* ✅ Dynamic header/footer logic moved to client */}
+
+        <LayoutClientWrapper>
+          {children}
+          <ToastContainer />
+        </LayoutClientWrapper>
       </body>
     </html>
   );

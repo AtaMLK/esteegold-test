@@ -1,14 +1,23 @@
+"use client";
+
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 export default function Modal({ isOpen, onClose, children }) {
-  if (typeof window === "undefined") return null;
+  const [isClient, setIsClient] = useState(false); 
+
+  useEffect(() => {
+    setIsClient(true); 
+  }, []);
+
+  if (!isClient) return null; 
 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-stone-800/50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-stone-800/50 flex items-center justify-center z-50 font-inter"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

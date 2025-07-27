@@ -5,15 +5,18 @@ import { supabase } from "@/app/_lib/supabase";
 import "@/styles/styles.css";
 import { motion, useAnimation } from "framer-motion";
 import { LucideShoppingBag, Search, User } from "lucide-react";
+import { useHeaderStore } from "@/app/_lib/headerStore";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Menu from "./Menu";
 
 function Header() {
+  const setHeaderLoaded = useHeaderStore((state) => state.setHeaderLoaded);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
-  const user = useAuthStore();
+
   const pathname = usePathname();
 
   const mainControls = useAnimation();
@@ -21,11 +24,26 @@ function Header() {
   const searchControls = useAnimation();
   const menuControls = useAnimation();
 
-  const authPathname = ["/login", "/register", "admin/*"];
+  const authPathname = ["/login", "/register", "/admin"];
 
+  // Listen to auth state changes
   useEffect(() => {
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUserName(session.user.user_metadata?.name || "");
+        setIsLoggedIn(true);
+      } else {
+        setUserName("");
+        setIsLoggedIn(false);
+      }
+    };
+    getSession();
+
     const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         if (session?.user) {
           setUserName(session.user.user_metadata?.name || "");
           setIsLoggedIn(true);
@@ -41,27 +59,25 @@ function Header() {
     };
   }, []);
 
+  // Animate header on pathname changes
   useEffect(() => {
     async function runAnimations() {
       if (pathname !== "/") {
-        // اگر صفحه اصلی نیست، همه ویژوال‌ها رو بلافاصله نشون بده
         await Promise.all([
           mainControls.set({ opacity: 1 }),
           titleControls.set({ x: 0, y: 0, scale: 1, opacity: 1 }),
           searchControls.set({ opacity: 1 }),
           menuControls.set({ x: 0, y: 0, opacity: 1 }),
         ]);
+        setHeaderLoaded(true);
         return;
       }
-
-      // صفحه اصلی: انیمیشن مرحله‌ای
 
       const width = window.innerWidth;
       const isDesktop = width >= 1024;
       const isTablet = width >= 768 && width < 1024;
       const isMobile = width < 768;
 
-      // شروع: حالت مخفی و خارج از صفحه با مقیاس بزرگ
       await Promise.all([
         mainControls.set({ opacity: 0 }),
         titleControls.set({
@@ -74,13 +90,11 @@ function Header() {
         menuControls.set({ x: -270, y: 250, opacity: 0 }),
       ]);
 
-      // نمایش کل container
       await mainControls.start({
         opacity: 1,
         transition: { duration: 0.5, ease: "easeOut" },
       });
 
-      // حرکت لوگو به موقعیت نهایی و کاهش مقیاس
       await titleControls.start({
         x: isDesktop ? 10 : isTablet ? 5 : 0,
         y: 0,
@@ -89,7 +103,6 @@ function Header() {
         transition: { duration: isMobile ? 0 : 2, ease: "easeInOut" },
       });
 
-      // نمایش سرچ و منو به صورت همزمان بعد از لوگو
       await Promise.all([
         searchControls.start({
           opacity: 1,
@@ -102,10 +115,23 @@ function Header() {
           transition: { duration: 1, ease: "easeInOut", delay: 1 },
         }),
       ]);
-    }
 
+      setHeaderLoaded(true);
+    }
     runAnimations();
-  }, [pathname, mainControls, titleControls, searchControls, menuControls]);
+  }, [pathname]);
+
+  // Fallback timeout for headerLoaded
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHeaderLoaded(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [setHeaderLoaded]);
+
+  // Determine if current path is an auth page
+  const isAuthPage =
+    authPathname.includes(pathname) || pathname.startsWith("/admin");
 
   return (
     <motion.div
@@ -126,7 +152,7 @@ function Header() {
           </Link>
         </motion.div>
 
-        {authPathname.includes(pathname) ? null : (
+        {!isAuthPage && (
           <motion.div
             className="header-icons"
             animate={searchControls}

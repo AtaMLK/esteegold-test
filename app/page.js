@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import Header from "./_components/ui/Header";
+import { useEffect } from "react";
 import Main from "./_components/ui/Main";
+import { useAuthStore } from "./_lib/authStore";
+import { useHeaderStore } from "./_lib/headerStore";
 
 function Page() {
-  const [headerLoaded, setHeaderLoaded] = useState(false);
+  const headerLoaded = useHeaderStore((state) => state.headerLoaded);
+  const fetchUser = useAuthStore((state) => state.fetchUser);
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
-  return (
-    <>
-      <Header onHeaderFinish={() => setHeaderLoaded(true)} />
-      <Main headerLoaded={headerLoaded} />;
-    </>
-  );
+  return <>{headerLoaded && <Main headerLoaded={headerLoaded} />}</>;
 }
 
 export default Page;

@@ -1,67 +1,71 @@
 import { create } from "zustand";
 import { supabase } from "./supabase";
 
-export const useAuthStore = create((set) => ({
-  user: null,
-  loading: true,
+export const useAuthStore = create((set) => {
+  // Store the unsubscribe function for auth listener
+  let unsubscribe = null;
 
-  fetchUser: async () => {
-    set({ loading: true });
-    try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-      if (error) throw error;
-      set({ user: session?.user || null });
-    } catch (error) {
-      console.error("Error fetching user:", error.message);
-      set({ user: null });
-    } finally {
-      set({ loading: false });
-    }
-  },
+  return {
+    user: null, // Holds the current logged-in user info
 
-  setUser: (user) => set({ user }),
+    // Register listener for auth state changes
+    fetchUser: () => {
+      // If there's an existing listener, unsubscribe it first
+      if (unsubscribe) unsubscribe();
 
-  logout: async () => {
-    try {
+      // Listen for changes in auth state (login, logout, token refresh, etc.)
+      unsubscribe = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          // If session has a valid user, update the store
+          set({ user: session.user });
+        } else {
+          // No valid user session, clear user info
+          set({ user: null });
+        }
+      }).data.subscription.unsubscribe;
+    },
+
+    // Logout the current user
+    logout: async () => {
       await supabase.auth.signOut();
       set({ user: null });
-    } catch (err) {
-      console.error("Error logging out:", err.message);
-      throw err;
-    }
-  },
+    },
 
-  // ✅ Sign In
-  signInWithEmail: async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      coansole.error("Login error", error.message);
-    }
-    set({ user: data.user || null });
-    console.log("Login result", data);
-    return data.user;
-  },
+    // Sign in with email and password
+    signInWithEmail: async (email, password) => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        console.error("Login error", error.message);
+        return null;
+      }
+      set({ user: data.user || null });
+      return data.user;
+    },
 
-  // ✅ Sign Up
-  signUpWithEmail: async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-    set({ user: data?.user || null });
-    return data.user;
-  },
+    // Sign up with email and password
+    signUpWithEmail: async (email, password) => {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        console.error("Signup error", error.message);
+        return null;
+      }
+      set({ user: data.user || null });
+      return data.user;
+    },
 
-  // ✅ Google login
-  signInWithGoogle: async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-    });
-    if (error) throw error;
-    return data; // redirect URL handled by Supabase
-  },
-}));
+    // Sign in with Google OAuth provider
+    signInWithGoogle: async () => {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+      });
+      if (error) {
+        console.error("Google sign-in error", error.message);
+        return null;
+      }
+      return data; // Supabase handles redirect automatically
+    },
+  };
+});

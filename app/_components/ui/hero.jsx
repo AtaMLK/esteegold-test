@@ -10,7 +10,7 @@ function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [sectionWidth, setSectionWidth] = useState(0);
 
-  // برای محاسبه مکان متن متحرک
+// space width
   const containerPadding = 5 * 12;
 
   useEffect(() => {

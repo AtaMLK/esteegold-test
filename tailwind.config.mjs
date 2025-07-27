@@ -97,6 +97,7 @@ export default {
       dreamFont: ["DreamAvenue", "sans-serif"],
       monoFont: ["MonoSpace"],
       railWayFont: ["Railway", "sans-serif"],
+      inter: ["Inter", "sans-serif"],
     },
   },
   plugins: [require("tailwindcss-animate")],

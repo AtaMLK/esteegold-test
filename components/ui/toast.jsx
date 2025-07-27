@@ -82,21 +82,21 @@ const ToastTitle = React.forwardRef(({ className, ...props }, ref) => (
 ));
 ToastTitle.displayName = ToastPrimitives.Title.displayName;
 
-const ToastDescription = React.forwardRef(({ className, ...props }, ref) => (
-  <ToastPrimitives.Description
+const Toastdescription = React.forwardRef(({ className, ...props }, ref) => (
+  <ToastPrimitives.description
     ref={ref}
     className={classNames("text-sm opacity-90", className)}
     {...props}
   />
 ));
-ToastDescription.displayName = ToastPrimitives.Description.displayName;
+Toastdescription.displayName = ToastPrimitives.description.displayName;
 
 export {
   ToastProvider,
   ToastViewport,
   Toast,
   ToastTitle,
-  ToastDescription,
+  Toastdescription,
   ToastClose,
   ToastAction,
 };

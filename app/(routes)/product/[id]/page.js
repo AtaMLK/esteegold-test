@@ -89,9 +89,15 @@ function ProductId() {
         quantity,
         unit_price: product.price,
       });
-      toast({ description: "Item added to your cart" });
+      toast({
+        variant: "default",
+        message: "Item added to cart.",
+      });
     } catch (error) {
-      toast({ description: error.message });
+      toast({
+        variant: "destructive",
+        message: "Error adding to cart.",
+      });
     }
   };
 

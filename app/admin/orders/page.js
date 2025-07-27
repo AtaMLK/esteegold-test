@@ -1,5 +1,5 @@
-function AdminUsersPage() {
-  return <div>AdminUsersPage</div>;
+function AdminOrdersPage() {
+  return <div>adminOrdersPage</div>;
 }
 
-export default AdminUsersPage;
+export default AdminOrdersPage;
