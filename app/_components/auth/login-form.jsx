@@ -1,4 +1,5 @@
 "use client";
+
 import { useAuthStore } from "@/app/_lib/authStore";
 import CardWrapper from "./card-wrapper";
 import { Button } from "@/components/ui/button";
@@ -16,14 +17,12 @@ import { LoginSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useFormStatus } from "react-dom";
 import { useForm } from "react-hook-form";
 
 function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
-  const { pending } = useFormStatus();
-  const [isLoading, setIsLoading] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   const { signInWithEmail, signInWithGoogle } = useAuthStore();
 
   const form = useForm({
@@ -34,32 +33,28 @@ function LoginForm() {
     },
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (values) => {
     setIsLoading(true);
     try {
-      const user = await signInWithEmail(data.email, data.password);
-      console.log("Logged in user:", user);
+      const user = await signInWithEmail(values.email, values.password);
+      console.log("✅ Logged in user:", user);
 
-      if (user) {
-        const adminEmails = ["setareh@gmail.com", "admin@admin.com"];
-        if (adminEmails.includes(user.email)) {
-          console.log("User is admin, redirecting to /admin");
-          router.push("/admin");
-        } else {
-          console.log("User is normal, redirecting to /");
-          router.push("/");
-        }
+      if (!user) {
+        toast({ variant: "destructive", message: "Login failed" });
+        return;
+      }
+
+      if (["setareh@gmail.com", "admin@admin.com"].includes(user.email)) {
+        console.log("✅ User is admin, redirecting to /admin");
+        router.replace("/admin");
       } else {
-        toast({
-          variant: "destructive",
-          message: "You should create an account first.",
-        });
+        console.log("✅ Redirecting to /dashboard");
+        router.replace("/dashboard");
       }
     } catch (error) {
-      console.error("Login error", error.message);
       toast({
         variant: "destructive",
-        message: error.message,
+        message: error.message || "Login error",
       });
     } finally {
       setIsLoading(false);
@@ -71,12 +66,11 @@ function LoginForm() {
       label="Login to your account"
       title="Login"
       backButtonHref="/register"
-      backButtonLabel="Dont have account ? Create here"
+      backButtonLabel="Don’t have account? Create here"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            {/* Email Field */}
             <FormField
               control={form.control}
               name="email"
@@ -94,7 +88,6 @@ function LoginForm() {
                 </FormItem>
               )}
             />
-            {/* Password Field */}
             <FormField
               control={form.control}
               name="password"
@@ -110,21 +103,21 @@ function LoginForm() {
             />
           </div>
 
-          {/* Submit Button */}
           <div>
             <Button
               variant="outline"
               type="submit"
               className="w-full text-green-200 bg-green-600 border-green-700 hover:bg-green-800"
-              disabled={pending}
+              disabled={isLoading}
             >
-              {isLoading ? "...Loading " : "Login"}
+              {isLoading ? "Loading..." : "Login"}
             </Button>
             <Button
               variant="outline"
+              type="button"
               onClick={() => signInWithGoogle()}
               className="w-full mt-2 text-white bg-blue-400 border-blue-900 hover:bg-red-500"
-              disabled={pending}
+              disabled={isLoading}
             >
               Login With Google
             </Button>

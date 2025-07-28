@@ -69,7 +69,7 @@ function CardMainLeft({ file }) {
         <div className="lg:me-20  relative image" ref={imageRef}>
           <CardImage file={file} />
         </div>
-        <h2 className="font-dreamFont absolute left-[70%] top-[50%] md:hidden text-3xl text-bold me-10 uppercase text-gray-600">
+        <h2 className="font-inter absolute left-[70%] top-[50%] md:hidden text-3xl text-bold me-10 uppercase text-gray-600">
           <span className="  bg-gradient-to-r from-gray-400 to-gray-900 bg-clip-text text-transparent font-extrabold">
             product
           </span>

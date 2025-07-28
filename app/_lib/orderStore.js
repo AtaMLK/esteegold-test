@@ -13,7 +13,7 @@ export const useOrderStore = create((set) => ({
           id,
         quantity,
         unit_price,
-        product:product_id (
+        products:product_id (
           id,
           name,
           price,

@@ -38,7 +38,7 @@ span {
   @apply flex items-center gap-3;
 }
 .header-logo {
-  @apply text-xl md:text-2xl lg:text-4xl font-dreamFont font-bold ml-8 text-gray-900;
+  @apply text-xl md:text-2xl lg:text-4xl font-inter font-bold ml-8 text-gray-900;
 }
 
 .hero-container {

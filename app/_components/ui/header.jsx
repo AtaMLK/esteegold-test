@@ -17,7 +17,6 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
 
-  
   const pathname = usePathname();
   const mainControls = useAnimation();
   const titleControls = useAnimation();
@@ -96,7 +95,15 @@ function Header() {
       });
 
       await titleControls.start({
-        x: isDesktop ? 10 : isTablet ? 5 : 0,
+        x: isDesktop ? 600 : isTablet ? 300 : 0,
+        y: 0,
+        scale: isDesktop ? 1.5 : isTablet ? 1.2 : 1,
+        opacity: 1,
+        transition: { duration: isMobile ? 0 : 2, ease: "easeInOut" },
+      });
+
+      await titleControls.start({
+        x: 10,
         y: 0,
         scale: isDesktop ? 1.5 : isTablet ? 1.2 : 1,
         opacity: 1,

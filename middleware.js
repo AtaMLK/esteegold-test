@@ -1,35 +1,39 @@
 import { NextResponse } from "next/server";
-import { jwtDecode } from "jwt-decode";
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
 export async function middleware(req) {
-  const token = req.cookies.get("sb-access-token")?.value;
+  const res = NextResponse.next();
+
+  const supabase = createMiddlewareClient({
+    req,
+    res,
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const isAdminPath = req.nextUrl.pathname.startsWith("/admin");
   const isUserPath = req.nextUrl.pathname.startsWith("/dashboard");
 
-  if (!token && (isAdminPath || isUserPath)) {
+  // اگر لاگین نیست
+  if (!user && (isAdminPath || isUserPath)) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (token && isAdminPath) {
-    try {
-      const decoded = jwtDecode(token);
-      const email = decoded?.email;
-
-      const adminEmails = ["setareh@gmail.com", "admin@admin.com"];
-      if (!adminEmails.includes(email)) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-    } catch (err) {
-      console.error("JWT decode error:", err);
-      return NextResponse.redirect(new URL("/login", req.url));
+  // اگر مسیر admin بود ولی ایمیل admin نبود
+  if (isAdminPath && user) {
+    const adminEmails = ["setareh@gmail.com", "admin@admin.com"];
+    if (!adminEmails.includes(user.email)) {
+      return NextResponse.redirect(new URL("/", req.url));
     }
   }
 
-  return NextResponse.next();
+  return res;
 }
 
-// protected routes
 export const config = {
   matcher: ["/admin/:path*", "/dashboard/:path*"],
 };

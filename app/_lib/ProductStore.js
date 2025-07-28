@@ -23,7 +23,11 @@ export const useProductStore = create((set) => ({
             id,
             image_url,
             is_primary
-          )
+          ),
+          categories:
+          category_id(
+          title,
+          details)
         `
         )
         .order("created_at", { ascending: false });

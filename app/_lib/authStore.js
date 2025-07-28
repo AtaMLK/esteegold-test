@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { supabase } from "./supabase";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export const useAuthStore = create((set) => {
+  const supabase = createClientComponentClient();
   // Store the unsubscribe function for auth listener
   let unsubscribe = null;
 
   return {
     user: null, // Holds the current logged-in user info
-    
 
     // Register listener for auth state changes
     fetchUser: () => {
@@ -41,11 +42,11 @@ export const useAuthStore = create((set) => {
         email,
         password,
       });
-      if (error) {
-        console.error("Login error", error.message);
-        return null;
-      }
-      set({ user: data.user || null });
+
+      if (error) throw error;
+
+      // Save session in cookie (automatic via supabase helper)
+      set({ user: data.user });
       return data.user;
     },
 

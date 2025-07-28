@@ -1,11 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { useState } from "react";
-import { use } from "@/app/_lib/ProductStore";
-import "/styles/styles.css";
 import ItemCards from "@/app/_components/ui/ItemCards";
 import Spinner from "@/app/_components/ui/Spinner";
+import { useState } from "react";
 import { boolean } from "zod";
+import "/styles/styles.css";
+import { useProductStore } from "@/app/_lib/ProductStore";
 
 function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -19,9 +19,9 @@ function CategoriesPage() {
   const filteredProducts = selectedCategory
     ? products.filter(
         (product) =>
-          product.categories.title === selectedCategory &&
-          product.product_images &&
-          product.product_images.length > 0
+          product?.categories.title === selectedCategory &&
+          product?.product_images &&
+          product?.product_images.length > 0
       )
     : products.filter((p) => p.product_images && p.product_images.length > 0);
   if (loading) {
@@ -63,7 +63,7 @@ function CategoriesPage() {
         {/* category list  */}
         <div className="category-list">
           <div className="flex items-center justify-center">
-            <h3 className="font-dreamFont flex items-center text-2xl font-semibold text-gray-800 mb-2">
+            <h3 className="font-inter flex items-center text-2xl font-semibold text-gray-800 mb-2">
               Categories
               <span
                 className={`ms-4 -rotate-90 hover:cursor-pointer font-normal text-3xl transition-all duration-500 ${

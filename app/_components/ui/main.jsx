@@ -1,4 +1,5 @@
 "use client";
+
 import { useProductStore } from "@/app/_lib/ProductStore";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
@@ -9,50 +10,31 @@ import CardMainLeft from "./card-image-left";
 import CardMainRight from "./card-image-right";
 import Hero from "./hero";
 import MiniSlider from "./MiniSlider";
+import HeroSequence from "./HeroSequence";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Main() {
   const { products, loading, error, fetchProducts } = useProductStore();
-
-  const mainRef = useRef(null);
+  const cardSectionRef = useRef(null);
 
   useEffect(() => {
     // Scroll to top on reload
     window.scrollTo(0, 0);
 
-    let mm = gsap.matchMedia();
-
-    mm.add(
-      {
-        isDesktop: "(min-width: 1024px)", // Large screens
-        isTablet: "(min-width: 768px) and (max-width: 1023px)", // Tablets
-        isMobile: "(max-width: 767px)", // Phones
+    // GSAP animation for card section (not whole page)
+    gsap.from(cardSectionRef.current, {
+      opacity: 0,
+      y: 50,
+      duration: 1.2,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: cardSectionRef.current,
+        start: "top 85%",
+        end: "top 40%",
+        scrub: 1,
       },
-      (context) => {
-        let { isDesktop, isTablet, isMobile } = context.conditions;
-
-        gsap.set(mainRef.current, {
-          opacity: 1,
-          y: isDesktop ? 50 : 0,
-        });
-
-        gsap.to(mainRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: isDesktop ? 1.5 : 0,
-          ease: "power.out",
-          scrollTrigger: {
-            trigger: mainRef.current,
-            start: "top 80%",
-            end: "top 30%",
-            scrub: 1,
-            immediateRender: false,
-          },
-        });
-      }
-    );
-    return () => mm.revert(); // Cleanup GSAP media queries on unmount
+    });
   }, []);
 
   useEffect(() => {
@@ -60,10 +42,14 @@ function Main() {
   }, []);
 
   return (
-    <div className="mainpage-container" ref={mainRef} style={{ opacity: 0 }}>
-      <Hero />
+    <div className="mainpage-container">
+      <HeroSequence />
       <MiniSlider />
-      <div className="card-section my-20">
+
+      <div
+        ref={cardSectionRef}
+        className="card-section my-20 px-4 lg:px-16 xl:px-20"
+      >
         <Link href="/product">
           <CardMainLeft file="Product" />
         </Link>
@@ -71,8 +57,10 @@ function Main() {
           <CardMainRight file="Gallery" />
         </Link>
       </div>
+
       <About />
     </div>
   );
 }
+
 export default Main;
