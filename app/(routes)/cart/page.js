@@ -4,13 +4,13 @@ import ItemQuantity from "@/app/_components/ui/item-quantity";
 import { useAuthStore } from "@/app/_lib/authStore";
 import { useOrderStore } from "@/app/_lib/orderStore";
 import { supabase } from "@/app/_lib/supabase";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import Link from "next/link";
+import { useToastStore } from "@/hooks/useToastStore";
 import { motion } from "framer-motion";
+import { Trash2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import "../cart/cart.css";
-import Image from "next/image";
 
 function CartPage() {
   const { orders, fetchOrders, updateQuantity, deleteOrderItem } =
@@ -18,6 +18,7 @@ function CartPage() {
   const { user } = useAuthStore();
   const [guestCart, setGuestCart] = useState([]);
   const [guestCartDetails, setGuestCartDetails] = useState([]);
+  const {showToast} = useToastStore();
 
   useEffect(() => {
     const fetchGuestCartDetails = async () => {
@@ -89,6 +90,7 @@ function CartPage() {
       const updated = guestCart.filter((g) => g.productId !== item.id);
       setGuestCart(updated);
       localStorage.setItem("guest_cart", JSON.stringify(updated));
+      showToast("Item deleted from cart", "info");
     }
   };
 
@@ -98,26 +100,27 @@ function CartPage() {
         <div className=" cart-box ">
           {user
             ? orders.map((item, index) => (
-                <div
-                  key={index}
-                  className=" cart-items relative overflow-hidden"
-                >
+                <div key={index} className="cart-items  ">
                   <Image
-                    /* width={80}
-                      height={80} */
-                    fill
-                    src={item.product?.image || "/placeholder.jpg"}
-                    alt={item.product?.name || "product"}
-                    className="cart-item-image w-48 h-48 lg:w-80 lg:h-80  overflow-hidden object-cover"
+                    width={80}
+                    height={80}
+                    src={
+                      item?.product_images?.[0]?.image_url || "/placeholder.jpg"
+                    }
+                    alt={item.name}
+                    className="cart-item-image object-center col-span-2 col-start-1"
                   />
-                  <h2 className="cart-item-name">{item.product?.name}</h2>
-                  <p className="cart-item-price">{item.unit_price} $</p>
+                  <h2 className="font-semibold text-md col-span-4 col-start-3 ">
+                    {item.name}
+                  </h2>
+                  <p className="col-span-2 col-start-7">{item.price}$</p>
                   <ItemQuantity
+                    className="col-span-3 col-start-8"
                     initial={item.quantity}
                     onChange={(val) => handleQuantityChange(val, item)}
                   />
                   <Trash2
-                    className="text-red-500 cursor-pointer"
+                    className="cart-items-delete"
                     onClick={() => handleDelete(item)}
                   />
                 </div>

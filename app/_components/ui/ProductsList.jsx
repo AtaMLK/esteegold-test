@@ -57,8 +57,8 @@ export default function ProductsList() {
           );
           const imageUrl = primaryImage
             ? supabase.storage
-                .from("products")
-                .getPublicUrl(primaryImage.image_url).data.publicUrl
+                .from("product-images")
+                .getPublicUrl(primaryImage?.image_url).data?.publicUrl
             : "/placeholder.jpg";
 
           return (

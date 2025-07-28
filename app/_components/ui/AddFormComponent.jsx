@@ -112,12 +112,15 @@ export default function AddProductComponent({ onDone }) {
     }
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-4 px-5"
+    >
       {/* Category Selection */}
       <label>Category</label>
       <select
         {...register("category_id", { required: true })}
-        className="border p-2"
+        className="border p-2 rounded"
       >
         <option value="">Select category</option>
         {categories.map((cat) => (
@@ -134,7 +137,7 @@ export default function AddProductComponent({ onDone }) {
       <label>Material</label>
       <select
         {...register("material", { required: true })}
-        className="border p-2"
+        className="border p-2 rounded"
       >
         <option value="">Select material</option>
         <option value="Gold">Gold</option>
@@ -146,7 +149,10 @@ export default function AddProductComponent({ onDone }) {
 
       {/* Stock Selection */}
       <label>Stock</label>
-      <select {...register("stock", { required: true })} className="border p-2">
+      <select
+        {...register("stock", { required: true })}
+        className="border p-2 rounded"
+      >
         <option value="">Select stock</option>
         {Array.from({ length: 10 }, (_, i) => (
           <option key={i + 1} value={i + 1}>
@@ -161,7 +167,7 @@ export default function AddProductComponent({ onDone }) {
       <input
         {...register("name", { required: true })}
         placeholder="Product name"
-        className="border p-2"
+        className="border p-2 rounded"
       />
       {errors.name && <span className="text-red-500">Name is required</span>}
 
@@ -172,7 +178,7 @@ export default function AddProductComponent({ onDone }) {
         placeholder="Price"
         type="number"
         step="0.01"
-        className="border p-2"
+        className="border p-2 rounded"
       />
       {errors.price && <span className="text-red-500">Price is required</span>}
 
@@ -181,7 +187,7 @@ export default function AddProductComponent({ onDone }) {
       <textarea
         {...register("description")}
         placeholder="Description"
-        className="border p-2"
+        className="border p-2 rounded"
       />
 
       {/* Image Upload */}
@@ -191,8 +197,15 @@ export default function AddProductComponent({ onDone }) {
         accept="image/*"
         multiple
         {...register("image", { required: true })}
-        className="border p-2"
+        className="hidden"
+        id="fileInput"
       />
+      <label
+        htmlFor="fileInput"
+        className="inline-block w-1/6 cursor-pointer bg-lightgreen-600 text-darkgreen-900 px-4 py-2 rounded hover:bg-darkgreen-700 hover:text-white transition"
+      >
+        Upload Images
+      </label>
       {errors.image && <span className="text-red-500">Image is required</span>}
 
       {/* Image Preview with Primary Selection */}
@@ -227,7 +240,7 @@ export default function AddProductComponent({ onDone }) {
       <button
         type="submit"
         disabled={uploading}
-        className="bg-black text-white py-2 px-4 mt-4"
+        className="mx-auto w-1/4 bg-darkgreen-900 text-white py-4 px-6 mt-4 rounded-lg"
       >
         {uploading ? "Uploading..." : "Add Product"}
       </button>

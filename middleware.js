@@ -5,12 +5,13 @@ export async function middleware(req) {
   const token = req.cookies.get("sb-access-token")?.value;
 
   const isAdminPath = req.nextUrl.pathname.startsWith("/admin");
+  const isUserPath = req.nextUrl.pathname.startsWith("/dashboard");
 
-  if (isAdminPath) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+  if (!token && (isAdminPath || isUserPath)) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
 
+  if (token && isAdminPath) {
     try {
       const decoded = jwtDecode(token);
       const email = decoded?.email;
@@ -28,6 +29,7 @@ export async function middleware(req) {
   return NextResponse.next();
 }
 
+// protected routes
 export const config = {
-  matcher: ["/app/admin/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*"],
 };

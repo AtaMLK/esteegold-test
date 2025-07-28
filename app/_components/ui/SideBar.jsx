@@ -1,19 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSidebarStore } from "@/app/_lib/useSidebarStore";
 import { useAuthStore } from "@/app/_lib/authStore";
-import { motion, AnimatePresence } from "framer-motion";
+import { useSidebarStore } from "@/app/_lib/useSidebarStore";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
-  ShoppingCart,
+  LayoutDashboard,
+  LogOut,
   Package,
   Settings,
+  ShoppingCart,
   Users,
-  LogOut,
-  LayoutDashboard,
 } from "lucide-react";
+
+import { useState } from "react";
 
 const navItems = [
   { href: "/admin/orders", icon: ShoppingCart, label: "Orders" },
@@ -24,8 +26,20 @@ const navItems = [
 
 export default function SideBar() {
   const sideBarIsOpen = useSidebarStore((state) => state.sideBarIsOpen);
-  const logout = useAuthStore((state) => state.logout);
+  const [isLoggingout, setIsLoggingout] = useState(false);
+  const { user, logout } = useAuthStore();
+
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    setIsLoggingout(true);
+    try {
+      await logout();
+      router.push("/");
+      setIsLoggingout(false);
+    } catch (error) {}
+  };
 
   return (
     <div
@@ -96,22 +110,26 @@ export default function SideBar() {
         })}
 
         {/* Logout */}
-        <button
-          onClick={logout}
-          className="flex items-center gap-4 mt-10 px-4 py-2 text-red-300 hover:text-red-100 transition-all"
-        >
-          <LogOut className="w-5 h-5" />
-          {sideBarIsOpen && (
-            <motion.span
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              className="text-[15px]"
-            >
-              Logout
-            </motion.span>
-          )}
-        </button>
+        {isLoggingout ? (
+          "Logging Out ... "
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-4 mt-10 px-4 py-2 text-red-300 hover:text-red-100 transition-all"
+          >
+            <LogOut className="w-5 h-5" />
+            {sideBarIsOpen && (
+              <motion.span
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="text-[15px]"
+              >
+                Logout
+              </motion.span>
+            )}
+          </button>
+        )}
       </nav>
     </div>
   );

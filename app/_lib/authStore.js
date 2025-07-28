@@ -7,6 +7,7 @@ export const useAuthStore = create((set) => {
 
   return {
     user: null, // Holds the current logged-in user info
+    
 
     // Register listener for auth state changes
     fetchUser: () => {
@@ -14,7 +15,9 @@ export const useAuthStore = create((set) => {
       if (unsubscribe) unsubscribe();
 
       // Listen for changes in auth state (login, logout, token refresh, etc.)
-      unsubscribe = supabase.auth.onAuthStateChange((_event, session) => {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
           // If session has a valid user, update the store
           set({ user: session.user });
@@ -22,7 +25,8 @@ export const useAuthStore = create((set) => {
           // No valid user session, clear user info
           set({ user: null });
         }
-      }).data.subscription.unsubscribe;
+      });
+      unsubscribe = subscription.unsubscribe;
     },
 
     // Logout the current user

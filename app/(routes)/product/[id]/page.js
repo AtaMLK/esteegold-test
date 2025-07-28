@@ -2,6 +2,7 @@
 
 import ItemQuantity from "@/app/_components/ui/item-quantity";
 import MiniSlider from "@/app/_components/ui/MiniSlider";
+import { useAuthStore } from "@/app/_lib/authStore";
 import { useOrderStore } from "@/app/_lib/orderStore";
 import { useProductStore } from "@/app/_lib/ProductStore";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useToastStore } from "@/hooks/useToastStore";
 import { motion } from "framer-motion";
 import { EuroIcon } from "lucide-react";
 import Image from "next/image";
@@ -19,8 +21,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import "../product.css";
-import { useToast } from "@/hooks/use-toast";
-import { useAuthStore } from "@/app/_lib/authStore";
 
 const productColor = ["bg-gold", "bg-silver", "bg-roseGold"];
 
@@ -35,7 +35,7 @@ function ProductId() {
   const { setOrder, createOrder, transferGuestCart } = useOrderStore();
   const [quantity, setQuantity] = useState(null);
   const { user } = useAuthStore();
-  const { toast } = useToast();
+  const { showToast } = useToastStore();
   const params = useParams();
   const { id } = params;
 
@@ -77,7 +77,7 @@ function ProductId() {
           ];
 
       localStorage.setItem("guest_cart", JSON.stringify(updated));
-      toast({ description: "Item added to guest cart" });
+      showToast("Item added to guest cart", "success");
       return;
     }
 
@@ -89,15 +89,9 @@ function ProductId() {
         quantity,
         unit_price: product.price,
       });
-      toast({
-        variant: "default",
-        message: "Item added to cart.",
-      });
+      showToast("Added to cart", "success");
     } catch (error) {
-      toast({
-        variant: "destructive",
-        message: "Error adding to cart.",
-      });
+      showToast("Faild to add to cart", "error");
     }
   };
 

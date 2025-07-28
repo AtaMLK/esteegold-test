@@ -17,8 +17,8 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
 
+  
   const pathname = usePathname();
-
   const mainControls = useAnimation();
   const titleControls = useAnimation();
   const searchControls = useAnimation();

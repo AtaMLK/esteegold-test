@@ -6,7 +6,7 @@ export const useOrderStore = create((set) => ({
   loading: false,
   error: null,
 
-  fetchOrders: async () => {a
+  fetchOrders: async () => {
     set({ loading: true, error: null });
     try {
       const { data, error } = await supabase.from("ordered_items").select(`

@@ -1,4 +1,9 @@
 "use client";
+import OrderHistory from "@/app/_components/ui/OrderHistory";
+import Orders from "@/app/_components/ui/Orders";
+import Setting from "@/app/_components/ui/Setting";
+import Spinner from "@/app/_components/ui/Spinner";
+import { useAuthStore } from "@/app/_lib/authStore";
 import { Button } from "@/components/ui/button";
 import {
   History,
@@ -8,13 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Orders from "@/app/_components/ui/Orders";
-import Setting from "@/app/_components/ui/Setting";
-import OrderHistory from "@/app/_components/ui/OrderHistory";
-import { useAuthStore } from "@/app/_lib/authStore";
-import Spinner from "@/app/_components/ui/Spinner";
 
-const adminEmails = ["setareh@gmail.com", "admin@admin.com"];
 const menuItems = [
   {
     title: "Current Order ",
@@ -28,22 +27,16 @@ const menuItems = [
 function Dashboard() {
   const [isLoggingout, setIsLoggingout] = useState(false);
   const [selectedItem, setSelectedItem] = useState(menuItems[0]);
-  const router = useRouter();
   const { user, logout } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
     if (user === null) {
-      router.push("/login");
+      return <Spinner />;
+    } else if (!user) {
+      router.replace("/login");
     }
   }, [user, router]);
-
-  if (!user) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
 
   const handleLogout = async () => {
     setIsLoggingout(true);
@@ -54,52 +47,48 @@ function Dashboard() {
   };
 
   return (
-    <>
-      {!adminEmails && (
-        <div className="dashbord-container px-4 lg:px-20 mt-8 grid  grid-cols-12 gap-4 lg:gap-14">
-          <div className="flex flex-col gap-8 title-menu col-start-1 col-span-3 border-[1px] reounded-md p-6">
-            <div className="title">
-              <div className="m-6 flex items-center gap-2">
-                <UserCircle2 />
-                <h1 className="text-sm font-bold uppercase">
-                  Welcome {user?.user_metadata.name || " user "}
-                </h1>
-              </div>
-            </div>
-            <ul>
-              {menuItems.map((item, index) => (
-                <li
-                  key={index}
-                  className={`flex items-center py-4 cursor-pointer ${
-                    selectedItem === item
-                      ? "p-6 rounded-lg bg-lightgreen-500 text-darkgreen-700"
-                      : ""
-                  } `}
-                  onClick={() => setSelectedItem(item)}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="">{item.icon}</span>
-                    <h3 className="hidden  md:block">{item.title}</h3>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="bg-darkgreen-500 text-lightgreen-300 hover:bg-lightgreen-600 hover:text-darkgreen-900 transition-all duration-100"
-            >
-              {isLoggingout ? "Loging Out..." : "Logout"}
-            </Button>
-          </div>
-          <div className="title-content col-start-4 col-span-9 ">
-            <div className="w-full h-full border-[1px] border-gray-300  px-10 py-16 ">
-              <h2 className="text-3xl">{selectedItem.content}</h2>
-            </div>
+    <div className="dashbord-container px-4 lg:px-20 mt-8 grid  grid-cols-12 gap-4 lg:gap-14">
+      <div className="flex flex-col gap-8 title-menu col-start-1 col-span-3 border-[1px] reounded-md p-6">
+        <div className="title">
+          <div className="m-6 flex items-center gap-2">
+            <UserCircle2 />
+            <h1 className="text-sm font-bold uppercase">
+              Welcome {user?.user_metadata.name || " user "}
+            </h1>
           </div>
         </div>
-      )}
-    </>
+        <ul>
+          {menuItems.map((item, index) => (
+            <li
+              key={index}
+              className={`flex items-center py-4 cursor-pointer ${
+                selectedItem === item
+                  ? "p-6 rounded-lg bg-lightgreen-500 text-darkgreen-700"
+                  : ""
+              } `}
+              onClick={() => setSelectedItem(item)}
+            >
+              <div className="flex items-center gap-4">
+                <span className="">{item.icon}</span>
+                <h3 className="hidden  md:block">{item.title}</h3>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <Button
+          variant="outline"
+          onClick={handleLogout}
+          className="bg-darkgreen-500 text-lightgreen-300 hover:bg-lightgreen-600 hover:text-darkgreen-900 transition-all duration-100"
+        >
+          {isLoggingout ? "Loging Out..." : "Logout"}
+        </Button>
+      </div>
+      <div className="title-content col-start-4 col-span-9 ">
+        <div className="w-full h-full border-[1px] border-gray-300  px-10 py-16 ">
+          <h2 className="text-3xl">{selectedItem.content}</h2>
+        </div>
+      </div>
+    </div>
   );
 }
 
