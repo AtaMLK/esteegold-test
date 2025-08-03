@@ -1,11 +1,10 @@
 "use client";
 
-import { useAuthStore } from "@/app/_lib/authStore";
-import { supabase } from "@/app/_lib/supabase";
+import { useHeaderStore } from "@/app/_lib/headerStore";
+import { supabase } from "@/app/_lib/supabaseClient";
 import "@/styles/styles.css";
 import { motion, useAnimation } from "framer-motion";
 import { LucideShoppingBag, Search, User } from "lucide-react";
-import { useHeaderStore } from "@/app/_lib/headerStore";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,6 +21,17 @@ function Header() {
   const titleControls = useAnimation();
   const searchControls = useAnimation();
   const menuControls = useAnimation();
+
+  useEffect(() => {
+    const runAnimations = async () => {
+      await mainControls.start({
+        opacity: 1,
+        transition: { duration: 0.5, ease: "easeOut" },
+      });
+    };
+
+    runAnimations();
+  }, []);
 
   const authPathname = ["/login", "/register", "/admin"];
 

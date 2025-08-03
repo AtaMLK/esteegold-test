@@ -24,11 +24,6 @@ import "../product.css";
 
 const productColor = ["bg-gold", "bg-silver", "bg-roseGold"];
 
-const necklesSizes = [
-  { index: 1, options: 40 },
-  { index: 2, options: 45 },
-];
-
 function ProductId() {
   const [isSelected, setIsSelected] = useState(false);
   const { products, loading, error, fetchProducts } = useProductStore();
@@ -91,7 +86,8 @@ function ProductId() {
       });
       showToast("Added to cart", "success");
     } catch (error) {
-      showToast("Faild to add to cart", "error");
+      console.log(error.message);
+      showToast("Failed to add to cart", "error");
     }
   };
 
@@ -101,9 +97,9 @@ function ProductId() {
   return (
     <div className="w-full h-full mt-16">
       <div className="dynamic-product-container">
-        <div className="product-mainbox w-[80%] ">
-          <div className="product-left ">
-            <div className="slider">
+        <div className="product-mainbox w-[80%] flex ">
+          <div className="product-left">
+            <div className="productId-slider">
               <Carousel>
                 <CarouselContent>
                   {product.product_images?.map((image, index) => {
@@ -114,10 +110,9 @@ function ProductId() {
                       >
                         <Image
                           src={image.image_url}
-                          width={500}
-                          height={1000}
-                          alt="slider"
-                          objectFit="cover"
+                          fill
+                          alt={`image-${index}`}
+                          objectFit="fill"
                         />
                       </CarouselItem>
                     );
@@ -167,20 +162,6 @@ function ProductId() {
                   })}
                 </div>
               </div>
-              {/* <div className="">
-                <select
-                  name="Select Length"
-                  id="options"
-                  className="border-[1px] border-gray-700 text-md  h-8 mb-10 rounded-sm "
-                >
-                  <option>Select Length</option>
-                  {necklesSizes.map((option, index) => (
-                    <option value={option.options} key={index}>
-                      {option.options}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
               <ItemQuantity initial={1} onChange={(val) => setQuantity(val)} />
               <motion.div
                 initial={{ opacity: 0 }}

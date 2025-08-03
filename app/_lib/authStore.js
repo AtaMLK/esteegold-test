@@ -1,6 +1,5 @@
-import { create } from "zustand";
-import { supabase } from "./supabase";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { create } from "zustand";
 
 export const useAuthStore = create((set) => {
   const supabase = createClientComponentClient();

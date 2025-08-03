@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/app/_lib/authStore";
-import { supabase } from "@/app/_lib/supabase";
+import { supabase } from "@/app/_lib/supabaseClient";
 
 function RegisterForm() {
   const { toast } = useToast();

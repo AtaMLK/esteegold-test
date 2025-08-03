@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import EditProductComponent from "./EditProductComponent";
-import { supabase } from "@/app/_lib/supabase";
+import { supabase } from "@/app/_lib/supabaseClient";
 import { useProductStore } from "@/app/_lib/ProductStore";
 
 export default function ProductsList() {

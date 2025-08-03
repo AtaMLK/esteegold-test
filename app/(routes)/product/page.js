@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/all";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/app/_lib/supabase";
+import { supabase } from "@/app/_lib/supabaseClient";
 import "./product.css";
 import Spinner from "@/app/_components/ui/Spinner";
 

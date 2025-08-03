@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { supabase } from "./supabase";
+import { supabase } from "@/app/_lib/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 
 export const useProductStore = create((set) => ({

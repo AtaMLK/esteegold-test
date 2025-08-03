@@ -77,3 +77,95 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.productId-slider {
+  width: 100%;
+  height: 100%;
+}
+
+.slider {
+  position: relative;
+  width: 100vw;
+  height: 80svh;
+  overflow: hidden;
+  user-select: none;
+  background-color: rgb(5, 5, 5, 0.1);
+}
+
+.slide-track {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.slide {
+  flex-shrink: 0;
+  width: 350px;
+  height: 500px;
+  margin: 0 10px;
+  position: relative;
+  top: 50%;
+
+  transform: translateY(-50%);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.slide-image {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  flex: 1;
+}
+
+.slide-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  will-change: transform;
+  user-select: none;
+}
+
+.slider-overlay {
+  position: absolute;
+  bottom: -1.75rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  padding-inline: 1rem;
+}
+
+.slide:hover .slider-overlay {
+  opacity: calc(1 - var(--slide-moving, 1));
+}
+
+.project-title {
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.project-price {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #222;
+  margin-top: 0.2rem;
+}
+
+.project-arrow {
+  width: 16px;
+  height: 16px;
+}
+
+.project-arrow svg {
+  stroke: #fff;
+  stroke-width: 2;
+}

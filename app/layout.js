@@ -3,6 +3,7 @@ import "../styles/fonts.css";
 import LayoutClientWrapper from "./_components/LayoutClientWrapper";
 import "./globals.css";
 import ToastContainer from "./_components/ui/ToastContainer";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,7 @@ export default function RootLayout({ children }) {
         {/* ✅ Dynamic header/footer logic moved to client */}
 
         <LayoutClientWrapper>
-          {children}
+          <Providers>{children}</Providers>
           <ToastContainer />
         </LayoutClientWrapper>
       </body>

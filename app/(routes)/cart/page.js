@@ -3,7 +3,6 @@
 import ItemQuantity from "@/app/_components/ui/item-quantity";
 import { useAuthStore } from "@/app/_lib/authStore";
 import { useOrderStore } from "@/app/_lib/orderStore";
-import { supabase } from "@/app/_lib/supabase";
 import { useToastStore } from "@/hooks/useToastStore";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
@@ -11,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import "../cart/cart.css";
+import { supabase } from "@/app/_lib/supabaseClient";
 
 function CartPage() {
   const { orders, fetchOrders, updateQuantity, deleteOrderItem } =

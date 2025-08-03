@@ -8,14 +8,13 @@ import { useEffect, useRef } from "react";
 import About from "./about";
 import CardMainLeft from "./card-image-left";
 import CardMainRight from "./card-image-right";
-import Hero from "./hero";
-import MiniSlider from "./MiniSlider";
 import HeroSequence from "./HeroSequence";
+import ParallaxSlider from "./Paralex Slider/ParalexSlider";
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Main() {
-  const { products, loading, error, fetchProducts } = useProductStore();
+  const { fetchProducts } = useProductStore();
   const cardSectionRef = useRef(null);
 
   useEffect(() => {
@@ -44,8 +43,7 @@ function Main() {
   return (
     <div className="mainpage-container">
       <HeroSequence />
-      <MiniSlider />
-
+      <ParallaxSlider/>
       <div
         ref={cardSectionRef}
         className="card-section my-20 px-4 lg:px-16 xl:px-20"
@@ -57,7 +55,6 @@ function Main() {
           <CardMainRight file="Gallery" />
         </Link>
       </div>
-
       <About />
     </div>
   );

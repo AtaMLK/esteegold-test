@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useProductStore } from "@/app/_lib/ProductStore";
-import { supabase } from "@/app/_lib/supabase";
+import { supabase } from "@/app/_lib/supabaseClient";
 import { productSchema } from "@/app/validation/ProductSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

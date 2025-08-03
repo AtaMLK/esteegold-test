@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "@/app/_lib/supabase";
+import {  useSessionContext, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useToastStore } from "@/hooks/useToastStore";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -12,7 +12,8 @@ export default function AddProductComponent({ onDone }) {
   const { showToast } = useToastStore();
   const [imageFiles, setImageFiles] = useState([]);
   const [primaryImageIndex, setPrimaryImageIndex] = useState(0); // default first image
-
+  const session = useSessionContext();
+  const supabase = useSupabaseClient();
   const {
     register,
     handleSubmit,

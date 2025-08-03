@@ -16,7 +16,7 @@ function MiniSlider() {
 
   useEffect(() => {
     fetchProducts();
-    console.log(products);
+    return () => {};
   }, []);
 
   if (loading || !products.length) return <Spinner />;
