@@ -8,8 +8,8 @@ import { useEffect, useRef } from "react";
 import About from "./about";
 import CardMainLeft from "./card-image-left";
 import CardMainRight from "./card-image-right";
-import HeroSequence from "./HeroSequence";
 import ParallaxSlider from "./Paralex Slider/ParalexSlider";
+import HeroScroll from "./scroll header/HeroScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,8 +42,8 @@ function Main() {
 
   return (
     <div className="mainpage-container">
-      <HeroSequence />
-      <ParallaxSlider/>
+      <HeroScroll />
+      <ParallaxSlider />
       <div
         ref={cardSectionRef}
         className="card-section my-20 px-4 lg:px-16 xl:px-20"
