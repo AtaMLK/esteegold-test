@@ -15,29 +15,9 @@ function Product() {
   const [isLoading, setIsLoading] = useState(true);
 
   const mouseRef = useRef();
+  const containerRef = useRef();
 
-  const positions = ["10rem", "17rem", "24rem", "31rem"];
-
-  useEffect(() => {
-    // Scroll to top on reload
-    window.scrollTo(0, 0);
-    const items = document.querySelectorAll(".item-card");
-
-    items.forEach((item) => {
-      gsap.set(item, { opacity: 0.1, y: 100 });
-      gsap.to(item, {
-        opacity: 1,
-        y: 0,
-        scrollTrigger: {
-          trigger: item,
-          start: "top 60%",
-          end: "top 30%",
-          scrub: 1,
-        },
-      });
-    });
-  }, []);
-
+  // Fetch categories from Supabase
   useEffect(() => {
     const fetchCategories = async () => {
       let { data: categories, error } = await supabase
@@ -48,44 +28,102 @@ function Product() {
       } else {
         setCategories(categories);
       }
+      setIsLoading(false);
     };
-    isLoading ? <Spinner /> : fetchCategories(), setIsLoading(false);
-  }, [isLoading]);
+    fetchCategories();
+  }, []);
+
+  // Animate cards using GSAP Timeline
+  useEffect(() => {
+    if (categories.length === 0) return;
+
+    const items = document.querySelectorAll(".item-card");
+
+    // Create a ScrollTrigger timeline
+    const timeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top bottom",
+        end: "+=2000", // length of scroll (adjust as needed)
+        scrub: 1,
+      },
+    });
+
+    items.forEach((item, i) => {
+      const fromX = i % 2 === 0 ? 300 : -300; // even → from right, odd → from left
+      const rotate = i % 2 === 0 ? -15 : 15; // initial rotation
+
+      // Step 1: Card entry animation
+      timeline.fromTo(
+        item,
+        { opacity: 0, x: fromX, rotateZ: rotate },
+        {
+          opacity: 1,
+          x: 0,
+          
+          duration: 1.2,
+          ease: "power3.out",
+          onStart: () => {
+            // Step 2: Slight nudge for previous cards
+            items.forEach((prev, j) => {
+              if (j < i) {
+                const bounceRotate = j % 2 === 0 ? 3 : -3;
+                gsap.to(prev, {
+                  rotateZ: bounceRotate,
+                  duration: 0.3,
+                  yoyo: true,
+                  repeat: 1,
+                  ease: "power1.inOut",
+                });
+              }
+            });
+          },
+        }
+      );
+
+      // Step 3: Keep cards independent, no stacking in the middle
+      timeline.to(
+        item,
+        {
+          x: 0, // maintain the horizontal path
+          rotateZ: rotate, // keep initial rotation if desired
+          duration: 0.6,
+          ease: "power1.inOut",
+        },
+        ">-0.8" // overlap slightly with entry animation
+      );
+    });
+  }, [categories]);
 
   return (
-    <div className="products-main-container">
-      <div className="mouse-icon" ref={mouseRef}>
-        {/* <Mouse /> */}
-      </div>
-      <div className="products-items">
-        {categories.map((category, index) => (
-          // Wrap each card in a Link to its detail page
-          <Link href={`/categories/${category.id}`} key={category.title}>
-            <div
-              className={`item-card ${
-                // Optionally add your positioning classes based on index
-                index % 2 === 0 ? "left-[15rem]" : "right-[13rem]"
-              }  
-              `}
-              style={{ top: positions[index] }}
-            >
-              <div className="relative w-[20rem] h-[28rem]">
-                <Image
-                  src={category?.image_url}
-                  alt={category.title}
-                  fill
-                  style={{ objectFit: "cover" }}
-                  loading="lazy"
-                />
+    <div className="products-main-container mt-60" ref={containerRef}>
+      <div className="mouse-icon" ref={mouseRef}></div>
+
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <div className="products-items relative flex">
+          {categories.map((category) => (
+            <Link href={`/categories/${category.id}`} key={category.title}>
+              <div className="item-card absolute w-[20rem] h-[28rem]">
+                <div className="relative w-full h-full">
+                  <Image
+                    src={category?.image_url}
+                    alt={category.title}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    loading="lazy"
+                  />
+                </div>
+                <div className="card-item-content">
+                  <h3 className="card-item-title">{category.title}</h3>
+                  <p className="card-item-details">{category.details}</p>
+                </div>
               </div>
-              <div className="card-item-content">
-                <h3 className="card-item-title">{category.title}</h3>
-                <p className="card-item-details">{category.details}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

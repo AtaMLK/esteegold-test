@@ -31,8 +31,8 @@ export default function HeroScroll() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
-          start: "top 90%",
-          end: "bottom 90%",
+          start: "top bottom",
+          end: "bottom bottom",
           scrub: 1,
         },
       });

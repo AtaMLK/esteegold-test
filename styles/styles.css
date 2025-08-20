@@ -137,7 +137,7 @@ span {
   @apply items-center justify-center border-gray-600 max-w-full max-h-full;
 }
 .menu-item {
-  @apply flex cursor-pointer uppercase font-railWayFont flex-col text-gray-800 text-3xl;
+  @apply flex cursor-pointer uppercase font-railWayFont flex-col text-gray-900 text-3xl;
 }
 .menu-item h1:hover {
   -webkit-text-stroke: 2px rgba(89, 90, 59, 0.76);
@@ -257,3 +257,113 @@ section {
   }
 }
  */
+/* Page base */
+:root {
+  --header-h: 72px;
+  --container-px: 24px;
+  --title-hero-size: clamp(40px, 8vw, 96px);
+  --title-header-size: 1.5rem; /* ~ text-2xl */
+  --title-weight: 700;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* img {
+  display: block;
+  width: 100%;
+  height: auto;
+} */
+
+/* Header (fixed) */
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--header-h);
+  background: transparent;
+  z-index: 1000;
+  pointer-events: none; /* keeps page interactions */
+}
+.site-header__inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--container-px);
+}
+.site-header__logo-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  pointer-events: auto;
+}
+.site-header__nav {
+  display: flex;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+/* Hero */
+.hero {
+  min-height: 100svh;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-top: var(--header-h);
+}
+.hero__title-holder {
+  position: relative;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+.hero__title {
+  margin: 0;
+  font-size: var(--title-hero-size);
+  font-weight: var(--title-weight);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* When title is in header */
+.title--in-header {
+  font-size: var(--title-header-size) !important; /* text-2xl */
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Work sections */
+.work-item {
+  min-height: 120svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-items: end;
+  gap: 32px;
+  padding: 64px var(--container-px);
+}
+.work-item-img {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  overflow: hidden;
+}
+.work-item-name {
+  width: 100%;
+  text-align: center;
+}
+.work-item-name h1 {
+  font-size: clamp(28px, 4vw, 48px);
+  margin: 0;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* SplitText chars */
+.char {
+  display: inline-block;
+  will-change: transform;
+}

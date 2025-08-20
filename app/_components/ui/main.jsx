@@ -18,26 +18,9 @@ function Main() {
   const cardSectionRef = useRef(null);
 
   useEffect(() => {
-    // Scroll to top on reload
-    window.scrollTo(0, 0);
-
-    // GSAP animation for card section (not whole page)
-    gsap.from(cardSectionRef.current, {
-      opacity: 0,
-      y: 50,
-      duration: 1.2,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: cardSectionRef.current,
-        start: "top 85%",
-        end: "top 40%",
-        scrub: 1,
-      },
+    fetchProducts().then(() => {
+      ScrollTrigger.refresh();
     });
-  }, []);
-
-  useEffect(() => {
-    fetchProducts();
   }, []);
 
   return (

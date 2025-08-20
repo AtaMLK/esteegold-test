@@ -33,13 +33,13 @@ function ItemQuantity({ initial = 1, onChange }) {
         type="number"
         value={itemValue}
         readOnly
-        className="w-8 h-8 border border-gray-400 outline-none text-sm text-center rounded text-stone-700 mx-2"
+        className="w-8 h-8 mx-2 outline-none border border-gray-400 rounded text-center "
       />
 
       <Button
         onClick={handleAdd}
         variant="outline"
-        className="w-8 h-8 p-1 border border-gray-400 font-bold text-md"
+        className="w-8 h-8 p-1 border border-gray-400 font-bold text-md "
       >
         +
       </Button>

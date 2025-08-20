@@ -32,7 +32,7 @@ function Dashboard() {
 
   useEffect(() => {
     if (user === null) {
-      return <Spinner />;
+      return;
     } else if (!user) {
       router.replace("/login");
     }
@@ -43,7 +43,17 @@ function Dashboard() {
     try {
       await logout();
       router.push("/");
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
+    if (user === null) {
+      return <Spinner />;
+    }
+
+    if (!user) {
+      router.replace("/login");
+      return null;
+    }
   };
 
   return (

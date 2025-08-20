@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import ItemQuantity from "@/app/_components/ui/item-quantity";
 import { useAuthStore } from "@/app/_lib/authStore";
 import { useOrderStore } from "@/app/_lib/orderStore";
@@ -8,57 +9,73 @@ import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import "../cart/cart.css";
-import { supabase } from "@/app/_lib/supabaseClient";
 
 function CartPage() {
-  const { orders, fetchOrders, updateQuantity, deleteOrderItem } =
-    useOrderStore();
   const { user } = useAuthStore();
+  const {
+    orders,
+    fetchOrders,
+    updateQuantity,
+    deleteOrderItem,
+    transferGuestCart,
+  } = useOrderStore();
+
+  const { showToast } = useToastStore();
   const [guestCart, setGuestCart] = useState([]);
   const [guestCartDetails, setGuestCartDetails] = useState([]);
-  const {showToast} = useToastStore();
 
+  // Fetch guestCart from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("guest_cart");
+    if (stored) setGuestCart(JSON.parse(stored));
+  }, []);
+
+  // After login, transfer guestCart to user orders
+  useEffect(() => {
+    if (user?.id && guestCart.length > 0) {
+      (async () => {
+        await transferGuestCart(user.id);
+        setGuestCart([]);
+      })();
+    }
+  }, [user?.id, guestCart, transferGuestCart]);
+
+  // Fetch guest cart details for rendering
   useEffect(() => {
     const fetchGuestCartDetails = async () => {
-      if (guestCart.length === 0) {
+      if (!guestCart.length) {
         setGuestCartDetails([]);
         return;
       }
 
       const productIds = guestCart.map((item) => item.productId);
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, name, price,material,stock,product_images(image_url)")
-        .in("id", productIds);
+      const { data, error } = await fetch("/api/fetch-guest-products", {
+        method: "POST",
+        body: JSON.stringify({ productIds }),
+      })
+        .then((res) => res.json())
+        .catch((err) => {
+          console.error(err);
+          return [];
+        });
 
-      if (error) {
-        console.error("Error fetching guest cart details:", error);
-      } else {
-        // products quantity
+      if (data) {
         const detailed = guestCart.map((item) => {
           const product = data.find((p) => p.id === item.productId);
           return product ? { ...product, quantity: item.quantity } : item;
         });
-
         setGuestCartDetails(detailed);
       }
     };
 
-    fetchGuestCartDetails();
-  }, [guestCart]);
+    if (!user?.id) fetchGuestCartDetails();
+  }, [guestCart, user?.id]);
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchOrders();
-    } else {
-      const stored = localStorage.getItem("guest_cart");
-      setGuestCart(JSON.parse(stored || "[]"));
-    }
-  }, [user?.id, fetchOrders]);
-
+  // Determine items to render
   const items = user?.id ? orders : guestCartDetails;
+
+  // Calculate totals
   const totalQuantity = items.reduce(
     (acc, item) => acc + (item.quantity || 0),
     0
@@ -69,19 +86,27 @@ function CartPage() {
     0
   );
 
+  // Handle quantity change
   const handleQuantityChange = async (newQuantity, item) => {
     if (user?.id) {
       await updateQuantity(newQuantity, item.id);
       await fetchOrders();
     } else {
       const updated = guestCart.map((g) =>
-        g.productId === item.productId ? { ...g, quantity: newQuantity } : g
+        g.productId === item.id ? { ...g, quantity: newQuantity } : g
       );
       setGuestCart(updated);
       localStorage.setItem("guest_cart", JSON.stringify(updated));
+      // Update guestCartDetails immediately
+      setGuestCartDetails((prev) =>
+        prev.map((p) =>
+          p.id === item.id ? { ...p, quantity: newQuantity } : p
+        )
+      );
     }
   };
 
+  // Handle delete
   const handleDelete = async (item) => {
     if (user?.id) {
       await deleteOrderItem(item.id);
@@ -90,6 +115,7 @@ function CartPage() {
       const updated = guestCart.filter((g) => g.productId !== item.id);
       setGuestCart(updated);
       localStorage.setItem("guest_cart", JSON.stringify(updated));
+      setGuestCartDetails((prev) => prev.filter((p) => p.id !== item.id));
       showToast("Item deleted from cart", "info");
     }
   };
@@ -97,76 +123,39 @@ function CartPage() {
   return (
     <div className="cart-container">
       <div className="cart-wrapper">
-        <div className=" cart-box ">
-          {user
-            ? orders.map((item, index) => (
-                <div key={index} className="cart-items  ">
-                  <Image
-                    width={80}
-                    height={80}
-                    src={
-                      item?.product_images?.[0]?.image_url || "/placeholder.jpg"
-                    }
-                    alt={item.name}
-                    className="cart-item-image object-center col-span-2 col-start-1"
-                  />
-                  <h2 className="font-semibold text-md col-span-4 col-start-3 ">
-                    {item.name}
-                  </h2>
-                  <p className="col-span-2 col-start-7">{item.price}$</p>
-                  <ItemQuantity
-                    className="col-span-3 col-start-8"
-                    initial={item.quantity}
-                    onChange={(val) => handleQuantityChange(val, item)}
-                  />
-                  <Trash2
-                    className="cart-items-delete"
-                    onClick={() => handleDelete(item)}
-                  />
-                </div>
-              ))
-            : guestCartDetails.map((item, index) => (
-                <div key={index} className="cart-items  ">
-                  <Image
-                    width={80}
-                    height={80}
-                    src={
-                      item?.product_images?.[0]?.image_url || "/placeholder.jpg"
-                    }
-                    alt={item.name}
-                    className="cart-item-image object-center col-span-2 col-start-1"
-                  />
-                  <h2 className="font-semibold text-md col-span-4 col-start-3 ">
-                    {item.name}
-                  </h2>
-                  <p className="col-span-2 col-start-7">{item.price}$</p>
-                  <ItemQuantity
-                    className="col-span-3 col-start-8"
-                    initial={item.quantity}
-                    onChange={(val) => handleQuantityChange(val, item)}
-                  />
-                  <Trash2
-                    className="cart-items-delete"
-                    onClick={() => handleDelete(item)}
-                  />
-                </div>
-              ))}
+        <div className="cart-box">
+          {items.map((item, index) => (
+            <div key={item.id || index} className="cart-items">
+              <Image
+                width={80}
+                height={80}
+                src={item?.product_images?.[0]?.image_url || "/placeholder.jpg"}
+                alt={item.name}
+                className="cart-item-image"
+              />
+              <h2 className="font-semibold text-md">{item.name}</h2>
+              <p>{(item.unit_price || item.price || 0).toFixed(2)}$</p>
+              <ItemQuantity
+                initial={item.quantity}
+                onChange={(val) => handleQuantityChange(val, item)}
+              />
+              <Trash2 onClick={() => handleDelete(item)} />
+            </div>
+          ))}
         </div>
 
-        <div className="cart-total w-full px-[12%] mt-6 flex items-center justify-between text-lg gap-4 flex-col">
-          <div className="flex w-full justify-between">
+        <div className="cart-total">
+          <div className="flex justify-between">
             <p>
-              Total :{" "}
-              <span className="text-lg font-bold mx-2">{totalQuantity}</span>
-              Pcs
+              Total: <span>{totalQuantity}</span> pcs
             </p>
             <p>{totalPrice.toFixed(2)} $</p>
           </div>
-          <div className="cart-button my-6 w-full">
+          <div className="cart-button">
             <Link href={user?.id ? "/checkout" : "/login"}>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                className="w-full py-2 px-4 bg-green-700/70 text-white font-normal text-md rounded-lg hover:bg-green-800/80 transition-all duration-100"
+                className="w-full py-2 px-4 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-all"
               >
                 Finish Your Purchase
               </motion.button>

@@ -18,7 +18,7 @@ function CardImage({ file }) {
       img.style.transition =
         "transform 0.4s ease-in-out, z-index 0.3s ease-in-out";
         img.style.width="15rem"
-        img.style.height="15rem"
+        img.style.height="20rem"
     });
   };
 

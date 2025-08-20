@@ -55,11 +55,7 @@ export default function ProductsList() {
           const primaryImage = product?.product_images?.find(
             (img) => img.is_primary
           );
-          const imageUrl = primaryImage
-            ? supabase.storage
-                .from("product-images")
-                .getPublicUrl(primaryImage?.image_url).data?.publicUrl
-            : "/placeholder.jpg";
+          const imageUrl = primaryImage?.image_url || "/placeholder.jpg";
 
           return (
             <div

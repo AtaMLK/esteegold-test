@@ -49,7 +49,7 @@ function LoginForm() {
         router.replace("/admin");
       } else {
         console.log("✅ Redirecting to /dashboard");
-        router.replace("/dashboard");
+        router.replace("/cart");
       }
     } catch (error) {
       toast({

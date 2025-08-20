@@ -8,6 +8,7 @@ import Header from "./ui/header";
 export default function LayoutClientWrapper({ children }) {
   const pathname = usePathname();
 
+
   const isAdminPage = pathname.startsWith("/admin");
 
   return (

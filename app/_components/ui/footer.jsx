@@ -14,10 +14,16 @@ function Footer() {
     <div className="footer-container">
       <div className="footer-content ms-10 mb-5">
         {/* Navigation Links */}
-        <div className="footer-contactitems flex flex-col gap-2">
-          <Link href="/contact"><p>contact</p></Link>
-          <Link href="/about"><p>about</p></Link>
-          <Link href="/specialOrder"><p>Design your requested Rings</p></Link>
+        <div className="footer-contactitems flex flex-col gap-6">
+          <Link href="/contact">
+            <p>contact</p>
+          </Link>
+          <Link href="/about">
+            <p>about</p>
+          </Link>
+          <Link href="/specialOrder">
+            <p>Design your requested Rings</p>
+          </Link>
 
           {/* Instagram Link */}
           {instagramUrl && (

@@ -1,6 +1,9 @@
 "use client";
 
-import {  useSessionContext, useSupabaseClient } from "@supabase/auth-helpers-react";
+import {
+  useSessionContext,
+  useSupabaseClient,
+} from "@supabase/auth-helpers-react";
 import { useToastStore } from "@/hooks/useToastStore";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -74,9 +77,12 @@ export default function AddProductComponent({ onDone }) {
       // 3. Upload all images and save their URLs
       const imageInsertions = await Promise.all(
         imageFiles.map(async (imageFile, index) => {
-          const imagePath = `${categoryFolder}/${inserted.name}/${Date.now()}_${
-            imageFile.name
-          }`;
+          // Encode folder and file name to avoid spaces/characters issues
+          const safeCategory = encodeURIComponent(categoryFolder);
+          const safeProductName = encodeURIComponent(inserted.name);
+          const safeFileName = encodeURIComponent(imageFile.name);
+
+          const imagePath = `${safeCategory}/${safeProductName}/${Date.now()}_${safeFileName}`;
 
           const { error: uploadError } = await supabase.storage
             .from("product-images")
@@ -84,17 +90,19 @@ export default function AddProductComponent({ onDone }) {
 
           if (uploadError) throw uploadError;
 
+          // Get public URL
           const { data: urlData } = supabase.storage
             .from("product-images")
             .getPublicUrl(imagePath);
 
           return {
             product_id: inserted.id,
-            image_url: urlData.publicUrl,
-            is_primary: index === primaryImageIndex, // only first image is marked primary
+            image_url: urlData.publicUrl, // ✅ URL کامل ذخیره می‌شود
+            is_primary: index === primaryImageIndex,
           };
         })
       );
+
       // 4. Save all image records
       const { error: imageInsertError } = await supabase
         .from("product_images")
