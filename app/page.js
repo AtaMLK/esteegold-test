@@ -1,4 +1,4 @@
-import Main from "./_components/ui/Main";
+import Main from "./_components/ui/main";
 
 export default function HomePage() {
   return <Main />;
