@@ -1,48 +1,70 @@
-import { Button } from "@/components/ui/button";
-import {
-  ArrowDownRightIcon,
-  LucideCopyright,
-  LucideInstagram,
-} from "lucide-react";
 import Link from "next/link";
-const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
 
-function Footer() {
+const columns = [
+  {
+    title: "Shop",
+    links: [
+      ["EsteeGold", "/gold"],
+      ["EsteeBags", "/bags"],
+      ["All products", "/categories"],
+    ],
+  },
+  {
+    title: "House",
+    links: [
+      ["About EsteeHouse", "/about"],
+      ["Contact", "/contact"],
+      ["Order tracking", "/profile"],
+    ],
+  },
+  {
+    title: "Customer care",
+    links: [
+      ["Shipping & delivery", "/shipping"],
+      ["Returns & refunds", "/returns"],
+      ["Terms of use", "/terms"],
+      ["Privacy policy", "/privacy"],
+    ],
+  },
+];
+
+export default function Footer() {
   return (
-    <div className="footer-container ">
-      <div className="footer-content ms-10 mb-5 ">
-        <div className="footer-contactitems flex flex-col gap-2 ">
-          <Link href="/contact">
-            <p>contact</p>
-          </Link>
-          <Link href="/about">
-            <p>about</p>
-          </Link>
-          <Link href="/specialOrder">
-            <p>Design your requested Rings</p>
-          </Link>
-          <Link href={instagramUrl} target="_blank">
-            <LucideInstagram />
-          </Link>
+    <footer className="border-t border-black/10 bg-[var(--ink)] px-5 pb-6 pt-14 text-[var(--paper)] md:px-8 md:pt-20">
+      <div className="grid gap-12 md:grid-cols-[1.6fr_repeat(3,1fr)] md:gap-8">
+        <div>
+          <p className="font-serif text-[clamp(3.2rem,7vw,7rem)] leading-[0.78] tracking-[-0.065em]">
+            EsteeHouse
+          </p>
+          <p className="mt-7 max-w-sm text-xs leading-6 text-white/55">
+            A creative house for jewelry, accessories and handmade bags — made with character, not in a hurry.
+          </p>
         </div>
-        <div className="footer-subscribe w-full flex mt-5 justify-center items-center h-20 ">
-          <label htmlFor="subscribe">Subscribe</label>
-          <span>
-            <ArrowDownRightIcon />
-          </span>
-          <input
-            type="email"
-            id="subscribe"
-            className=" w-[30%] border-[1px] border-gray-700 h-10 outline-none ps-2 hover:w-[50%] cursor-pointer transition-all duration-500 hover:shadow-lg hover:h-12 hover:shadow-gray-500 "
-          />
-        </div>
-        <div className="footer-copyright flex justify-end items-center me-10 mt-2 text-xs">
-          All rights <LucideCopyright />
-          belong to Estoo gold studio
-        </div>
+
+        {columns.map((column) => (
+          <div key={column.title}>
+            <p className="mb-5 text-[9px] uppercase tracking-[0.28em] text-white/35">
+              {column.title}
+            </p>
+            <div className="flex flex-col gap-2.5">
+              {column.links.map(([label, href]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="w-fit text-sm text-white/80 transition hover:text-white hover:translate-x-1"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
+
+      <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-5 text-[8px] uppercase tracking-[0.22em] text-white/35 md:flex-row md:items-center md:justify-between">
+        <span>ESTEEHOUSE — ESTEEGOLD / ESTEEBAGS</span>
+        <span>© {new Date().getFullYear()} EsteeHouse</span>
+      </div>
+    </footer>
   );
 }
-
-export default Footer;
