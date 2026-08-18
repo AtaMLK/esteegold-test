@@ -1,79 +1,49 @@
 "use client";
-import { useProductStore } from "@/app/_lib/ProductStore";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
+
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import About from "./about";
 import CardMainLeft from "./card-image-left";
 import CardMainRight from "./card-image-right";
 import Hero from "./hero";
 import MiniSlider from "./MiniSlider";
-import Spinner from "./Spinner";
-
-gsap.registerPlugin(ScrollTrigger);
 
 function Main() {
-  const { products, loading, error, fetchProducts } = useProductStore();
-
-  const mainRef = useRef(null);
-
-  useEffect(() => {
-    // Scroll to top on reload
-    window.scrollTo(0, 0);
-
-    let mm = gsap.matchMedia();
-
-    mm.add(
-      {
-        isDesktop: "(min-width: 1024px)", // Large screens
-        isTablet: "(min-width: 768px) and (max-width: 1023px)", // Tablets
-        isMobile: "(max-width: 767px)", // Phones
-      },
-      (context) => {
-        let { isDesktop, isTablet, isMobile } = context.conditions;
-
-        gsap.set(mainRef.current, {
-          opacity: 1,
-          y: isDesktop ? 50 : 0,
-        });
-
-        gsap.to(mainRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: isDesktop ? 1.5 : 0,
-          ease: "power.out",
-          scrollTrigger: {
-            trigger: mainRef.current,
-            start: "top 80%",
-            end: "top 30%",
-            scrub: 1,
-            immediateRender: false,
-          },
-        });
-      }
-    );
-    return () => mm.revert(); // Cleanup GSAP media queries on unmount
-  }, []);
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   return (
-    <div className="mainpage-container" ref={mainRef} style={{ opacity: 0 }}>
+    <div className="mainpage-container">
       <Hero />
-       <MiniSlider />
-      <div className="card-section my-20">
-        <Link href="/product">
+
+      <section className="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-36">
+        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <p className="mb-3 text-[10px] uppercase tracking-[0.25em] text-black/45">
+              The collection
+            </p>
+            <h2 className="max-w-3xl font-serif text-5xl font-normal leading-[.92] tracking-[-.045em] md:text-7xl">
+              Objects made for a closer look.
+            </h2>
+          </div>
+          <Link
+            href="/product"
+            className="w-fit border-b border-black/35 pb-2 text-[10px] uppercase tracking-[.18em]"
+          >
+            View all pieces
+          </Link>
+        </div>
+        <MiniSlider />
+      </section>
+
+      <section className="card-section my-20 grid gap-8 px-6 md:px-10 lg:grid-cols-2">
+        <Link href="/product" className="block">
           <CardMainLeft file="Product" />
         </Link>
-        <Link href="/gallery">
+        <Link href="/gallery" className="block">
           <CardMainRight file="Gallery" />
         </Link>
-      </div>
+      </section>
+
       <About />
     </div>
   );
 }
+
 export default Main;
