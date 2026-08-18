@@ -1,8 +1,9 @@
-.special-menu-overlay { position:fixed; inset:0; z-index:45; background:#e8e1d4; color:#171714; overflow:hidden; }
+.special-menu-overlay { position:fixed; inset:0; z-index:45; background:#e8e1d4; color:#171714; overflow:hidden; pointer-events:none; }
+.special-menu-overlay.is-open { pointer-events:auto; }
 .special-menu-inner { width:100%; height:100%; display:grid; grid-template-columns:1.05fr .95fr; }
 .special-menu-list { padding:8vh 5vw 5vh 7vw; display:flex; flex-direction:column; }
 .special-menu-label { display:flex; justify-content:space-between; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:rgba(23,23,20,.45); margin-bottom:auto; }
-.special-menu-item { display:grid; grid-template-columns:38px 1fr 30px; align-items:center; gap:1rem; border-bottom:1px solid rgba(23,23,20,.16); padding:1rem 0; transition:padding .35s ease, color .35s ease; }
+.special-menu-item { display:grid; grid-template-columns:38px 1fr 30px; align-items:center; gap:1rem; border-bottom:1px solid rgba(23,23,20,.16); padding:1rem 0; transition:padding .35s ease,color .35s ease; }
 .special-menu-item:hover { padding-left:1.1rem; color:#5d5f3d; }
 .special-menu-item > span { font-size:9px; letter-spacing:.15em; color:rgba(23,23,20,.4); }
 .special-menu-item h2 { font-family:Georgia,serif; font-size:clamp(3rem,6vw,7rem); line-height:.85; font-weight:400; letter-spacing:-.055em; }
