@@ -16,15 +16,14 @@ import { LoginSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useFormStatus } from "react-dom";
 import { useForm } from "react-hook-form";
 
 function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
-  const { pending } = useFormStatus();
-  const [isLoading, setIsLoading] = useState();
-  const { signInWithEmail, signInWithGoogle } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
+  const signInWithGoogle = useAuthStore((state) => state.signInWithGoogle);
 
   const form = useForm({
     resolver: zodResolver(LoginSchema),
@@ -37,23 +36,31 @@ function LoginForm() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const user = await signInWithEmail(data.email, data.password); // Use the correct function
-      if (user) {
-        router.push("/"); // Redirect to dashboard if user exists
-      } else {
-        toast({
-          variant: "destructive",
-          description: "You should create an account first.",
-        });
+      const user = await signInWithEmail(data.email, data.password);
+      if (!user) {
+        throw new Error("Unable to sign in with these credentials.");
       }
+      router.push("/");
     } catch (error) {
-      console.error("Login error", error.message); // Log detailed error
+      console.error("Login error", error.message);
       toast({
         variant: "destructive",
-        description: error.message, // Display error message
+        description: error.message,
       });
     } finally {
-      setIsLoading(false); // Stop loading state
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error("Google login error", error.message);
+      toast({
+        variant: "destructive",
+        description: error.message,
+      });
     }
   };
 
@@ -67,7 +74,6 @@ function LoginForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            {/* Email Field */}
             <FormField
               control={form.control}
               name="email"
@@ -75,17 +81,13 @@ function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="johndoe@gmail.com"
-                    />
+                    <Input {...field} type="email" placeholder="johndoe@gmail.com" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/* Password Field */}
+
             <FormField
               control={form.control}
               name="password"
@@ -101,21 +103,22 @@ function LoginForm() {
             />
           </div>
 
-          {/* Submit Button */}
           <div>
             <Button
               variant="outline"
               type="submit"
               className="w-full text-green-200 bg-green-600 border-green-700 hover:bg-green-800"
-              disabled={pending}
+              disabled={isLoading}
             >
-              {isLoading ? "...Loading " : "Login"}
+              {isLoading ? "...Loading" : "Login"}
             </Button>
+
             <Button
               variant="outline"
-              onClick={() => signInWithGoogle()}
+              type="button"
+              onClick={handleGoogleLogin}
               className="w-full mt-2 text-white bg-blue-400 border-blue-900 hover:bg-red-500"
-              disabled={pending}
+              disabled={isLoading}
             >
               Login With Google
             </Button>
