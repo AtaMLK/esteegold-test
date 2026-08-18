@@ -1,10 +1,14 @@
-import { signIn } from "next-auth/react";
-function Signin() {
-  return (
-    <div>
-      <button onClick={() => signIn("instagram")}>Sign in</button>
-    </div>
-  );
-}
+"use client";
 
-export default Signin;
+import { supabase } from "@/app/_lib/supabase";
+
+export default function Signin() {
+  const handleSignIn = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/` },
+    });
+  };
+
+  return <button type="button" onClick={handleSignIn}>Continue with Google</button>;
+}
