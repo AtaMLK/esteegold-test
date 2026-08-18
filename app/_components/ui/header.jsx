@@ -5,49 +5,39 @@ import gsap from "gsap";
 import { LucideShoppingBag, Search, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Menu from "./Menu";
 import { useAuthStore } from "@/app/_lib/authStore";
 import { supabase } from "@/app/_lib/supabase";
 
 function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
-  const hasAnimatedRef = useRef(false);
-  const user = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const fetchUser = useAuthStore((state) => state.fetchUser);
   const pathname = usePathname();
+  const hasAnimatedRef = useRef(false);
   const searchRef = useRef(null);
   const titleRef = useRef(null);
   const mainRef = useRef(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setUserName(user?.user_metadata.name || "");
-        setIsLoggedIn(true);
-        console.log(user);
-      } else {
-        setUserName("");
-        setIsLoggedIn(false);
-      }
-    };
-    getUser();
-  }, []);
+    fetchUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      useAuthStore.getState().setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchUser]);
 
   useEffect(() => {
     if (pathname !== "/" || hasAnimatedRef.current) {
       window.scroll(0, 0);
-      // Ensure all elements are fully visible if not on homepage
       gsap.set(
         [mainRef.current, titleRef.current, searchRef.current, menuRef.current],
-        {
-          visibility: "visible",
-          opacity: 1,
-        }
+        { visibility: "visible", opacity: 1 }
       );
       return;
     }
@@ -57,14 +47,13 @@ function Header() {
 
       mm.add(
         {
-          isDesktop: "(min-width: 1024px)", // Large screens
-          isTablet: "(min-width: 768px) and (max-width: 1023px)", // Tablets
-          isMobile: "(max-width: 767px)", // Phones
+          isDesktop: "(min-width: 1024px)",
+          isTablet: "(min-width: 768px) and (max-width: 1023px)",
+          isMobile: "(max-width: 767px)",
         },
         (context) => {
-          let { isDesktop, isTablet, isMobile } = context.conditions;
+          const { isDesktop, isTablet, isMobile } = context.conditions;
 
-          // Initially hide elements
           gsap.set(mainRef.current, { opacity: 0 });
           gsap.set(titleRef.current, {
             x: isDesktop ? 600 : isTablet ? 300 : 0,
@@ -75,13 +64,11 @@ function Header() {
           gsap.set(searchRef.current, { opacity: 0 });
           gsap.set(menuRef.current, { x: -270, y: 250, opacity: 0 });
 
-          // Main container fades in first
           gsap.to(mainRef.current, {
             opacity: 1,
             duration: 0.5,
             ease: "power2.out",
             onComplete: () => {
-              // Title animation after mainRef appears
               gsap.to(titleRef.current, {
                 x: isDesktop ? 10 : isTablet ? 5 : 0,
                 y: 0,
@@ -91,7 +78,6 @@ function Header() {
                 ease: "power4.inOut",
               });
 
-              // SearchRef appears 1 second after mainRef
               gsap.to(searchRef.current, {
                 opacity: 1,
                 duration: 1,
@@ -99,7 +85,6 @@ function Header() {
                 delay: 1,
               });
 
-              // Menu appears at the same time as searchRef
               gsap.to(menuRef.current, {
                 x: 0,
                 y: 0,
@@ -111,34 +96,34 @@ function Header() {
             },
           });
 
-          hasAnimatedRef.current = true; // Marks animation as played
+          hasAnimatedRef.current = true;
         }
       );
 
-      return () => mm.revert(); // Cleanup GSAP media queries on unmount
+      return () => mm.revert();
     }
   }, [pathname]);
+
   const authPathname = ["/login", "/register"];
+  const userName = user?.user_metadata?.name || user?.email || "";
 
   return (
     <div
-      className={`${
-        pathname === "/" ? "header-container-absolute" : "header-container-flex"
-      }`}
+      className={
+        pathname === "/"
+          ? "header-container-absolute"
+          : "header-container-flex"
+      }
       ref={mainRef}
     >
-      {/* Header content (Logo + Search) */}
       <div className="header-wrapper">
-        {/* Logo */}
         <div className="header-logo opacity-0" ref={titleRef}>
           <Link href="/">
             <h1>Estee Gold Studio</h1>
           </Link>
         </div>
-        {/* Search & Cart Icons */}
-        {authPathname.includes(pathname) ? (
-          ""
-        ) : (
+
+        {!authPathname.includes(pathname) && (
           <div className="header-icons opacity-0" ref={searchRef}>
             <div className="search-section">
               <input
@@ -148,22 +133,20 @@ function Header() {
               />
               <Search className="text-gray-900" />
             </div>
+
             <Link href="/cart">
               <LucideShoppingBag className="text-gray-900 cursor-pointer text-lg mx-2" />
             </Link>
 
-            {user && (
-              <Link href={isLoggedIn ? "/dashboard" : "/login"}>
-                <p className="text-lg cursor-pointer ">
-                  {userName ? `Welcome, ${userName}` : <User />}
-                </p>
-              </Link>
-            )}
+            <Link href={user ? "/dashboard" : "/login"}>
+              <p className="text-lg cursor-pointer">
+                {userName ? `Welcome, ${userName}` : <User />}
+              </p>
+            </Link>
           </div>
         )}
       </div>
-      {/*       Burger Menu
-       */}
+
       <div className="header-menu">
         <Menu ref={menuRef} />
       </div>
