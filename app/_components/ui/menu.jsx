@@ -47,14 +47,12 @@ export default function Menu() {
   return (
     <>
       <button className={`burger ${isOpen ? "active" : ""}`} onClick={() => setIsOpen((value) => !value)} aria-label={isOpen ? "Close menu" : "Open menu"} aria-expanded={isOpen}><span /></button>
-      <div ref={overlayRef} className="special-menu-overlay">
+      <div ref={overlayRef} className={`special-menu-overlay ${isOpen ? "is-open" : ""}`}>
         <div className="special-menu-inner">
           <div className="special-menu-list">
             <div className="special-menu-label"><span>ESTEE GOLD STUDIO</span><span>MENU / 2026</span></div>
             {menuItems.map((item, index) => (
-              <Link key={item.url} href={item.url} ref={(node) => (itemRefs.current[index] = node)} className="special-menu-item" onMouseEnter={() => handleHover(item)} onClick={() => setIsOpen(false)}>
-                <span>{item.number}</span><h2>{item.name}</h2><span>↗</span>
-              </Link>
+              <Link key={item.url} href={item.url} ref={(node) => (itemRefs.current[index] = node)} className="special-menu-item" onMouseEnter={() => handleHover(item)} onClick={() => setIsOpen(false)}><span>{item.number}</span><h2>{item.name}</h2><span>↗</span></Link>
             ))}
             <div className="special-menu-bottom"><span>Explore slowly. Choose intentionally.</span><div>{instagramUrl ? <a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> : <span>Instagram</span>}<span> / Collection 2026</span></div></div>
           </div>
