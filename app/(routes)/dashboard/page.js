@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   History,
@@ -14,73 +15,92 @@ import OrderHistory from "@/app/_components/ui/OrderHistory";
 import { useAuthStore } from "@/app/_lib/authStore";
 
 const menuItems = [
-  { title: "Orders ", icon: <ShoppingBasketIcon />, content: <Orders /> },
+  { title: "Orders", icon: <ShoppingBasketIcon />, content: <Orders /> },
   { title: "Order History", icon: <History />, content: <OrderHistory /> },
   { title: "Setting", icon: <Settings2Icon />, content: <Setting /> },
 ];
 
 function Dashboard() {
-  const [isLoggingout, setIsLoggingout] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [selectedItem, setSelectedItem] = useState(menuItems[0]);
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
+  const fetchUser = useAuthStore((state) => state.fetchUser);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
+    if (!user && loading) {
+      fetchUser();
+      return;
     }
-  }, [user, router]);
+
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [user, loading, fetchUser, router]);
 
   const handleLogout = async () => {
-    setIsLoggingout(true);
+    setIsLoggingOut(true);
     try {
       await logout();
-      router.push("/");
-    } catch (error) {}
+      router.replace("/");
+    } catch (error) {
+      console.error("Logout error:", error.message);
+      setIsLoggingOut(false);
+    }
   };
 
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center px-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-black/45">Loading account…</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="dashbord-container px-4 lg:px-20 mt-8 grid  grid-cols-12 gap-4 lg:gap-14">
-      <div className="flex flex-col gap-8 title-menu col-start-1 col-span-3 border-[1px] reounded-md p-6">
-        <div className="title">
-          <div className="m-6 flex items-center gap-2">
-            <UserCircle2 />
-            <h1 className="text-md lg:text-md uppercase">
-              Welcome {user?.user_metadata.name || " user "}!
-            </h1>
-          </div>
+    <div className="dashbord-container mx-auto mt-8 grid max-w-7xl grid-cols-1 gap-6 px-4 pb-20 lg:grid-cols-12 lg:gap-10 lg:px-10">
+      <aside className="title-menu rounded-md border border-black/10 p-5 lg:col-span-3">
+        <div className="mb-8 flex items-center gap-2">
+          <UserCircle2 />
+          <h1 className="text-sm uppercase tracking-[0.08em]">
+            Welcome {user.user_metadata?.name || "user"}
+          </h1>
         </div>
-        <ul>
-          {menuItems.map((item, index) => (
-            <li
-              key={index}
-              className={`flex items-center py-4 cursor-pointer ${
-                selectedItem === item
-                  ? "p-6 rounded-lg bg-lightgreen-500 text-darkgreen-700"
-                  : ""
-              } `}
-              onClick={() => setSelectedItem(item)}
-            >
-              <div className="flex items-center gap-4">
-                <span className="">{item.icon}</span>
-                <h3 className="hidden  md:block">{item.title}</h3>
-              </div>
+
+        <ul className="space-y-1">
+          {menuItems.map((item) => (
+            <li key={item.title}>
+              <button
+                type="button"
+                className={`flex w-full items-center rounded-lg px-4 py-3 text-left ${
+                  selectedItem.title === item.title
+                    ? "bg-black text-white"
+                    : "hover:bg-black/5"
+                }`}
+                onClick={() => setSelectedItem(item)}
+              >
+                <span className="mr-3">{item.icon}</span>
+                <span className="text-sm">{item.title}</span>
+              </button>
             </li>
           ))}
         </ul>
+
         <Button
           variant="outline"
           onClick={handleLogout}
-          className="bg-darkgreen-500 text-lightgreen-300 hover:bg-lightgreen-600 hover:text-darkgreen-900 transition-all duration-100"
+          className="mt-8 w-full"
+          disabled={isLoggingOut}
         >
-          {isLoggingout ? "Loging Out..." : "Logout"}
+          {isLoggingOut ? "Logging out…" : "Logout"}
         </Button>
-      </div>
-      <div className="title-content col-start-4 col-span-9 ">
-        <div className="w-full h-full border-[1px] border-gray-300  px-10 py-16 ">
-          <h2 className="text-3xl">{selectedItem.content}</h2>
-        </div>
-      </div>
+      </aside>
+
+      <section className="title-content min-h-[420px] rounded-md border border-black/10 p-6 lg:col-span-9 lg:p-10">
+        {selectedItem.content}
+      </section>
     </div>
   );
 }
