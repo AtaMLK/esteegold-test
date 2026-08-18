@@ -21,22 +21,13 @@ export async function POST(request, { params }) {
   try {
     const form = await request.formData();
     const token = String(form.get("token") || "");
-    if (!token) return NextResponse.redirect(new URL(`/checkout/result?status=failure&reason=missing-token`, request.url));
+    if (!token) return NextResponse.redirect(new URL("/checkout/result?status=failure&reason=missing-token", request.url));
 
-    const result = await retrieveCheckoutForm({
-      locale: Iyzipay.LOCALE.EN,
-      conversationId,
-      token,
-    });
-
+    const result = await retrieveCheckoutForm({ locale: Iyzipay.LOCALE.EN, conversationId, token });
     const status = result.status === "success" && result.paymentStatus === "SUCCESS" ? "success" : "failure";
     return NextResponse.redirect(new URL(`/checkout/result?status=${status}&conversationId=${encodeURIComponent(conversationId)}`, request.url));
   } catch (error) {
     console.error("Iyzico callback verification error", error);
-    return NextResponse.redirect(new URL(`/checkout/result?status=failure&reason=verification`, request.url));
+    return NextResponse.redirect(new URL("/checkout/result?status=failure&reason=verification", request.url));
   }
-}
-
-export async function GET(request, context) {
-  return POST(request, context);
 }
