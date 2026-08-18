@@ -8,12 +8,18 @@ export const useAuthStore = create((set) => ({
   fetchUser: async () => {
     set({ loading: true });
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
       if (error) throw error;
-      set({ user: session?.user || null });
+      set({ user: user || null });
+      return user || null;
     } catch (error) {
       console.error("Error fetching user:", error.message);
       set({ user: null });
+      return null;
     } finally {
       set({ loading: false });
     }
@@ -22,40 +28,33 @@ export const useAuthStore = create((set) => ({
   setUser: (user) => set({ user }),
 
   logout: async () => {
-    try {
-      await supabase.auth.signOut();
-      set({ user: null });
-    } catch (err) {
-      console.error("Error logging out:", err.message);
-      throw err;
-    }
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    set({ user: null });
   },
 
-  // ✅ Sign Up
   signUpWithEmail: async (email, password) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     set({ user: data?.user || null });
-    return data.user;
+    return data?.user || null;
   },
 
-  // ✅ Sign In
   signInWithEmail: async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) throw error;
-    set({ user: data.user || null });
-    return data.user;
+    set({ user: data?.user || null });
+    return data?.user || null;
   },
 
-  // ✅ Google login
   signInWithGoogle: async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
     });
     if (error) throw error;
-    return data; // redirect URL handled by Supabase
+    return data;
   },
 }));
