@@ -1,4 +1,4 @@
-import { ArrowDownRightIcon, LucideCopyright, LucideInstagram } from "lucide-react";
+import { ArrowUpRight, LucideCopyright, LucideInstagram } from "lucide-react";
 import Link from "next/link";
 
 const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim();
@@ -6,19 +6,16 @@ const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim();
 export default function Footer() {
   return (
     <footer className="footer-container">
-      <div className="footer-content ms-10 mb-5">
-        <div className="footer-contactitems flex flex-col gap-2">
-          <Link href="/contact"><p>contact</p></Link>
-          <Link href="/about"><p>about</p></Link>
-          <Link href="/categories"><p>collection</p></Link>
-          {instagramUrl ? <a href={instagramUrl} target="_blank" rel="noreferrer"><LucideInstagram /></a> : null}
+      <div className="footer-topline"><span>ESTEE GOLD STUDIO</span><span>ISTANBUL / 2026</span></div>
+      <div className="footer-main">
+        <div className="footer-brand"><h2>Made to be<br /><em>kept.</em></h2><p>Objects with character.<br />Details with a reason.</p></div>
+        <div className="footer-columns">
+          <div><span className="footer-label">Navigate</span><Link href="/">Home</Link><Link href="/product">Collection</Link><Link href="/categories">Categories</Link><Link href="/about">About</Link><Link href="/contact">Contact</Link></div>
+          <div><span className="footer-label">Connect</span>{instagramUrl ? <a href={instagramUrl} target="_blank" rel="noreferrer"><LucideInstagram size={16} /> Instagram</a> : <span>Instagram</span>}<a href="mailto:hello@esteegoldstudio.com">Email <ArrowUpRight size={14} /></a></div>
         </div>
-        <div className="footer-subscribe w-full flex mt-5 justify-center items-center h-20">
-          <label htmlFor="subscribe">Subscribe</label><span><ArrowDownRightIcon /></span>
-          <input type="email" id="subscribe" className="w-[30%] border-[1px] border-gray-700 h-10 outline-none ps-2 hover:w-[50%] cursor-pointer transition-all duration-500 hover:shadow-lg hover:h-12 hover:shadow-gray-500" />
-        </div>
-        <div className="footer-copyright flex justify-end items-center me-10 mt-2 text-xs">All rights <LucideCopyright /> belong to Estee Gold Studio</div>
       </div>
+      <div className="footer-subscribe"><div><span className="footer-label">Private notes</span><p>Occasional pieces, studio stories and first access.</p></div><form onSubmit={(event) => event.preventDefault()}><input type="email" placeholder="Your email" aria-label="Email address" required /><button type="submit"><ArrowUpRight size={18} /></button></form></div>
+      <div className="footer-bottom"><span>© {new Date().getFullYear()} Estee Gold Studio <LucideCopyright size={10} /> All rights reserved.</span><div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></div></div>
     </footer>
   );
 }
