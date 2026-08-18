@@ -1,100 +1,72 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
-import { useState } from "react";
+
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { useEffect, useMemo } from "react";
 import { useProductStore } from "@/app/_lib/ProductStore";
-import "/styles/styles.css";
-import ItemCards from "../../_components/ui/ItemCards";
-import Spinner from "../../_components/ui/Spinner";
+import "./categories.css";
 
-function CategoriesPage() {
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [isSelected, setIsSelected] = useState(false);
-  const { products, loading } = useProductStore();
+const fallbackImage = "/images/Hero-bg-2.jpg";
 
-  const uniqueCat = Array.from(
-    new Set(products.map((cat) => cat.categories?.title))
-  );
+export default function CategoriesPage() {
+  const { products, loading, error, fetchProducts } = useProductStore();
 
-  const filteredProducts = selectedCategory
-    ? products.filter(
-        (product) => product.categories.title === selectedCategory
-      )
-    : products;
-  if (loading) {
-    return <Spinner />;
-  }
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const categories = useMemo(() => {
+    const map = new Map();
+    products.forEach((product) => {
+      const category = product.categories;
+      if (category?.id != null && !map.has(String(category.id))) {
+        map.set(String(category.id), { ...category, productCount: 0, preview: null });
+      }
+      if (category?.id != null) {
+        const current = map.get(String(category.id));
+        current.productCount += 1;
+        current.preview ||= product.product_images?.find((image) => image.is_primary)?.image_url || product.product_images?.[0]?.image_url;
+      }
+    });
+    return [...map.values()];
+  }, [products]);
+
   return (
-    <div className="w-screen h-full bg-gray-200 pb-24">
-      {/* Hero image section */}
-      <div className="category-hero-container ">
-        <img
-          src="/images/Hero-bg-3.jpg"
-          alt="hero-image"
-          className="w-screen h-[40rem] object-cover"
-        />
-      </div>
+    <main className="categories-page">
+      <section className="categories-intro">
+        <p>ESTEE GOLD STUDIO / CATEGORIES</p>
+        <h1>Find the<br /><em>right language.</em></h1>
+        <span>Every category opens a different part of the collection.</span>
+      </section>
 
-      {/* filter selection section */}
-      <div className="xl:h-36 h-20 w-full opacity-50 z-0 relative flex items-center justify-center">
-        <select
-          className="filter-selection mb-10"
-          value={selectedCategory}
-          onChange={(e) => {
-            setSelectedCategory(e.target.value);
-          }}
-        >
-          <option value="" className="text-gray-800">
-            All Categories
-          </option>
-          {uniqueCat.map((cat, index) => (
-            <option key={index} value={cat} className="text-gray-800">
-              {cat}
-            </option>
+      {loading && !products.length ? (
+        <div className="categories-state">Loading categories…</div>
+      ) : error && !products.length ? (
+        <div className="categories-state">{error}</div>
+      ) : categories.length ? (
+        <section className="categories-grid">
+          {categories.map((category, index) => (
+            <Link href={`/categories/${category.id}`} key={category.id} className="category-tile">
+              <div className="category-tile-image">
+                <Image src={category.preview || category.image_url || fallbackImage} alt={category.title || "Category"} fill sizes="(max-width: 800px) 90vw, 42vw" />
+                <div className="category-tile-overlay" />
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <ArrowUpRight />
+              </div>
+              <div className="category-tile-copy">
+                <div>
+                  <p>{category.productCount} pieces</p>
+                  <h2>{category.title}</h2>
+                </div>
+                <p>{category.details || "Explore the pieces in this collection."}</p>
+              </div>
+            </Link>
           ))}
-        </select>
-      </div>
-
-      {/* categories list ande  category sub-items  */}
-      <div className="category-container">
-        {/* category list  */}
-        <div className="category-list">
-          <div className="flex item-center justify-center">
-            <h3 className="font-dreamFont flex items-center text-2xl font-semibold text-gray-800 mb-2">
-              Categories
-              <span
-                className={`ms-4 -rotate-90 hover:cursor-pointer font-normal text-3xl transition-all duration-500 ${
-                  isSelected ? "rotate-90" : ""
-                } `}
-                onClick={() =>
-                  setIsSelected(!isSelected, console.log(isSelected))
-                }
-              >
-                &gt;
-              </span>
-            </h3>
-          </div>
-
-          {isSelected ? (
-            <ul className=" flex flex-col gap-2 items-center justify-center">
-              {uniqueCat.map((cat, index) => (
-                <li
-                  key={index}
-                  onClick={() => setSelectedCategory(cat)}
-                  className="flex cursor-pointer uppercase pb-2 group text-gray-700 hover:underline hover:scale-125 hover:text-gray-800 transition-all duration-300"
-                >
-                  {cat}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            ""
-          )}
-        </div>
-        {/* Product images  */}
-        <ItemCards product={filteredProducts} />
-      </div>
-    </div>
+        </section>
+      ) : (
+        <div className="categories-state">No categories are available yet.</div>
+      )}
+    </main>
   );
 }
-
-export default CategoriesPage;
