@@ -1,121 +1,109 @@
 "use client";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
+
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/app/_lib/supabase";
+import { ArrowDownRight, ArrowUpRight, SlidersHorizontal } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useProductStore } from "@/app/_lib/ProductStore";
 import "./product.css";
-import Spinner from "@/app/_components/ui/Spinner";
 
-gsap.registerPlugin(ScrollTrigger);
+const fallbackImage = "/images/Hero-bg-3.jpg";
 
-function Product() {
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-  const mouseRef = useRef(null);
-
-  const positions = ["10rem", "17rem", "24rem", "31rem"];
+export default function Product() {
+  const { products, loading, error, fetchProducts } = useProductStore();
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    fetchProducts();
+  }, [fetchProducts]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoading(true);
-      setError("");
+  const categories = useMemo(() => {
+    const map = new Map();
+    products.forEach((product) => {
+      const category = product.categories;
+      if (category?.id != null) map.set(String(category.id), category);
+    });
+    return [...map.values()];
+  }, [products]);
 
-      const { data, error: fetchError } = await supabase
-        .from("categories")
-        .select("*")
-        .order("id");
-
-      if (fetchError) {
-        console.error("Error fetching categories:", fetchError.message);
-        setError("Unable to load categories right now.");
-        setCategories([]);
-      } else {
-        setCategories(data || []);
-      }
-
-      setIsLoading(false);
-    };
-
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    if (isLoading || categories.length === 0) return;
-
-    const cards = gsap.utils.toArray(".item-card");
-    const animations = cards.map((item) =>
-      gsap.fromTo(
-        item,
-        { opacity: 0.1, y: 100 },
-        {
-          opacity: 1,
-          y: 0,
-          scrollTrigger: {
-            trigger: item,
-            start: "top 60%",
-            end: "top 30%",
-            scrub: 1,
-          },
-        }
-      )
-    );
-
-    ScrollTrigger.refresh();
-
-    return () => {
-      animations.forEach((animation) => animation.scrollTrigger?.kill());
-      animations.forEach((animation) => animation.kill());
-    };
-  }, [categories, isLoading]);
-
-  if (isLoading) {
-    return <Spinner />;
-  }
-
-  if (error) {
-    return <div className="products-main-container">{error}</div>;
-  }
+  const filtered = useMemo(() => {
+    if (selectedCategory === "all") return products;
+    return products.filter((product) => String(product.categories?.id) === selectedCategory);
+  }, [products, selectedCategory]);
 
   return (
-    <div className="products-main-container">
-      <div className="mouse-icon" ref={mouseRef} />
+    <main className="catalog-page">
+      <section className="catalog-hero">
+        <div className="catalog-hero-copy">
+          <p>ESTEE GOLD STUDIO / COLLECTION 2026</p>
+          <h1>Objects with<br /><em>a point of view.</em></h1>
+          <div className="catalog-hero-bottom">
+            <span>{products.length ? `${products.length} pieces` : "Curated pieces"}</span>
+            <span className="flex items-center gap-2"><ArrowDownRight size={14} /> Scroll to explore</span>
+          </div>
+        </div>
+        <div className="catalog-hero-image">
+          <Image src={fallbackImage} alt="Estee Gold Studio collection" fill priority sizes="(max-width: 900px) 90vw, 48vw" className="object-cover" />
+          <div className="catalog-orbit" />
+        </div>
+      </section>
 
-      <div className="products-items">
-        {categories.map((category, index) => (
-          <Link href={`/categories/${category.id}`} key={category.id}>
-            <div
-              className={`item-card ${
-                index % 2 === 0 ? "left-[15rem]" : "right-[13rem]"
-              }`}
-              style={{ top: positions[index % positions.length] }}
-            >
-              <div className="relative w-[20rem] h-[28rem]">
-                <Image
-                  src={category.image_url}
-                  alt={category.title || "Category"}
-                  fill
-                  sizes="320px"
-                  style={{ objectFit: "cover" }}
-                  loading="lazy"
-                />
-              </div>
-              <div className="card-item-content">
-                <h3 className="card-item-title">{category.title}</h3>
-                <p className="card-item-details">{category.details}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+      <section className="catalog-controls">
+        <div>
+          <p className="catalog-kicker">THE COLLECTION</p>
+          <h2>Choose your direction.</h2>
+        </div>
+        <div className="catalog-filters">
+          <SlidersHorizontal size={15} />
+          <button className={selectedCategory === "all" ? "active" : ""} onClick={() => setSelectedCategory("all")}>All</button>
+          {categories.map((category) => (
+            <button key={category.id} className={selectedCategory === String(category.id) ? "active" : ""} onClick={() => setSelectedCategory(String(category.id))}>
+              {category.title}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {loading && !products.length ? (
+        <div className="catalog-state">Loading the collection…</div>
+      ) : error && !products.length ? (
+        <div className="catalog-state">{error}</div>
+      ) : filtered.length ? (
+        <section className="catalog-grid">
+          {filtered.map((product, index) => {
+            const image = product.product_images?.find((item) => item.is_primary)?.image_url || product.product_images?.[0]?.image_url || fallbackImage;
+            return (
+              <Link href={`/product/${product.id}`} key={product.id} className={`catalog-card ${index % 5 === 0 ? "catalog-card-featured" : ""}`}>
+                <div className="catalog-card-image">
+                  <img src={image} alt={product.name || "Product"} />
+                  <span className="catalog-card-number">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="catalog-card-arrow"><ArrowUpRight size={17} /></span>
+                </div>
+                <div className="catalog-card-meta">
+                  <div>
+                    <p>{product.categories?.title || "Object"}</p>
+                    <h3>{product.name}</h3>
+                  </div>
+                  <strong>€{product.price}</strong>
+                </div>
+              </Link>
+            );
+          })}
+        </section>
+      ) : (
+        <div className="catalog-state">No products match this category.</div>
+      )}
+
+      <section className="catalog-category-strip">
+        <p className="catalog-kicker">BY CATEGORY</p>
+        <div className="catalog-category-links">
+          {categories.map((category) => (
+            <Link href={`/categories/${category.id}`} key={category.id}>
+              <span>{category.title}</span><ArrowUpRight size={16} />
+            </Link>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
-
-export default Product;
