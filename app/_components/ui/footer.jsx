@@ -1,5 +1,6 @@
 import { ArrowUpRight, LucideCopyright, LucideInstagram } from "lucide-react";
 import Link from "next/link";
+import "./footer.css";
 
 const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim();
 
