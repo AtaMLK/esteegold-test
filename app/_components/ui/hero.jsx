@@ -54,10 +54,10 @@ export default function Hero() {
     if (!root || !stage || !model) return;
 
     const ctx = gsap.context(() => {
-      gsap.set(imageRefs.current, { opacity: 0, scale: 1.12, rotate: 2 });
-      gsap.set(imageRefs.current[0], { opacity: 1, scale: 1, rotate: 0 });
-      gsap.set(chapterRefs.current, { opacity: 0, y: 48 });
-      gsap.set(chapterRefs.current[0], { opacity: 1, y: 0 });
+      gsap.set(imageRefs.current, { autoAlpha: 0, scale: 1.12, rotate: 2 });
+      gsap.set(imageRefs.current[0], { autoAlpha: 1, scale: 1, rotate: 0 });
+      gsap.set(chapterRefs.current, { autoAlpha: 0, y: 48 });
+      gsap.set(chapterRefs.current[0], { autoAlpha: 1, y: 0 });
       gsap.set(model, { y: 30, scale: 0.92, rotateY: -8, rotateZ: -2 });
 
       const timeline = gsap.timeline({
@@ -72,17 +72,59 @@ export default function Hero() {
         },
       });
 
-      timeline.to(model, { y: -20, scale: 1.04, rotateY: 8, rotateZ: 2, duration: 1 });
+      timeline.to(model, {
+        y: -20,
+        scale: 1.04,
+        rotateY: 8,
+        rotateZ: 2,
+        duration: 1,
+      });
 
       chapters.slice(1).forEach((_, index) => {
         const current = index;
         const next = index + 1;
+
         timeline
-          .to(chapterRefs.current[current], { opacity: 0, y: -48, duration: 0.22 })
-          .to(chapterRefs.current[next], { opacity: 1, y: 0, duration: 0.22 }, "<")
-          .to(imageRefs.current[current], { opacity: 0, scale: 1.12, rotate: -2, duration: 0.22 }, "<")
-          .to(imageRefs.current[next], { opacity: 1, scale: 1, rotate: 0, duration: 0.22 }, "<")
-          .to(model, { y: -45 - next * 10, rotateY: next % 2 ? -7 : 7, rotateZ: next % 2 ? -2 : 2, duration: 0.7 });
+          .to(chapterRefs.current[current], {
+            autoAlpha: 0,
+            y: -48,
+            duration: 0.22,
+          })
+          .to(
+            chapterRefs.current[next],
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.22,
+            },
+            "<"
+          )
+          .to(
+            imageRefs.current[current],
+            {
+              autoAlpha: 0,
+              scale: 1.12,
+              rotate: -2,
+              duration: 0.22,
+            },
+            "<"
+          )
+          .to(
+            imageRefs.current[next],
+            {
+              autoAlpha: 1,
+              scale: 1,
+              rotate: 0,
+              duration: 0.22,
+            },
+            "<"
+          )
+          .to(model, {
+            y: -45 - next * 10,
+            rotateY: next % 2 ? -7 : 7,
+            rotateZ: next % 2 ? -2 : 2,
+            duration: 0.7,
+          });
       });
 
       gsap.to(progressRef.current, {
