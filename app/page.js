@@ -1,11 +1,5 @@
-"use client";
+import EsteeHouseHome from "./_components/ui/estee-house-home";
 
-import Main from "./_components/ui/Main";
-
-function page() {
-  return (
-    <Main/>
-  );
+export default function HomePage() {
+  return <EsteeHouseHome />;
 }
-
-export default page;
