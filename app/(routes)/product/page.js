@@ -13,67 +13,95 @@ gsap.registerPlugin(ScrollTrigger);
 function Product() {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const mouseRef = useRef();
+  const [error, setError] = useState("");
+  const mouseRef = useRef(null);
 
   const positions = ["10rem", "17rem", "24rem", "31rem"];
 
   useEffect(() => {
-    // Scroll to top on reload
     window.scrollTo(0, 0);
-    const items = document.querySelectorAll(".item-card");
-
-    items.forEach((item) => {
-      gsap.set(item, { opacity: 0.1, y: 100 });
-      gsap.to(item, {
-        opacity: 1,
-        y: 0,
-        scrollTrigger: {
-          trigger: item,
-          start: "top 60%",
-          end: "top 30%",
-          scrub: 1,
-        },
-      });
-    });
   }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
-      let { data: categories, error } = await supabase
+      setIsLoading(true);
+      setError("");
+
+      const { data, error: fetchError } = await supabase
         .from("categories")
-        .select("*");
-      if (error) {
-        console.error("Error fetching categories:", error.message);
+        .select("*")
+        .order("id");
+
+      if (fetchError) {
+        console.error("Error fetching categories:", fetchError.message);
+        setError("Unable to load categories right now.");
+        setCategories([]);
       } else {
-        setCategories(categories);
+        setCategories(data || []);
       }
+
+      setIsLoading(false);
     };
-    isLoading ? <Spinner /> : fetchCategories(), setIsLoading(false);
-  }, [isLoading]);
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (isLoading || categories.length === 0) return;
+
+    const cards = gsap.utils.toArray(".item-card");
+    const animations = cards.map((item) =>
+      gsap.fromTo(
+        item,
+        { opacity: 0.1, y: 100 },
+        {
+          opacity: 1,
+          y: 0,
+          scrollTrigger: {
+            trigger: item,
+            start: "top 60%",
+            end: "top 30%",
+            scrub: 1,
+          },
+        }
+      )
+    );
+
+    ScrollTrigger.refresh();
+
+    return () => {
+      animations.forEach((animation) => animation.scrollTrigger?.kill());
+      animations.forEach((animation) => animation.kill());
+    };
+  }, [categories, isLoading]);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <div className="products-main-container">{error}</div>;
+  }
 
   return (
     <div className="products-main-container">
-      <div className="mouse-icon" ref={mouseRef}>
-        {/* <Mouse /> */}
-      </div>
+      <div className="mouse-icon" ref={mouseRef} />
+
       <div className="products-items">
         {categories.map((category, index) => (
-          // Wrap each card in a Link to its detail page
-          <Link href={`/categories/${category.id}`} key={category.title}>
+          <Link href={`/categories/${category.id}`} key={category.id}>
             <div
               className={`item-card ${
-                // Optionally add your positioning classes based on index
                 index % 2 === 0 ? "left-[15rem]" : "right-[13rem]"
-              }  
-              `}
-              style={{ top: positions[index] }}
+              }`}
+              style={{ top: positions[index % positions.length] }}
             >
               <div className="relative w-[20rem] h-[28rem]">
                 <Image
                   src={category.image_url}
-                  alt={category.title}
+                  alt={category.title || "Category"}
                   fill
+                  sizes="320px"
                   style={{ objectFit: "cover" }}
                   loading="lazy"
                 />
