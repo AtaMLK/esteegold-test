@@ -1,175 +1,112 @@
 "use client";
 
-import ItemQuantity from "@/app/_components/ui/item-quantity";
-import MiniSlider from "@/app/_components/ui/MiniSlider";
-import Spinner from "@/app/_components/ui/Spinner";
-import { useProductStore } from "@/app/_lib/ProductStore";
-import { Button } from "@/components/ui/button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { EuroIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowLeft, ArrowUpRight, Check, Heart, Minus, Plus, ShoppingBag } from "lucide-react";
+import { useProductStore } from "@/app/_lib/ProductStore";
+import { useCartStore } from "@/app/_lib/cartStore";
 import "../product.css";
 
-const productColor = ["bg-gold", "bg-silver", "bg-roseGold"];
+const fallbackImage = "/images/Hero-bg-1.jpg";
 
-const necklesSizes = [
-  { index: 1, options: 40 },
-  { index: 2, options: 45 },
-];
-
-function ProductId() {
-  const [isSelected, setIsSelected] = useState(false);
+export default function ProductDetailPage() {
+  const { id } = useParams();
   const { products, loading, error, fetchProducts } = useProductStore();
-  const params = useParams();
-  const { id } = params;
+  const addItem = useCartStore((state) => state.addItem);
+  const [quantity, setQuantity] = useState(1);
+  const [activeImage, setActiveImage] = useState(0);
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
-  const product = products.find((p) => p.id === String(id));
-  if (!id) {
-    return (
-      <p className="flex items-center justify-center w-full text-3xl text-gray-800 h-72">
-        Invalid Product ID
-      </p>
-    );
-  }
-/*   if (loading) return <Spinner />;
- */  if (!product) {
-    return (
-      <p className=" flex items-center justify-center w-full  text-3xl text-gray-800 h-72">
-        product Not Found
-      </p>
-    );
-  }
-  const handleChange = (e) => {
-    e.preventDefault();
-    setSelectedOption(e.target.value);
+  const product = products.find((item) => String(item.id) === String(id));
+  const images = useMemo(() => product?.product_images?.length ? product.product_images : [{ image_url: fallbackImage }], [product]);
+  const related = useMemo(
+    () => products.filter((item) => item.id !== product?.id && String(item.categories?.id) === String(product?.categories?.id)).slice(0, 4),
+    [products, product]
+  );
+
+  if (loading && !products.length) return <div className="catalog-state">Loading piece…</div>;
+  if (error && !products.length) return <div className="catalog-state">{error}</div>;
+  if (!product) return <div className="catalog-state">Product not found.</div>;
+
+  const currentImage = images[activeImage]?.image_url || fallbackImage;
+
+  const handleAdd = () => {
+    addItem(product, quantity);
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1800);
   };
 
   return (
-    <div className="w-full h-full mt-16">
-      <div className="dynamic-product-container">
-        <div className="product-mainbox">
-          <div className="product-left ">
-            <div className="slider">
-              <Carousel>
-                <CarouselContent>
-                  {product.product_images?.map((image, index) => {
-                    return (
-                      <CarouselItem
-                        key={index}
-                        className="relative w-[150px] h-[500px] lg:w-[200px] lg:h-[700px]"
-                      >
-                        <Image
-                          src={image.image_url}
-                          className=""
-                          alt="slider"
-                          fill
-                          objectFit="cover"
-                        />
-                      </CarouselItem>
-                    );
-                  })}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
-          </div>
-          <div className="product-right ">
-            <div className="product-right-details flex flex-col gap-1">
-              <h2 className="product-name">{product.name}</h2>
-              <p className="mt-2 text-xl">
-                {product?.description || "Hand made crafted with love"}
-              </p>
-              <h3 className="product-price ">
-                <EuroIcon className="h-8 w-8" />
-                <span className="text-3xl font-normal"> {product?.price}</span>
-              </h3>
-              <p className=" my-2 text-xl">Available in stock</p>
-              <p className=" text-xl">FREE SHIPPING OVER 150 EUROS</p>
-              <Link href="/shipping" target="blink">
-                <p className="text-blue-800 underline">View More</p>
-              </Link>
-
-              <div className="product-material mt-4">
-                <h2 className="font-semibold text-[1.25rem] ">Choose Color</h2>
-                <div className="flex  items-center justify-start gap-8">
-                  {productColor.map((color, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center justify-center gap-2 my-2 w-10 h-10 border-[1px] rounded-full border-gray-600"
-                      >
-                        <div
-                          className={`h-full w-full ${color} ${
-                            isSelected === index ? "circle" : "selected-color"
-                          }
-                        `}
-                          onClick={() => {
-                            setIsSelected(index);
-                          }}
-                        ></div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="Length">
-                <select
-                  name="Select Length"
-                  id="options"
-                  onChange={handleChange}
-                  className="border-[1px] border-gray-700 text-xl  h-8 mb-10 rounded-sm"
-                >
-                  <option selected>
-                    Select Length
-                  </option>
-                  {necklesSizes.map((option, index) => (
-                    <option value={option.options} key={index}>
-                      {option.options}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <ItemQuantity />
-              <Button
-                variant="outline"
-                className="addtocart-button"
-                onClick={() => {}}
-              >
-                Add To Card
-              </Button>
-            </div>
-          </div>
-        </div>
-        <div className="product-content ">
-          <p className="row-start-2 w-full h-full p-16 border-[1px] border-gray-700 text-sm ">
-            <strong>Our</strong> jewelry workshop combines artisanal expertise
-            with personalization, giving birth to exceptional bespoke pieces. A
-            unique customer experience, where exclusivity, authenticity and
-            elegance meet. Our jewelry is designed to be worn every day, with a
-            focus on quality and durability. We use only the finest materials,
-            including ethically sourced diamonds and precious metals. Our
-            jewelry is made to last, with a timeless design that will never go
-            out of
-          </p>
-        </div>
-
-        <MiniSlider productImages={product.product_images} />
+    <main className="product-detail-page">
+      <div className="product-detail-topbar">
+        <Link href="/product" className="flex items-center gap-2"><ArrowLeft size={15} /> Collection</Link>
+        <span>{product.categories?.title || "Object"}</span>
       </div>
-    </div>
+
+      <section className="product-detail-hero">
+        <div className="product-gallery">
+          <div className="product-gallery-main">
+            <img src={currentImage} alt={product.name || "Product"} />
+            <span>{String(activeImage + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}</span>
+          </div>
+          <div className="product-gallery-thumbs">
+            {images.map((image, index) => (
+              <button key={image.id || index} onClick={() => setActiveImage(index)} className={activeImage === index ? "active" : ""}>
+                <img src={image.image_url || fallbackImage} alt="" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="product-detail-copy">
+          <p className="product-detail-kicker">{product.categories?.title || "ESTEE GOLD OBJECT"}</p>
+          <h1>{product.name}</h1>
+          <p className="product-detail-description">{product.description || "A considered piece designed around proportion, material and everyday movement."}</p>
+          <div className="product-detail-price">€{product.price}</div>
+
+          <div className="product-detail-meta">
+            <span>Material</span><strong>{product.material || "Hand finished"}</strong>
+            <span>Availability</span><strong>{Number(product.stock) > 0 ? "Ready to ship" : "Made to order"}</strong>
+          </div>
+
+          <div className="product-quantity-row">
+            <span>Quantity</span>
+            <div><button onClick={() => setQuantity((value) => Math.max(1, value - 1))}><Minus size={14} /></button><strong>{quantity}</strong><button onClick={() => setQuantity((value) => value + 1)}><Plus size={14} /></button></div>
+          </div>
+
+          <button className={`product-add-button ${added ? "added" : ""}`} onClick={handleAdd}>
+            {added ? <><Check size={17} /> Added to collection</> : <><ShoppingBag size={17} /> Add to bag</>}
+          </button>
+          <Link href="/cart" className="product-view-cart">View your bag <ArrowUpRight size={14} /></Link>
+
+          <div className="product-detail-note">
+            <Heart size={15} /> Designed to be worn, kept and remembered.
+          </div>
+        </div>
+      </section>
+
+      <section className="product-detail-story">
+        <div><p className="product-detail-kicker">THE DETAIL</p><h2>Quiet from a distance.<br /><em>Different up close.</em></h2></div>
+        <p>{product.description || "Every surface is considered as part of the experience. The collection balances a restrained silhouette with details that reveal themselves when you get closer."}</p>
+      </section>
+
+      {related.length > 0 && (
+        <section className="product-related">
+          <div className="flex items-end justify-between mb-8"><div><p className="product-detail-kicker">MORE FROM THE COLLECTION</p><h2>Continue exploring.</h2></div><Link href={`/categories/${product.categories?.id}`} className="text-[10px] uppercase tracking-[.18em] flex items-center gap-2">View category <ArrowUpRight size={14} /></Link></div>
+          <div className="product-related-grid">
+            {related.map((item) => {
+              const image = item.product_images?.find((img) => img.is_primary)?.image_url || item.product_images?.[0]?.image_url || fallbackImage;
+              return <Link href={`/product/${item.id}`} key={item.id}><div><img src={image} alt={item.name || "Product"} /></div><span>{item.name}</span><strong>€{item.price}</strong></Link>;
+            })}
+          </div>
+        </section>
+      )}
+    </main>
   );
 }
-export default ProductId;
