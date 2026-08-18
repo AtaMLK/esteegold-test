@@ -13,12 +13,12 @@ const menuItems = [
 function Menu() {
   const [itemHover, setItemHover] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [activeImage, setActiveImage] = useState(menuItems[0].src); // Default image
-  const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
+  const [activeImage, setActiveImage] = useState(menuItems[0].src);
+  const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      let activeItemIndicator = gsap.utils.toArray(
+      const activeItemIndicator = gsap.utils.toArray(
         ".menu-item p#active::after"
       );
 
@@ -51,18 +51,11 @@ function Menu() {
         {
           width: "100%",
           duration: 1,
-          ease: "power4.out" /* 
-          delay: 0.5, */,
+          ease: "power4.out",
         },
         "<"
       );
-      gsap.to(".sub-nav", {
-        scale: 1.2,
-        backgroundColor: "#333", // Adjust for a darker shade
-        duration: 0.5,
-        ease: "power2.out",
-        paused: true,
-      });
+
       timeLine.to(
         ".sub-nav",
         {
@@ -79,6 +72,8 @@ function Menu() {
       } else {
         timeLine.reverse();
       }
+
+      return () => timeLine.kill();
     }
   }, [isOpen]);
 
@@ -91,13 +86,15 @@ function Menu() {
       <button
         className={`burger ${isOpen ? "active" : ""}`}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+        aria-expanded={isOpen}
       >
         <span></span>
       </button>
-      <div className={`overlay ${isOpen ? "grid grid-cols-2 " : "hidden"} `}>
+      <div className={`overlay ${isOpen ? "grid grid-cols-2 " : "hidden"}`}>
         <div className="overlay-content col-span-1">
-          <div className="overlay-menu ">
-            <div className="menu-item ">
+          <div className="overlay-menu">
+            <div className="menu-item">
               <ul>
                 {menuItems.map((item, index) => (
                   <Link
@@ -120,18 +117,24 @@ function Menu() {
             <Link href="#" onClick={handleClick}>
               <p>Twitter</p>
             </Link>
-            <Link href={instagramUrl} target="_blank" onClick={handleClick}>
-              <p>Instagram</p>
-            </Link>
+            {instagramUrl ? (
+              <a href={instagramUrl} target="_blank" rel="noreferrer" onClick={handleClick}>
+                <p>Instagram</p>
+              </a>
+            ) : (
+              <button type="button" onClick={handleClick} disabled>
+                <p>Instagram</p>
+              </button>
+            )}
             <Link href="#" onClick={handleClick}>
               <p>Facebook</p>
             </Link>
           </div>
         </div>
-        <div className="overlay-bg ">
+        <div className="overlay-bg">
           <img
             src={`/images/Gallery/${activeImage}`}
-            alt={`${activeImage}`}
+            alt={activeImage}
             className="overlay-image"
           />
         </div>
