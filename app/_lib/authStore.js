@@ -9,15 +9,16 @@ export const useAuthStore = create((set) => ({
     set({ loading: true });
     try {
       const {
-        data: { user },
+        data: { session },
         error,
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getSession();
 
       if (error) throw error;
-      set({ user: user || null });
-      return user || null;
+      const user = session?.user || null;
+      set({ user });
+      return user;
     } catch (error) {
-      console.error("Error fetching user:", error.message);
+      console.error("Error fetching auth session:", error.message);
       set({ user: null });
       return null;
     } finally {
@@ -25,12 +26,12 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  setUser: (user) => set({ user }),
+  setUser: (user) => set({ user: user || null, loading: false }),
 
   logout: async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    set({ user: null });
+    set({ user: null, loading: false });
   },
 
   signUpWithEmail: async (email, password, name) => {
@@ -43,8 +44,11 @@ export const useAuthStore = create((set) => ({
     });
 
     if (error) throw error;
-    set({ user: data?.user || null });
-    return data?.user || null;
+
+    // When email confirmation is enabled, Supabase returns a user but no session.
+    const user = data?.session?.user || null;
+    set({ user, loading: false });
+    return { user: data?.user || null, session: data?.session || null };
   },
 
   signInWithEmail: async (email, password) => {
@@ -52,15 +56,20 @@ export const useAuthStore = create((set) => ({
       email,
       password,
     });
+
     if (error) throw error;
-    set({ user: data?.user || null });
-    return data?.user || null;
+    const user = data?.user || null;
+    set({ user, loading: false });
+    return user;
   },
 
   signInWithGoogle: async () => {
+    const redirectTo = typeof window !== "undefined" ? window.location.origin : undefined;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: redirectTo ? { redirectTo } : undefined,
     });
+
     if (error) throw error;
     return data;
   },
