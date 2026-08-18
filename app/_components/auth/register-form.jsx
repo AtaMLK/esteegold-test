@@ -1,6 +1,14 @@
 "use client";
-import CardWrapper from "./card-wrapper";
+
+import { useAuthStore } from "@/app/_lib/authStore";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { RegisterSchema } from "@/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -9,14 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { RegisterSchema } from "@/schema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/app/_lib/authStore";
+import CardWrapper from "./card-wrapper";
 
 function RegisterForm() {
   const { toast } = useToast();
@@ -37,9 +38,15 @@ function RegisterForm() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      await signUpWithEmail(data.email, data.password, data.name);
-      toast({ description: "Your account has been created successfully." });
-      router.push("/");
+      const { session } = await signUpWithEmail(data.email, data.password, data.name);
+
+      if (session) {
+        toast({ description: "Your account has been created successfully." });
+        router.push("/");
+      } else {
+        toast({ description: "Account created. Check your email to confirm your account." });
+        router.push("/login");
+      }
     } catch (error) {
       console.error("Registration error", error.message);
       toast({ description: error.message, variant: "destructive" });
@@ -93,7 +100,7 @@ function RegisterForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="******" />
+                    <Input {...field} type="password" placeholder="••••••••" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,7 +114,7 @@ function RegisterForm() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="******" />
+                    <Input {...field} type="password" placeholder="••••••••" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,7 +128,7 @@ function RegisterForm() {
             className="w-full bg-green-600 hover:bg-green-800"
             disabled={isLoading}
           >
-            {isLoading ? "... Creating account" : "Register"}
+            {isLoading ? "Creating account…" : "Register"}
           </Button>
         </form>
       </Form>
