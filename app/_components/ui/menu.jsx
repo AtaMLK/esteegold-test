@@ -3,6 +3,7 @@
 import gsap from "gsap";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import "./special-menu.css";
 
 const menuItems = [
   { name: "Home", url: "/", src: "imagee-1.jpg", number: "01" },
