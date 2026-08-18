@@ -56,7 +56,11 @@ export default function Menu() {
             ))}
             <div className="special-menu-bottom"><span>Explore slowly. Choose intentionally.</span><div>{instagramUrl ? <a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> : <span>Instagram</span>}<span> / Collection 2026</span></div></div>
           </div>
-          <div className="special-menu-visual"><div className="special-menu-image-wrap"><img ref={imageRef} src={`/images/Gallery/${active.src}`} alt="" /></div><div className="special-menu-caption"><span>{active.number}</span><strong>{active.name}</strong><span>Hover to transform</span></div></div>
+          <div className="special-menu-visual" data-shape={active.number}>
+            <div className="visual-aurora aurora-one" /><div className="visual-aurora aurora-two" /><div className="visual-aurora aurora-three" />
+            <div className="special-menu-image-wrap"><div className="visual-ring" /><img ref={imageRef} src={`/images/Gallery/${active.src}`} alt="" /></div>
+            <div className="special-menu-caption"><span>{active.number}</span><strong>{active.name}</strong><span>Hover to transform</span></div>
+          </div>
         </div>
       </div>
     </>
