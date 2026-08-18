@@ -1,49 +1,42 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import About from "./about";
-import CardMainLeft from "./card-image-left";
-import CardMainRight from "./card-image-right";
 import Hero from "./hero";
 import MiniSlider from "./MiniSlider";
+import "./home-sections.css";
 
-function Main() {
+export default function Main() {
   return (
-    <div className="mainpage-container">
+    <main className="mainpage-container">
       <Hero />
 
-      <section className="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-36">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div>
-            <p className="mb-3 text-[10px] uppercase tracking-[0.25em] text-black/45">
-              The collection
-            </p>
-            <h2 className="max-w-3xl font-serif text-5xl font-normal leading-[.92] tracking-[-.045em] md:text-7xl">
-              Objects made for a closer look.
-            </h2>
-          </div>
-          <Link
-            href="/product"
-            className="w-fit border-b border-black/35 pb-2 text-[10px] uppercase tracking-[.18em]"
-          >
-            View all pieces
-          </Link>
+      <section className="home-collection">
+        <div className="home-section-heading">
+          <div><p>01 / THE COLLECTION</p><h2>Objects made for<br /><em>a closer look.</em></h2></div>
+          <Link href="/product">View all pieces <ArrowUpRight size={14} /></Link>
         </div>
         <MiniSlider />
       </section>
 
-      <section className="card-section my-20 grid gap-8 px-6 md:px-10 lg:grid-cols-2">
-        <Link href="/product" className="block">
-          <CardMainLeft file="Product" />
-        </Link>
-        <Link href="/gallery" className="block">
-          <CardMainRight file="Gallery" />
-        </Link>
+      <section className="home-object-story">
+        <div className="home-object-image home-object-image-main"><img src="/images/Hero-bg-4.jpg" alt="Estee Gold Studio object" /></div>
+        <div className="home-object-copy">
+          <p>02 / THE STUDIO</p>
+          <h2>A different kind<br /><em>of object.</em></h2>
+          <p className="home-object-text">Designed between restraint and curiosity. We make pieces that don't ask for attention — they keep it.</p>
+          <Link href="/about">Discover the studio <ArrowUpRight size={14} /></Link>
+        </div>
+        <div className="home-object-image home-object-image-small"><img src="/images/Hero-bg-2.jpg" alt="Studio detail" /></div>
+      </section>
+
+      <section className="home-category-callout">
+        <div><p>03 / FIND YOUR FORM</p><h2>Four directions.<br /><em>One signature.</em></h2></div>
+        <Link href="/categories" className="home-round-link"><span>Explore<br />categories</span><ArrowDownRight size={18} /></Link>
       </section>
 
       <About />
-    </div>
+    </main>
   );
 }
-
-export default Main;
