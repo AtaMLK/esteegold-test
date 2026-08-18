@@ -17,13 +17,12 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/app/_lib/authStore";
-import { supabase } from "@/app/_lib/supabase";
 
 function RegisterForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { signUpWithEmail } = useAuthStore();
+  const signUpWithEmail = useAuthStore((state) => state.signUpWithEmail);
 
   const form = useForm({
     resolver: zodResolver(RegisterSchema),
@@ -38,17 +37,7 @@ function RegisterForm() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const { user, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: { name: data.name },
-        },
-      });
-
-      if (error) throw error;
-      console.log("User registered successfully", user);
-
+      await signUpWithEmail(data.email, data.password, data.name);
       toast({ description: "Your account has been created successfully." });
       router.push("/");
     } catch (error) {
@@ -69,7 +58,6 @@ function RegisterForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            {/* Email Field */}
             <FormField
               control={form.control}
               name="email"
@@ -77,18 +65,13 @@ function RegisterForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="johndoe@gmail.com"
-                    />
+                    <Input {...field} type="email" placeholder="johndoe@gmail.com" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Name Field */}
             <FormField
               control={form.control}
               name="name"
@@ -103,7 +86,6 @@ function RegisterForm() {
               )}
             />
 
-            {/* Password Field */}
             <FormField
               control={form.control}
               name="password"
@@ -118,7 +100,6 @@ function RegisterForm() {
               )}
             />
 
-            {/* Confirm Password Field */}
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -134,7 +115,6 @@ function RegisterForm() {
             />
           </div>
 
-          {/* Submit Button */}
           <Button
             variant="outline"
             type="submit"
