@@ -33,8 +33,15 @@ export const useAuthStore = create((set) => ({
     set({ user: null });
   },
 
-  signUpWithEmail: async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  signUpWithEmail: async (email, password, name) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+      },
+    });
+
     if (error) throw error;
     set({ user: data?.user || null });
     return data?.user || null;
