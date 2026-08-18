@@ -1,8 +1,7 @@
 "use client";
 
-import gsap from "gsap";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "./special-menu.css";
 
 const menuItems = [
@@ -15,50 +14,77 @@ const menuItems = [
 export default function Menu() {
   const [isOpen, setIsOpen] = useState(false);
   const [active, setActive] = useState(menuItems[0]);
-  const overlayRef = useRef(null);
-  const imageRef = useRef(null);
-  const itemRefs = useRef([]);
-  const timelineRef = useRef(null);
   const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim();
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.set(overlayRef.current, { clipPath: "circle(0% at calc(100% - 34px) 34px)" });
-      gsap.set(itemRefs.current, { y: 70, opacity: 0 });
-      timelineRef.current = gsap.timeline({ paused: true })
-        .to(overlayRef.current, { clipPath: "circle(150% at calc(100% - 34px) 34px)", duration: .9, ease: "power4.inOut" })
-        .to(itemRefs.current, { y: 0, opacity: 1, stagger: .09, duration: .7, ease: "power4.out" }, "-=.45");
-    });
-    return () => { timelineRef.current?.kill(); ctx.revert(); };
-  }, []);
-
-  useEffect(() => {
-    if (!timelineRef.current) return;
-    if (isOpen) timelineRef.current.play(); else timelineRef.current.reverse();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
-  const handleHover = (item) => {
-    setActive(item);
-    if (imageRef.current) gsap.fromTo(imageRef.current, { opacity: .35, scale: 1.06, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: .45, ease: "power3.out" });
-  };
+  const closeMenu = () => setIsOpen(false);
 
   return (
     <>
-      <button className={`burger ${isOpen ? "active" : ""}`} onClick={() => setIsOpen((value) => !value)} aria-label={isOpen ? "Close menu" : "Open menu"} aria-expanded={isOpen}><span /></button>
-      <div ref={overlayRef} className={`special-menu-overlay ${isOpen ? "is-open" : ""}`}>
+      <button
+        type="button"
+        className={`burger ${isOpen ? "active" : ""}`}
+        onClick={() => setIsOpen((value) => !value)}
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+        aria-expanded={isOpen}
+      >
+        <span />
+      </button>
+
+      <div className={`special-menu-overlay ${isOpen ? "is-open" : ""}`} aria-hidden={!isOpen}>
         <div className="special-menu-inner">
-          <div className="special-menu-list">
+          <nav className="special-menu-list" aria-label="Main navigation">
             <div className="special-menu-label"><span>ESTEE GOLD STUDIO</span><span>MENU / 2026</span></div>
-            {menuItems.map((item, index) => (
-              <Link key={item.url} href={item.url} ref={(node) => (itemRefs.current[index] = node)} className="special-menu-item" onMouseEnter={() => handleHover(item)} onClick={() => setIsOpen(false)}><span>{item.number}</span><h2>{item.name}</h2><span>↗</span></Link>
-            ))}
-            <div className="special-menu-bottom"><span>Explore slowly. Choose intentionally.</span><div>{instagramUrl ? <a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> : <span>Instagram</span>}<span> / Collection 2026</span></div></div>
-          </div>
+
+            <div className="special-menu-links">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.url}
+                  href={item.url}
+                  className={`special-menu-item ${active.url === item.url ? "is-active" : ""}`}
+                  onMouseEnter={() => setActive(item)}
+                  onFocus={() => setActive(item)}
+                  onClick={closeMenu}
+                >
+                  <span>{item.number}</span>
+                  <h2>{item.name}</h2>
+                  <span className="menu-arrow">↗</span>
+                </Link>
+              ))}
+            </div>
+
+            <div className="special-menu-bottom">
+              <span>Explore slowly. Choose intentionally.</span>
+              <div>
+                {instagramUrl ? (
+                  <a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a>
+                ) : (
+                  <span>Instagram</span>
+                )}
+                <span> / Collection 2026</span>
+              </div>
+            </div>
+          </nav>
+
           <div className="special-menu-visual" data-shape={active.number}>
-            <div className="visual-aurora aurora-one" /><div className="visual-aurora aurora-two" /><div className="visual-aurora aurora-three" />
-            <div className="special-menu-image-wrap"><div className="visual-ring" /><img ref={imageRef} src={`/images/Gallery/${active.src}`} alt="" /></div>
+            <div className="visual-aurora aurora-one" />
+            <div className="visual-aurora aurora-two" />
+            <div className="visual-aurora aurora-three" />
+            <div className="special-menu-image-wrap">
+              <div className="visual-ring" />
+              <img src={`/images/Gallery/${active.src}`} alt="" />
+            </div>
             <div className="special-menu-caption"><span>{active.number}</span><strong>{active.name}</strong><span>Hover to transform</span></div>
           </div>
         </div>
