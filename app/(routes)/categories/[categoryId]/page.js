@@ -1,101 +1,61 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
-import Spinner from "@/app/_components/ui/Spinner";
-import { useProductStore } from "@/app/_lib/ProductStore";
+
+import Link from "next/link";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
-import ItemCards from "../../../_components/ui/ItemCards";
-import "/styles/styles.css";
+import { useEffect, useMemo } from "react";
+import { useProductStore } from "@/app/_lib/ProductStore";
+import "../categories.css";
 
-function CategoriesPage() {
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [isSelected, setIsSelected] = useState(false);
-  const { products, loading } = useProductStore();
+const fallbackImage = "/images/Hero-bg-2.jpg";
+
+export default function CategoryDetailPage() {
   const { categoryId } = useParams();
+  const { products, loading, error, fetchProducts } = useProductStore();
 
-  const uniqueCat = Array.from(
-    new Set(products.map((cat) => cat.categories?.title))
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const categoryProducts = useMemo(
+    () => products.filter((product) => String(product.categories?.id) === String(categoryId)),
+    [products, categoryId]
   );
+  const category = categoryProducts[0]?.categories;
 
-  const filteredProducts = selectedCategory
-    ? products.filter(
-        (product) => product.categories?.title === selectedCategory
-      )
-    : products;
+  if (loading && !products.length) return <div className="categories-state">Loading collection…</div>;
+  if (error && !products.length) return <div className="categories-state">{error}</div>;
+  if (!category) return <div className="categories-state">Category not found.</div>;
 
-  if (loading) {
-    return <Spinner />;
-  }
   return (
-    <div className="w-screen h-full bg-gray-200 pb-24 over">
-      {/* Hero image section */}
-      <div className="category-hero-container ">
-        <img
-          src="/images/Hero-bg-3.jpg"
-          alt="hero-image"
-          className="w-screen h-[40rem] object-cover"
-        />
-      </div>
-
-      {/* filter selection section */}
-      <div className="xl:h-36 h-20 w-full opacity-50 z-0 relative flex items-center justify-center">
-        <select
-          className="filter-selection mb-10"
-          value={selectedCategory.length ? selectedCategory : ""}
-          onChange={(e) => {
-            setSelectedCategory(e.target.value);
-          }}
-        >
-          <option value="" className="text-gray-800">
-            All Categories
-          </option>
-          {uniqueCat.map((cat, index) => (
-            <option key={index} value={cat} className="text-gray-800">
-              {cat}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* categories list ande  category sub-items  */}
-      <div className="category-container">
-        {/* category list  */}
-        <div className="category-list">
-          <div className="flex item-center justify-center">
-            <h3 className="font-dreamFont flex items-center text-2xl font-semibold text-gray-800 mb-2">
-              Categories
-              <span
-                className={`ms-4 -rotate-90 hover:cursor-pointer font-normal text-3xl transition-all duration-500 ${
-                  isSelected ? "rotate-90" : ""
-                } `}
-                onClick={() => setIsSelected(!isSelected)}
-              >
-                &gt;
-              </span>
-            </h3>
-          </div>
-
-          {isSelected ? (
-            <ul className=" flex flex-col gap-2 items-center justify-center">
-              {uniqueCat.map((cat, index) => (
-                <li
-                  key={index}
-                  onClick={() => setSelectedCategory(cat)}
-                  className="flex cursor-pointer uppercase pb-2 group text-gray-700 hover:underline hover:scale-125 hover:text-gray-800 transition-all duration-300"
-                >
-                  {cat}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            ""
-          )}
+    <main className="categories-page">
+      <section className="categories-intro">
+        <Link href="/categories" className="flex items-center gap-2 text-[10px] uppercase tracking-[.18em] text-black/50"><ArrowLeft size={14} /> All categories</Link>
+        <div>
+          <p>{String(category.id).padStart(2, "0")} / COLLECTION</p>
+          <h1>{category.title}</h1>
         </div>
-        {/* Product images  */}
-        <ItemCards product={filteredProducts} />
-      </div>
-    </div>
+        <span>{category.details || `Explore ${categoryProducts.length} pieces from the ${category.title} collection.`}</span>
+      </section>
+
+      <section className="categories-grid">
+        {categoryProducts.map((product, index) => {
+          const image = product.product_images?.find((item) => item.is_primary)?.image_url || product.product_images?.[0]?.image_url || fallbackImage;
+          return (
+            <Link href={`/product/${product.id}`} key={product.id} className="category-tile">
+              <div className="category-tile-image">
+                <img src={image} alt={product.name || "Product"} />
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <ArrowUpRight />
+              </div>
+              <div className="category-tile-copy">
+                <div><p>{product.material || "Hand finished"}</p><h2>{product.name}</h2></div>
+                <p>€{product.price}</p>
+              </div>
+            </Link>
+          );
+        })}
+      </section>
+    </main>
   );
 }
-
-export default CategoriesPage;
