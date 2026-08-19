@@ -89,12 +89,12 @@ export default function Hero() {
 
   function switchCollection() {
     if (switchTimelineRef.current?.isActive()) return;
+
     const fromGold = collection === "gold";
     const outgoingRefs = fromGold ? goldImageRefs.current : bagImageRefs.current;
     const incomingRefs = fromGold ? bagImageRefs.current : goldImageRefs.current;
     const outgoing = outgoingRefs[chapter] || outgoingRefs[0];
     const incoming = incomingRefs[0];
-    const direction = fromGold ? 1 : -1;
     if (!outgoing || !incoming || !modelRef.current) return;
 
     const nextCollection = fromGold ? "bags" : "gold";
@@ -103,22 +103,22 @@ export default function Hero() {
       onComplete: () => {
         setCollection(nextCollection);
         setChapter(0);
+        switchTimelineRef.current = null;
       },
     });
     switchTimelineRef.current = timeline;
 
     gsap.killTweensOf([outgoing, incoming, modelRef.current, orbitRef.current]);
-    gsap.set(outgoing, { autoAlpha: 1, xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, zIndex: 2 });
-    gsap.set(incoming, { autoAlpha: 1, xPercent: 112 * direction, yPercent: 3, scale: 0.68, rotate: 12 * direction, rotateY: -18 * direction, zIndex: 4 });
+    gsap.set(outgoing, { autoAlpha: 1, xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, zIndex: 5 });
+    gsap.set(incoming, { autoAlpha: 1, xPercent: 122, yPercent: -4, scale: 0.72, rotate: 14, rotateY: -18, zIndex: 7 });
 
     timeline
-      .to(orbitRef.current, { rotation: "+=180", duration: 1.25, ease: "power2.inOut" }, 0)
-      .to(outgoing, { xPercent: -118 * direction, yPercent: 8, scale: 0.68, rotate: -16 * direction, rotateY: 26 * direction, duration: 1.15 }, 0)
-      .to(incoming, { xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, duration: 1.25 }, 0.02)
-      .to(modelRef.current, { scale: 1.05, rotateY: 8 * direction, duration: 0.55 }, 0.42)
-      .to(modelRef.current, { scale: 1, rotateY: 0, duration: 0.5 }, 0.92)
-      .set(outgoing, { xPercent: 0, yPercent: 0, scale: 0.9, rotate: 0, rotateY: 0, zIndex: 1 }, 1.2)
-      .to(outgoing, { autoAlpha: 1, duration: 0.18 }, 1.2);
+      .to(orbitRef.current, { rotation: "+=180", duration: 1.35, ease: "power2.inOut" }, 0)
+      .to(outgoing, { xPercent: 118, yPercent: 10, scale: 0.66, rotate: 18, rotateY: 28, zIndex: 4, duration: 1.2, ease: "power2.inOut" }, 0)
+      .to(incoming, { xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, zIndex: 7, duration: 1.3, ease: "power3.inOut" }, 0.08)
+      .to(modelRef.current, { scale: 1.045, rotateY: 8, duration: 0.6 }, 0.38)
+      .to(modelRef.current, { scale: 1, rotateY: 0, duration: 0.55 }, 0.92)
+      .set(outgoing, { xPercent: 0, yPercent: 0, scale: 0.92, rotate: 0, rotateY: 0, zIndex: 2, autoAlpha: 1 }, 1.25);
   }
 
   const activeStory = stories[collection];
