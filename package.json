@@ -15,9 +15,10 @@
     "@radix-ui/react-menubar": "^1.1.4",
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.6",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "class-variance-authority": "^0.7.1",
-    "classnames": "^2.5.1",
+    "classnames": "^2.5.0",
     "clsx": "^2.1.1",
     "confetti": "^2.0.6",
     "embla-carousel-react": "^8.5.2",
@@ -39,7 +40,7 @@
     "react-use": "^17.6.0",
     "swiper": "^11.2.1",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7",
+    "tailwindcss-animate": "^1.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
