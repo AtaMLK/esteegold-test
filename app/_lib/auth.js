@@ -15,12 +15,21 @@ export async function signInWithEmail(email, password) {
 export async function signInWithGoogle(redirectTo = "/profile") {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const safePath = redirectTo?.startsWith("/") ? redirectTo : "/profile";
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: `${origin}${safePath}` },
-  });
+  const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${origin}${safePath}` } });
   if (error) throw error;
   return data;
+}
+
+export async function sendPasswordReset(email) {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${origin}/auth/reset-password` });
+  if (error) throw error;
+}
+
+export async function updatePassword(password) {
+  const { data, error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+  return data.user;
 }
 
 export async function signOut() {
