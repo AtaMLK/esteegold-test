@@ -12,8 +12,13 @@ export async function signInWithEmail(email, password) {
   return data.user;
 }
 
-export async function signInWithGoogle() {
-  const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+export async function signInWithGoogle(redirectTo = "/profile") {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const safePath = redirectTo?.startsWith("/") ? redirectTo : "/profile";
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${origin}${safePath}` },
+  });
   if (error) throw error;
   return data;
 }
