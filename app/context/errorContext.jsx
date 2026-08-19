@@ -14,20 +14,16 @@ function normalizeError(error, fallback = "Something went wrong.") {
 export function ErrorProvider({ children }) {
   const reportError = useCallback((error, fallback) => {
     const message = normalizeError(error, fallback);
-    toast({
-      variant: "destructive",
-      title: "Something went wrong",
-      description: message,
-    });
+    toast({ variant: "destructive", title: "Something went wrong", description: message });
     return message;
   }, []);
 
   useEffect(() => {
-    const onUnhandledRejection = (event) => {
-      reportError(event.reason, "An unexpected request failed.");
-    };
+    const onUnhandledRejection = (event) => reportError(event.reason, "An unexpected request failed.");
     const onError = (event) => {
-      reportError(event.error || event.message, "An unexpected error occurred.");
+      // Resource errors such as a missing image are handled by the component
+      // that owns the resource. Only report actual JS exceptions globally.
+      if (event.error) reportError(event.error, "An unexpected error occurred.");
     };
     window.addEventListener("unhandledrejection", onUnhandledRejection);
     window.addEventListener("error", onError);
