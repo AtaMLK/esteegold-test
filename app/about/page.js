@@ -28,7 +28,7 @@ export default function AboutPage() {
 
       <section className="about-duo about-duo-reverse">
         <div className="about-duo-copy"><p className="about-label">03 / ESTEEBAGS</p><h2>Let the weave<br /><em>tell the story.</em></h2><p>Our bags keep the hand visible: knots, colour, texture and the tiny differences that happen when something is made rather than mass-produced.</p><Link href="/bags">Explore EsteeBags <ArrowUpRight size={15} /></Link></div>
-        <div className="about-duo-image"><img src="/images/bags/bag1.jpg" alt="Handmade EsteeBag" onError={(event) => { event.currentTarget.src = "/images/Hero-bg-3.jpg"; }} /></div>
+        <div className="about-duo-image"><img src="/images/bags/bag1.jpg" alt="Handmade EsteeBag" /></div>
       </section>
 
       <section className="about-manifesto"><p className="about-label">04 / OUR APPROACH</p><h2>We make things<br /><em>worth keeping.</em></h2><div><span>Objects with character.</span><span>Details with a reason.</span><Link href="/contact">Talk to the studio <ArrowUpRight size={15} /></Link></div></section>
