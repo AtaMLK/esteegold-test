@@ -23,20 +23,22 @@ export default function Header() {
       <header className={pathname === "/" ? "header-container-absolute" : "header-container-flex"}>
         <div className="header-wrapper">
           <div className="header-logo">
-            <Link href="/" aria-label="EsteeHouse home">EsteeHouse</Link>
+            <Link href="/" aria-label="EsteeHouse home">EsteeHouse <span>EST. / HANDMADE</span></Link>
           </div>
+
           <div className="header-icons">
             <button className={`search-trigger ${searchOpen ? "active" : ""}`} onClick={() => setSearchOpen(true)} aria-label="Open search">
-              <span>Search the collection</span><Search size={17} />
+              <span>Search</span><Search size={17} />
             </button>
             <Link href="/cart" aria-label={`Shopping bag, ${itemCount} items`} className="header-bag-link">
-              <ShoppingBag className="header-icon" size={19} />
+              <ShoppingBag className="header-icon" size={18} />
+              <span>BAG</span>
               <span className="header-bag-count">{itemCount}</span>
             </Link>
-            <Link href="/profile" aria-label="Account"><span className="header-user"><User size={19} /></span></Link>
-            <Menu />
+            <Link href="/profile" aria-label="Account"><span className="header-user"><User size={18} /></span></Link>
           </div>
         </div>
+        <div className="header-menu"><Menu /></div>
       </header>
 
       <div className={`search-command ${searchOpen ? "is-open" : ""}`} aria-hidden={!searchOpen}>
