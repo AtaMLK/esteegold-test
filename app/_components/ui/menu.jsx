@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import "./special-menu.css";
 
 const menuItems = [
-  { name: "EsteeGold", url: "/gold", src: "imagee-1.jpg", number: "01" },
-  { name: "EsteeBags", url: "/bags", src: "imagee-2.jpg", number: "02" },
-  { name: "Collection", url: "/categories", src: "imagee-3.jpg", number: "03" },
-  { name: "About", url: "/about", src: "imagee-4.jpg", number: "04" },
-  { name: "Contact", url: "/contact", src: "imagee-1.jpg", number: "05" },
+  { name: "EsteeGold", url: "/gold", src: "menu1.jfif", number: "01" },
+  { name: "EsteeBags", url: "/bags", src: "menu4.jpg", number: "02" },
+  { name: "Collection", url: "/categories", src: "menu2.jfif", number: "03" },
+  { name: "About", url: "/about", src: "menu3.jfif", number: "04" },
+  { name: "Contact", url: "/contact", src: "menu5.jpg", number: "05" },
 ];
 
 export default function Menu() {

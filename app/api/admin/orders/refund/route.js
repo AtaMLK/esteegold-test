@@ -2,11 +2,28 @@ import Iyzipay from "iyzipay";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const iyzipay = new Iyzipay({
+/* const iyzipay = new Iyzipay({
   apiKey: process.env.IYZIPAY_API_KEY,
   secretKey: process.env.IYZIPAY_SECRET_KEY,
   uri: process.env.IYZIPAY_URI || "https://sandbox-api.iyzipay.com",
 });
+ */
+function getIyzipay() {
+  const apiKey = process.env.IYZIPAY_API_KEY;
+  const secretKey = process.env.IYZIPAY_SECRET_KEY;
+  const uri = process.env.IYZIPAY_URI || "https://sandbox-api.iyzipay.com";
+
+  if (!apiKey || !secretKey) {
+    throw new Error("Iyzico API credentials are not configured.");
+  }
+
+  return new Iyzipay({
+    apiKey,
+    secretKey,
+    uri,
+  });
+}
+
 
 function db() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
@@ -23,9 +40,19 @@ async function admin(request) {
   return !!user?.email && allowed.includes(user.email.toLowerCase());
 }
 
-function refundProvider(request) {
+/* function refundProvider(request) {
   return new Promise((resolve, reject) => {
     iyzipay.refund.create(request, (error, result) => error ? reject(error) : resolve(result));
+  });
+} */
+
+  function refundProvider(request) {
+  const iyzipay = getIyzipay();
+
+  return new Promise((resolve, reject) => {
+    iyzipay.refund.create(request, (error, result) =>
+      error ? reject(error) : resolve(result)
+    );
   });
 }
 

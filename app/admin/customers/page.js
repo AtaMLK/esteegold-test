@@ -5,9 +5,149 @@ import { RefreshCw, Search, Users } from "lucide-react";
 import { supabase } from "../../_lib/supabase";
 
 export default function AdminCustomersPage() {
-  const [orders, setOrders] = useState([]), [query, setQuery] = useState(""), [loading, setLoading] = useState(true), [error, setError] = useState("");
-  async function load() { setLoading(true); setError(""); try { const { data: { session } } = await supabase.auth.getSession(); if (!session?.access_token) throw new Error("Please sign in as an administrator."); const response = await fetch("/api/admin/orders", { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Could not load customers."); setOrders(data.orders || []); } catch (e) { setError(e.message); } finally { setLoading(false); } }
-  useEffect(() => { load(); }, []);
-  const customers = useMemo(() => { const map = new Map(); for (const order of orders) { const c = order.customer_snapshot || {}; const key = (c.email || c.phone || c.fullName || order.id).toLowerCase(); const previous = map.get(key) || { key, name: c.fullName || "Guest", email: c.email || "—", phone: c.phone || "—", orders: 0, spent: 0, lastOrder: order.created_at }; previous.orders += 1; previous.spent += Number(order.total || 0); if (new Date(order.created_at) > new Date(previous.lastOrder)) previous.lastOrder = order.created_at; map.set(key, previous); } return [...map.values()].filter((c) => `${c.name} ${c.email} ${c.phone}`.toLowerCase().includes(query.toLowerCase())).sort((a,b) => b.spent-a.spent); }, [orders, query]);
-  return <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-28 md:px-10"><div className="mx-auto max-w-7xl"><header className="flex flex-col gap-6 border-b border-black/10 pb-8 md:flex-row md:items-end md:justify-between"><div><p className="text-[9px] uppercase tracking-[.3em] text-black/40">EsteeHouse / Admin</p><h1 className="mt-4 font-serif text-6xl tracking-[-.06em] md:text-8xl">Customers.</h1><p className="mt-4 text-sm text-black/45">Customer information is derived from immutable order snapshots.</p></div><button onClick={load} className="inline-flex items-center justify-center gap-2 rounded-full border border-black/15 px-5 py-3 text-[9px] uppercase tracking-[.2em]"><RefreshCw size={13}/> Refresh</button></header><div className="mt-6 flex justify-end"><label className="flex items-center gap-2 border-b border-black/15 pb-2 text-sm"><Search size={14} className="text-black/35"/><input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Search customer" className="bg-transparent outline-none"/></label></div>{error && <div className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-900">{error}</div>}{loading ? <div className="flex items-center gap-3 py-24 text-sm text-black/45"><RefreshCw size={15} className="animate-spin"/> Loading customers…</div> : customers.length === 0 ? <div className="grid min-h-[35vh] place-items-center text-center"><Users size={28} className="text-black/20"/><p className="mt-4 font-serif text-3xl">No customers yet.</p></div> : <div className="mt-8 overflow-x-auto rounded-2xl border border-black/10"><table className="w-full min-w-[760px] text-left"><thead className="border-b border-black/10 text-[8px] uppercase tracking-[.2em] text-black/40"><tr><th className="px-5 py-4">Customer</th><th>Contact</th><th>Orders</th><th>Lifetime value</th><th>Last order</th></tr></thead><tbody>{customers.map((c)=><tr key={c.key} className="border-b border-black/5 last:border-0"><td className="px-5 py-5"><div className="font-serif text-xl">{c.name}</div></td><td className="text-sm">{c.email}<br/><span className="text-black/40">{c.phone}</span></td><td className="text-sm">{c.orders}</td><td className="text-sm">€{c.spent.toFixed(2)}</td><td className="text-sm">{new Date(c.lastOrder).toLocaleDateString()}</td></tr>)}</tbody></table></div>}</div></main>;
+  const [orders, setOrders] = useState([]),
+    [query, setQuery] = useState(""),
+    [loading, setLoading] = useState(true),
+    [error, setError] = useState("");
+  async function load() {
+    setLoading(true);
+    setError("");
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token)
+        throw new Error("Please sign in as an administrator.");
+      const response = await fetch("/api/admin/orders", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        cache: "no-store",
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error || "Could not load customers.");
+      setOrders(data.orders || []);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    load();
+  }, []);
+  const customers = useMemo(() => {
+    const map = new Map();
+    for (const order of orders) {
+      const c = order.customer_snapshot || {};
+      const key = (c.email || c.phone || c.fullName || order.id).toLowerCase();
+      const previous = map.get(key) || {
+        key,
+        name: c.fullName || "Guest",
+        email: c.email || "—",
+        phone: c.phone || "—",
+        orders: 0,
+        spent: 0,
+        lastOrder: order.created_at,
+      };
+      previous.orders += 1;
+      previous.spent += Number(order.total || 0);
+      if (new Date(order.created_at) > new Date(previous.lastOrder))
+        previous.lastOrder = order.created_at;
+      map.set(key, previous);
+    }
+    return [...map.values()]
+      .filter((c) =>
+        `${c.name} ${c.email} ${c.phone}`
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+      )
+      .sort((a, b) => b.spent - a.spent);
+  }, [orders, query]);
+  return (
+    <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-28 md:px-10">
+      <div className="mx-auto max-w-7xl">
+        <header className="flex flex-col gap-6 border-b border-black/10 pb-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-[9px] uppercase tracking-[.3em] text-black/40">
+              EsteeHouse / Admin
+            </p>
+            <h1 className="mt-4 font-serif text-6xl tracking-[-.06em] md:text-8xl">
+              Customers.
+            </h1>
+            <p className="mt-4 text-sm text-black/45">
+              Customer information is derived from immutable order snapshots.
+            </p>
+          </div>
+          <button
+            onClick={load}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-black/15 px-5 py-3 text-[9px] uppercase tracking-[.2em]"
+          >
+            <RefreshCw size={13} /> Refresh
+          </button>
+        </header>
+        <div className="mt-6 flex justify-end">
+          <label className="flex items-center gap-2 border-b border-black/15 pb-2 text-sm">
+            <Search size={14} className="text-black/35" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search customer"
+              className="bg-transparent outline-none"
+            />
+          </label>
+        </div>
+        {error && (
+          <div className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-900">
+            {error}
+          </div>
+        )}
+        {loading ? (
+          <div className="flex items-center gap-3 py-24 text-sm text-black/45">
+            <RefreshCw size={15} className="animate-spin" /> Loading customers…
+          </div>
+        ) : customers.length === 0 ? (
+          <div className="grid min-h-[35vh] place-items-center text-center">
+            <Users size={28} className="text-black/20" />
+            <p className="mt-4 font-serif text-3xl">No customers yet.</p>
+          </div>
+        ) : (
+          <div className="mt-8 overflow-x-auto rounded-2xl border border-black/10">
+            <table className="w-full min-w-[760px] text-left">
+              <thead className="border-b border-black/10 text-[8px] uppercase tracking-[.2em] text-black/40">
+                <tr>
+                  <th className="px-5 py-4">Customer</th>
+                  <th>Contact</th>
+                  <th>Orders</th>
+                  <th>Lifetime value</th>
+                  <th>Last order</th>
+                </tr>
+              </thead>
+              <tbody>
+                {customers.map((c) => (
+                  <tr
+                    key={c.key}
+                    className="border-b border-black/5 last:border-0"
+                  >
+                    <td className="px-5 py-5">
+                      <div className="font-serif text-xl">{c.name}</div>
+                    </td>
+                    <td className="text-sm">
+                      {c.email}
+                      <br />
+                      <span className="text-black/40">{c.phone}</span>
+                    </td>
+                    <td className="text-sm">{c.orders}</td>
+                    <td className="text-sm">€{c.spent.toFixed(2)}</td>
+                    <td className="text-sm">
+                      {new Date(c.lastOrder).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </main>
+  );
 }

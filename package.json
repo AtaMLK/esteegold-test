@@ -29,7 +29,7 @@
     "iyzipay": "^2.0.64",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.473.0",
-    "next": "^15.2.4",
+    "next": "^15.5.23",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-confetti": "^6.4.0",

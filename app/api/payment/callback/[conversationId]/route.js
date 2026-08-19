@@ -2,15 +2,42 @@ import Iyzipay from "iyzipay";
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../_lib/supabaseAdmin";
 
-const client = new Iyzipay({
+/* const client = new Iyzipay({
   apiKey: process.env.IYZIPAY_API_KEY,
   secretKey: process.env.IYZIPAY_SECRET_KEY,
   uri: process.env.IYZIPAY_URI || "https://sandbox-api.iyzipay.com",
-});
+}); */
 
-function retrieveCheckoutForm(request) {
+function getIyzipay() {
+  const apiKey = process.env.IYZIPAY_API_KEY;
+  const secretKey = process.env.IYZIPAY_SECRET_KEY;
+  const uri = process.env.IYZIPAY_URI || "https://sandbox-api.iyzipay.com";
+
+  if (!apiKey || !secretKey) {
+    throw new Error("Iyzico API credentials are not configured.");
+  }
+
+  return new Iyzipay({
+    apiKey,
+    secretKey,
+    uri,
+  });
+}
+
+/* function retrieveCheckoutForm(request) {
   return new Promise((resolve, reject) => {
     client.checkoutForm.retrieve(request, (error, result) => error ? reject(error) : resolve(result));
+  });
+} */
+
+function retrieveCheckoutForm(request) {
+  const client = getIyzipay();
+
+  return new Promise((resolve, reject) => {
+    client.checkoutForm.retrieve(
+      request,
+      (error, result) => error ? reject(error) : resolve(result)
+    );
   });
 }
 

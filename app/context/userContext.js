@@ -13,6 +13,7 @@ export const UserProvider = ({ children }) => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
       setUser(user);
     };
 
@@ -23,6 +24,7 @@ export const UserProvider = ({ children }) => {
     );
 
     getUser();
+
     return () => authListener.subscription.unsubscribe();
   }, []);
 
