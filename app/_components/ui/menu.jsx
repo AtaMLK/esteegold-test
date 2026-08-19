@@ -1,142 +1,48 @@
 "use client";
-import gsap from "gsap";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import "./special-menu.css";
 
 const menuItems = [
-  { name: "Home", url: "/", src: "image-1.jpg" },
-  { name: "Product", url: "/product", src: "image-2.jpg" },
-  { name: "Contact", url: "/contact", src: "image-3.jpg" },
-  { name: "About", url: "/about", src: "image-4.jpg" },
+  { name: "EsteeGold", url: "/gold", src: "imagee-1.jpg", number: "01" },
+  { name: "EsteeBags", url: "/bags", src: "imagee-2.jpg", number: "02" },
+  { name: "Collection", url: "/categories", src: "imagee-3.jpg", number: "03" },
+  { name: "About", url: "/about", src: "imagee-4.jpg", number: "04" },
+  { name: "Contact", url: "/contact", src: "imagee-1.jpg", number: "05" },
 ];
 
-function Menu() {
-  const [itemHover, setItemHover] = useState(false);
+export default function Menu() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeImage, setActiveImage] = useState(menuItems[0].src); // Default image
-  const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
+  const [active, setActive] = useState(menuItems[0]);
+  const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      let activeItemIndicator = gsap.utils.toArray(
-        ".menu-item p#active::after"
-      );
-
-      gsap.set(".menu-item p", { y: 225 });
-      const timeLine = gsap.timeline({ paused: true });
-
-      timeLine.to(".overlay", {
-        clipPath: "polygon(100% 0, 100% 0, 100% 100%, 100% 100%)",
-        duration: 0,
-      });
-      timeLine.to(".overlay", {
-        duration: 1,
-        clipPath: "polygon(100% 0, 0% 0%, 0% 100%, 100% 100%)",
-        ease: "power2.inOut",
-      });
-
-      timeLine.to(
-        ".menu-item p",
-        {
-          duration: 1,
-          y: 0,
-          stagger: 0.2,
-          ease: "power4.inOut",
-        },
-        "-=0.5"
-      );
-
-      timeLine.to(
-        activeItemIndicator,
-        {
-          width: "100%",
-          duration: 1,
-          ease: "power4.out" /* 
-          delay: 0.5, */,
-        },
-        "<"
-      );
-      gsap.to(".sub-nav", {
-        scale: 1.2,
-        backgroundColor: "#333", // Adjust for a darker shade
-        duration: 0.5,
-        ease: "power2.out",
-        paused: true,
-      });
-      timeLine.to(
-        ".sub-nav",
-        {
-          bottom: "10%",
-          opacity: 1,
-          duration: 1,
-        },
-        "<"
-      );
-
-      if (isOpen) {
-        timeLine.invalidate().play();
-      } else {
-        timeLine.reverse();
-      }
-    }
+    const onKeyDown = (event) => { if (event.key === "Escape") setIsOpen(false); };
+    window.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => { window.removeEventListener("keydown", onKeyDown); document.body.style.overflow = ""; };
   }, [isOpen]);
-
-  function handleClick() {
-    setIsOpen(false);
-  }
 
   return (
     <>
-      <button
-        className={`burger ${isOpen ? "active" : ""}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span></span>
-      </button>
-      <div className={`overlay ${isOpen ? "grid grid-cols-2 " : "hidden"} `}>
-        <div className="overlay-content col-span-1">
-          <div className="overlay-menu ">
-            <div className="menu-item ">
-              <ul>
-                {menuItems.map((item, index) => (
-                  <Link
-                    href={item.url}
-                    key={index}
-                    onClick={handleClick}
-                    onMouseEnter={() => {
-                      setItemHover(true);
-                      setActiveImage(item.src);
-                    }}
-                    onMouseLeave={() => setItemHover(false)}
-                  >
-                    <h1 id={`${itemHover ? "active" : ""}`}>{item.name}</h1>
-                  </Link>
-                ))}
-              </ul>
+      <button type="button" className={`burger ${isOpen ? "active" : ""}`} onClick={() => setIsOpen((v) => !v)} aria-label={isOpen ? "Close menu" : "Open menu"} aria-expanded={isOpen}><span /></button>
+      <div className={`special-menu-overlay ${isOpen ? "is-open" : ""}`} aria-hidden={!isOpen}>
+        <div className="special-menu-inner">
+          <nav className="special-menu-list" aria-label="Main navigation">
+            <div className="special-menu-label"><span>ESTEEHOUSE</span><span>MENU / 2026</span></div>
+            <div className="special-menu-links">
+              {menuItems.map((item) => <Link key={item.url} href={item.url} className={`special-menu-item ${active.url === item.url ? "is-active" : ""}`} onMouseEnter={() => setActive(item)} onFocus={() => setActive(item)} onClick={() => setIsOpen(false)}><span>{item.number}</span><h2>{item.name}</h2><span className="menu-arrow">↗</span></Link>)}
             </div>
+            <div className="special-menu-bottom"><span>Two collections. One house.</span><div>{instagramUrl ? <a href={instagramUrl} target="_blank" rel="noreferrer">Instagram</a> : <span>Instagram</span>}<span> / EsteeHouse</span></div></div>
+          </nav>
+          <div className="special-menu-visual" data-shape={active.number}>
+            <div className="visual-aurora aurora-one" /><div className="visual-aurora aurora-two" /><div className="visual-aurora aurora-three" />
+            <div className="special-menu-image-wrap"><div className="visual-ring" /><img src={`/images/Gallery/${active.src}`} alt="" /></div>
+            <div className="special-menu-caption"><span>{active.number}</span><strong>{active.name}</strong><span>Move to explore</span></div>
           </div>
-          <div className="sub-nav">
-            <Link href="#" onClick={handleClick}>
-              <p>Twitter</p>
-            </Link>
-            <Link href={instagramUrl} target="_blank" onClick={handleClick}>
-              <p>Instagram</p>
-            </Link>
-            <Link href="#" onClick={handleClick}>
-              <p>Facebook</p>
-            </Link>
-          </div>
-        </div>
-        <div className="overlay-bg ">
-          <img
-            src={`/images/Gallery/${activeImage}`}
-            alt={`${activeImage}`}
-            className="overlay-image"
-          />
         </div>
       </div>
     </>
   );
 }
-
-export default Menu;
