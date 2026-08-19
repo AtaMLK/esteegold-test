@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../_lib/supabase";
 
@@ -11,6 +13,7 @@ export const UserProvider = ({ children }) => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
       setUser(user);
     };
 
@@ -21,6 +24,7 @@ export const UserProvider = ({ children }) => {
     );
 
     getUser();
+
     return () => authListener.subscription.unsubscribe();
   }, []);
 

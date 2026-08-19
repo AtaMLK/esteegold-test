@@ -1,70 +1,27 @@
-import Link from "next/link";
+"use client";
 
-const columns = [
-  {
-    title: "Shop",
-    links: [
-      ["EsteeGold", "/gold"],
-      ["EsteeBags", "/bags"],
-      ["All products", "/categories"],
-    ],
-  },
-  {
-    title: "House",
-    links: [
-      ["About EsteeHouse", "/about"],
-      ["Contact", "/contact"],
-      ["Order tracking", "/profile"],
-    ],
-  },
-  {
-    title: "Customer care",
-    links: [
-      ["Shipping & delivery", "/shipping"],
-      ["Returns & refunds", "/returns"],
-      ["Terms of use", "/terms"],
-      ["Privacy policy", "/privacy"],
-    ],
-  },
-];
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, LucideInstagram } from "lucide-react";
+import "./footer.css";
+
+const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim();
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
   return (
-    <footer className="border-t border-black/10 bg-[var(--ink)] px-5 pb-6 pt-14 text-[var(--paper)] md:px-8 md:pt-20">
-      <div className="grid gap-12 md:grid-cols-[1.6fr_repeat(3,1fr)] md:gap-8">
-        <div>
-          <p className="font-serif text-[clamp(3.2rem,7vw,7rem)] leading-[0.78] tracking-[-0.065em]">
-            EsteeHouse
-          </p>
-          <p className="mt-7 max-w-sm text-xs leading-6 text-white/55">
-            A creative house for jewelry, accessories and handmade bags — made with character, not in a hurry.
-          </p>
+    <footer className="footer-container">
+      <div className="footer-topline"><span>ESTEEHOUSE</span><span>ISTANBUL / 2026</span></div>
+      <div className="footer-main">
+        <div className="footer-brand"><h2>Made to be<br /><em>kept.</em></h2><p>Objects with character.<br />Details with a reason.</p></div>
+        <div className="footer-columns">
+          <div><span className="footer-label">Navigate</span><Link href="/">Home</Link><Link href="/gold">EsteeGold</Link><Link href="/bags">EsteeBags</Link><Link href="/categories">Collection</Link><Link href="/about">About</Link><Link href="/contact">Contact</Link></div>
+          <div><span className="footer-label">Customer care</span><Link href="/shipping">Shipping</Link><Link href="/returns">Returns & refunds</Link><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link>{instagramUrl ? <a href={instagramUrl} target="_blank" rel="noreferrer"><LucideInstagram size={16}/> Instagram</a> : <span>Instagram</span>}</div>
         </div>
-
-        {columns.map((column) => (
-          <div key={column.title}>
-            <p className="mb-5 text-[9px] uppercase tracking-[0.28em] text-white/35">
-              {column.title}
-            </p>
-            <div className="flex flex-col gap-2.5">
-              {column.links.map(([label, href]) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="w-fit text-sm text-white/80 transition hover:text-white hover:translate-x-1"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
-
-      <div className="mt-16 flex flex-col gap-3 border-t border-white/10 pt-5 text-[8px] uppercase tracking-[0.22em] text-white/35 md:flex-row md:items-center md:justify-between">
-        <span>ESTEEHOUSE — ESTEEGOLD / ESTEEBAGS</span>
-        <span>© {new Date().getFullYear()} EsteeHouse</span>
-      </div>
+      <div className="footer-subscribe"><div><span className="footer-label">Private notes</span><p>Occasional pieces, studio stories and first access.</p></div><form onSubmit={(e)=>{e.preventDefault();if(email.trim())setSent(true)}}>{sent?<span>Thank you — you are on the list.</span>:<><input value={email} onChange={(e)=>setEmail(e.target.value)} type="email" required placeholder="Your email address" aria-label="Email address"/><button type="submit" aria-label="Subscribe"><ArrowUpRight size={16}/></button></>}</form></div>
+      <div className="footer-bottom"><span>© {new Date().getFullYear()} EsteeHouse — EsteeGold / EsteeBags</span><div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></div></div>
     </footer>
   );
 }

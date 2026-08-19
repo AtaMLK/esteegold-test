@@ -1,215 +1,70 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import "../product.css";
-
-import ItemQuantity from "@/app/_components/ui/item-quantity";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { EuroIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
 import Link from "next/link";
+import { ArrowLeft, Minus, Plus, ShoppingBag } from "lucide-react";
+import { use, useEffect, useState } from "react";
+import { useCart } from "../../context/cartContext";
 
-const productColor = [{ color: "gold" }, { color: "silver" }];
+function finalPrice(product) {
+  const price = Number(product.price || 0);
+  const discount = Number(product.discount_percent || 0);
+  return Math.max(0, price - price * discount / 100);
+}
 
-const productImages = [
-  { imgUrl: "/images/gallery/image-1.jpg" },
-  { imgUrl: "/images/gallery/image-2.jpg" },
-  { imgUrl: "/images/gallery/image-3.jpg" },
-];
+export default function ProductId({ params }) {
+  const { productsId } = use(params);
+  const { addItem } = useCart();
+  const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-const necklesSizes = [
-  { index: 1, options: 40 },
-  { index: 2, options: 45 },
-];
+  useEffect(() => {
+    fetch(`/api/catalog?ids=${encodeURIComponent(productsId)}`)
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Product unavailable");
+        const data = await response.json();
+        const found = data.products?.[0];
+        if (!found) throw new Error("Product not found");
+        setProduct(found);
+      })
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, [productsId]);
 
-/* const stoneType = [
-  { index: 1, label: "Diamond" },
-  { index: 2, label: "Artifitial Diamond" },
-]; */
+  function addToCart() {
+    if (!product) return;
+    addItem({ ...product, price: finalPrice(product) }, quantity);
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1800);
+  }
 
-function ProductId() {
-  const [isSelected, setIsSelected] = useState(false);
-  const handleChange = (e) => {
-    e.preventDefault();
-    setSelectedOption(e.target.value);
-  };
+  if (loading) return <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-36 md:px-10"><p className="text-[9px] uppercase tracking-[0.25em] text-black/40">Loading piece...</p></main>;
+  if (error || !product) return <main className="grid min-h-screen place-items-center bg-[var(--paper)] px-5 text-center"><div><p className="font-serif text-5xl">Piece not found.</p><p className="mt-3 text-sm text-black/45">{error || "This product is no longer available."}</p><Link href="/categories" className="mt-8 inline-block rounded-full bg-black px-6 py-4 text-[9px] uppercase tracking-[0.25em] text-white">Back to shop</Link></div></main>;
+
+  const price = finalPrice(product);
+  const discounted = Number(product.discount_percent || 0) > 0;
 
   return (
-    <>
-      <div className="w-full h-full mt-16"></div>
-      <div className="dynamic-product-container">
-        <div className="product-mainbox">
-          <div className="product-left w-[75%] flex items-center justify-center">
-            <div className="slider">
-              <Carousel>
-                <CarouselContent>
-                  {productImages.map((image, index) => {
-                    return (
-                      <CarouselItem
-                        key={index}
-                        className="relative w-[150px] h-[500px] lg:w-[200px] lg:h-[700px]"
-                      >
-                        <Image
-                          src={image.imgUrl}
-                          className="slider-image"
-                          alt="slider"
-                          fill
-                          objectFit="cover"
-                          loading="lazy"
-                        />
-                      </CarouselItem>
-                    );
-                  })}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
-          </div>
-          <div className="product-right justify-start relative">
-            <div className="product-right-details flex flex-col gap-1">
-              <h2 className="product-name">Product Name have a name</h2>
-              <p className="mt-2 text-xl">description about your product</p>
-              <h3 className="product-price ">
-                <EuroIcon className="h-8 w-8" />
-                <span className="text-4xl font-normal"> 69.00</span>
-              </h3>
-              <p className=" my-2 text-xl">Available in stock</p>
-              <p className=" text-xl">FREE SHIPPING OVER 150 EUROS</p>
-              <Link href="/shipping-return-policy" target="blink">
-                <p>View More</p>
-              </Link>
-
-              <div className="product-material  mt-4">
-                <h2 className="font-semibold text-2xl ">Choose Color</h2>
-                <div className="flex  items-center justify-start gap-8">
-                  {productColor.map((colors, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center justify-center gap-2 my-2 w-10 h-10 border-[1px] rounded-full border-gray-600"
-                      >
-                        <div
-                          className={`${
-                            !isSelected === index ? "circle" : "selected-color"
-                          } bg-${colors.color}
-                        `}
-                          onClick={() => {
-                            setIsSelected(!isSelected);
-                            console.log(colors.color);
-                          }}
-                        ></div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="Length">
-                <select
-                  name="Select Length"
-                  id="options"
-                  onChange={handleChange}
-                  className="border-[1px] border-gray-700 text-xl  h-8 mb-10 rounded-sm"
-                >
-                  <option value="" selected>
-                    Select Length
-                  </option>
-                  {necklesSizes.map((option, index) => (
-                    <option value={option.options} key={index}>
-                      {option.options}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <ItemQuantity />
-              <Button
-                variant="outline"
-                className="addtocart-button"
-                onClick={() => {}}
-              >
-                Add To Card
-              </Button>
-            </div>
+    <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-28 md:px-10 md:pt-32">
+      <div className="mx-auto max-w-7xl">
+        <Link href="/categories" className="inline-flex items-center gap-2 text-[9px] uppercase tracking-[0.24em] text-black/45 hover:text-black"><ArrowLeft size={14}/> Back to collection</Link>
+        <div className="mt-8 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+          <div className="relative min-h-[65vh] overflow-hidden bg-[#d7d0c3] md:min-h-[78vh]"><Image src={product.image_url || "/images/Hero-bg-1.jpg"} alt={product.name} fill priority className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" /></div>
+          <div className="flex flex-col justify-center py-5">
+            <p className="text-[9px] uppercase tracking-[0.3em] text-black/40">{product.branch} / {product.category}</p>
+            <h1 className="mt-5 font-serif text-[clamp(3.5rem,7vw,7rem)] leading-[0.76] tracking-[-0.065em]">{product.name}</h1>
+            <p className="mt-8 max-w-lg text-sm leading-7 text-black/55">{product.description || "A piece from the EsteeHouse collection, made to carry its own character."}</p>
+            <div className="mt-8 border-y border-black/10 py-6">{discounted && <p className="text-sm text-black/35 line-through">€{Number(product.price).toFixed(2)}</p>}<p className="text-3xl tracking-[-0.03em]">€{price.toFixed(2)}</p>{discounted && <p className="mt-2 text-[9px] uppercase tracking-[0.2em]">{product.discount_percent}% house offer</p>}<p className="mt-2 text-[9px] uppercase tracking-[0.2em] text-black/40">Taxes and shipping calculated at checkout</p></div>
+            <div className="mt-8 flex items-center justify-between border-b border-black/15 pb-4"><span className="text-[9px] uppercase tracking-[0.22em]">Quantity</span><div className="flex items-center gap-5"><button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} aria-label="Decrease quantity"><Minus size={15}/></button><span className="w-5 text-center text-sm">{quantity}</span><button type="button" onClick={() => setQuantity((q) => q + 1)} aria-label="Increase quantity"><Plus size={15}/></button></div></div>
+            <button type="button" onClick={addToCart} className="mt-8 flex w-full items-center justify-center gap-3 rounded-full bg-black px-6 py-4 text-[9px] uppercase tracking-[0.25em] text-white transition hover:translate-y-[-1px]"><ShoppingBag size={15}/> {added ? "Added to bag" : "Add to bag"}</button>
+            <Link href="/shipping" className="mt-5 text-center text-[9px] uppercase tracking-[0.2em] text-black/45 underline underline-offset-4">Shipping & returns</Link>
           </div>
         </div>
-        <div className="product-content ">
-          <p className="row-start-2 w-full h-full p-16 border-[1px] border-gray-700 text-sm ">
-            <strong>Our</strong> jewelry workshop combines artisanal expertise
-            with personalization, giving birth to exceptional bespoke pieces. A
-            unique customer experience, where exclusivity, authenticity and
-            elegance meet. Our jewelry is designed to be worn every day, with a
-            focus on quality and durability. We use only the finest materials,
-            including ethically sourced diamonds and precious metals. Our
-            jewelry is made to last, with a timeless design that will never go
-            out of
-          </p>
-        </div>
-
-        <div className="mt-8 px-14">
-          <Carousel>
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {productImages.map((image, index) => {
-                return (
-                  <CarouselItem
-                    key={index}
-                    className="relative group lg:basis-1/3 md:basis-1/2 pl-2 lg:pl-4 rounded-lg "
-                  >
-                    <div className="relative">
-                      <img
-                        src={image.imgUrl}
-                        className="slider-image"
-                        alt="slider"
-                      />
-                      <div
-                        className="slider-content absolute w-full px-2 bottom-4 flex items-center justify-between opacity-0 translate-y-6 transition-all duration-500 ease-in-out group-hover:opacity-100 hover:cursor-pointer
-                      group-hover:translate-y-0"
-                      >
-                        <div className="flex items-center justify-start gap-4">
-                          {productColor.map((colors, index) => {
-                            return (
-                              <div
-                                key={index}
-                                className="flex items-center justify-center gap-1 my-2 w-10 h-10 border-[1px] rounded-full border-gray-600"
-                              >
-                                <div
-                                  className={`${
-                                    !isSelected === index
-                                      ? "circle"
-                                      : "selected-color"
-                                  } bg-${colors.color}
-                        `}
-                                  onClick={() => {
-                                    setIsSelected(!isSelected);
-                                    console.log(colors.color);
-                                  }}
-                                ></div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <p className="text-gray-200 me-4 flex items-center justify-center">
-                          <EuroIcon />
-                          39.99
-                        </p>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </div>
+        <section className="mt-20 border-t border-black/10 pt-10 md:mt-32 md:grid md:grid-cols-[0.35fr_1fr] md:gap-10"><p className="text-[9px] uppercase tracking-[0.28em] text-black/40">The EsteeHouse approach</p><p className="max-w-3xl font-serif text-[clamp(2rem,4vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">Objects should feel made, not manufactured.</p></section>
       </div>
-    </>
+    </main>
   );
 }
-export default ProductId;

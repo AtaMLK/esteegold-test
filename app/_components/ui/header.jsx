@@ -1,182 +1,41 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Menu as MenuIcon, Search, ShoppingBag, User, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const navItems = [
-  { label: "EsteeGold", href: "/gold" },
-  { label: "EsteeBags", href: "/bags" },
-  { label: "All products", href: "/categories" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
+import { Search, ShoppingBag, User, X } from "lucide-react";
+import { useCart } from "../../context/cartContext";
+import { useUser } from "../../context/userContext";
+import Menu from "./menu";
 
 export default function Header() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const { itemCount } = useCart();
+  const { user } = useUser();
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [bagCount, setBagCount] = useState(0);
-
-  useEffect(() => {
-    setOpen(false);
-    setSearchOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const syncBag = () => {
-      try {
-        const raw = window.localStorage.getItem("esteehouse-cart");
-        if (!raw) return setBagCount(0);
-        const items = JSON.parse(raw);
-        setBagCount(
-          Array.isArray(items)
-            ? items.reduce((sum, item) => sum + Number(item.quantity || 1), 0)
-            : 0
-        );
-      } catch {
-        setBagCount(0);
-      }
-    };
-
-    syncBag();
-    window.addEventListener("storage", syncBag);
-    window.addEventListener("esteehouse:cart-updated", syncBag);
-    return () => {
-      window.removeEventListener("storage", syncBag);
-      window.removeEventListener("esteehouse:cart-updated", syncBag);
-    };
-  }, []);
-
+  useEffect(() => { setSearchOpen(false); setQuery(""); }, [pathname]);
+  const accountHref = user ? "/profile" : `/auth/login?next=${encodeURIComponent("/profile")}`;
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 md:px-7 md:py-6">
-        <div className="flex items-center justify-between gap-4 text-[10px] uppercase tracking-[0.22em] text-[var(--ink)]">
-          <Link href="/" className="group relative z-[70] flex items-center gap-3">
-            <span className="font-serif text-xl tracking-[-0.04em] normal-case md:text-2xl">
-              EsteeHouse
-            </span>
-            <span className="hidden border-l border-current/30 pl-3 text-[8px] tracking-[0.3em] opacity-60 sm:block">
-              EST. / HANDMADE
-            </span>
-          </Link>
-
-          <div className="relative z-[70] flex items-center gap-2 md:gap-3">
-            <button
-              aria-label="Search"
-              onClick={() => setSearchOpen((value) => !value)}
-              className="hidden rounded-full border border-current/20 px-4 py-2 transition hover:bg-black hover:text-white md:flex md:items-center md:gap-2"
-            >
-              <Search size={14} strokeWidth={1.5} />
-              <span>Search</span>
-            </button>
-
-            <Link
-              href="/cart"
-              className="relative flex items-center gap-2 rounded-full border border-current/20 px-3 py-2 transition hover:bg-black hover:text-white"
-              aria-label={`Shopping bag, ${bagCount} items`}
-            >
-              <ShoppingBag size={15} strokeWidth={1.5} />
-              <span className="hidden sm:inline">Bag</span>
-              <span className="min-w-4 text-center">{bagCount}</span>
-            </Link>
-
-            <Link
-              href="/profile"
-              className="hidden rounded-full border border-current/20 p-2 transition hover:bg-black hover:text-white sm:block"
-              aria-label="Account"
-            >
-              <User size={15} strokeWidth={1.5} />
-            </Link>
-
-            <button
-              onClick={() => setOpen((value) => !value)}
-              className="rounded-full border border-current/25 bg-[color:var(--paper)]/80 p-2.5 backdrop-blur transition hover:bg-black hover:text-white"
-              aria-label={open ? "Close menu" : "Open menu"}
-              aria-expanded={open}
-            >
-              {open ? <X size={17} strokeWidth={1.5} /> : <MenuIcon size={17} strokeWidth={1.5} />}
-            </button>
+      <header className={pathname === "/" ? "header-container-absolute" : "header-container-flex"}>
+        <div className="header-wrapper">
+          <div className="header-logo"><Link href="/" aria-label="EsteeHouse home">EsteeHouse <span>EST. / HANDMADE</span></Link></div>
+          <div className="header-icons">
+            <button className={`search-trigger ${searchOpen ? "active" : ""}`} onClick={() => setSearchOpen(true)} aria-label="Open search"><span>Search</span><Search size={17} /></button>
+            <Link href="/cart" aria-label={`Shopping bag, ${itemCount} items`} className="header-bag-link"><ShoppingBag className="header-icon" size={18} /><span>BAG</span><span className="header-bag-count">{itemCount}</span></Link>
+            <Link href={accountHref} aria-label={user ? "Open account" : "Sign in"}><span className={`header-user ${user ? "is-signed-in" : ""}`}><User size={18} /></span></Link>
           </div>
         </div>
-
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="absolute right-4 top-20 z-[60] w-[min(420px,calc(100vw-2rem))] rounded-2xl border border-black/10 bg-[var(--paper)] p-4 shadow-2xl md:right-7"
-            >
-              <div className="flex items-center gap-3 border-b border-black/15 pb-3">
-                <Search size={17} />
-                <input
-                  autoFocus
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search EsteeHouse..."
-                  className="w-full bg-transparent text-sm outline-none placeholder:text-black/35"
-                />
-              </div>
-              <div className="pt-3 text-[10px] uppercase tracking-[0.18em] text-black/45">
-                {query ? `Search for “${query}”` : "Jewelry · bags · accessories"}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="header-menu"><Menu /></div>
       </header>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ clipPath: "inset(0 0 100% 0)" }}
-            animate={{ clipPath: "inset(0 0 0% 0)" }}
-            exit={{ clipPath: "inset(0 0 100% 0)" }}
-            transition={{ duration: 0.65, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-40 overflow-hidden bg-[var(--paper)]"
-          >
-            <div className="grid min-h-full grid-cols-1 md:grid-cols-[1.1fr_0.9fr]">
-              <div className="flex flex-col justify-end p-6 pb-10 pt-28 md:p-12 md:pb-14">
-                <p className="mb-5 text-[9px] uppercase tracking-[0.28em] text-black/45">
-                  The house / collections
-                </p>
-                <nav className="flex flex-col">
-                  {navItems.map((item, index) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="group flex items-baseline gap-4 border-b border-black/10 py-2.5 md:py-3"
-                    >
-                      <span className="w-5 text-[8px] text-black/35">0{index + 1}</span>
-                      <span className="font-serif text-[clamp(2.7rem,6vw,6.5rem)] leading-[0.9] tracking-[-0.055em] transition-transform duration-500 group-hover:translate-x-3">
-                        {item.label}
-                      </span>
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-
-              <div className="relative hidden overflow-hidden bg-black md:block">
-                <div className="absolute inset-0 bg-[url('/images/menu-bg.jpg')] bg-cover bg-center opacity-80 transition-transform duration-[1200ms] hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-                <div className="absolute bottom-12 left-10 right-10 text-white">
-                  <p className="text-[9px] uppercase tracking-[0.3em] opacity-60">EsteeHouse</p>
-                  <p className="mt-4 max-w-md font-serif text-4xl leading-none tracking-[-0.04em]">
-                    Two ways of making.<br />One house.
-                  </p>
-                  <div className="mt-8 flex gap-8 text-[9px] uppercase tracking-[0.22em] opacity-75">
-                    <span>EsteeGold</span>
-                    <span>EsteeBags</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className={`search-command ${searchOpen ? "is-open" : ""}`} aria-hidden={!searchOpen}>
+        <div className="search-command-inner">
+          <div className="search-command-top"><span>SEARCH / ESTEEHOUSE</span><button onClick={() => { setSearchOpen(false); setQuery(""); }}><X size={18} /> Close</button></div>
+          <div className="search-command-input"><Search size={26} /><input autoFocus={searchOpen} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Type a piece, collection or material…" /><span>{query ? "Search" : "⌘ K"}</span></div>
+          <div className="search-command-results">{query ? <Link href={`/categories?search=${encodeURIComponent(query)}`} onClick={() => setSearchOpen(false)}><span>COLLECTION</span><strong>Search “{query}”</strong><span>↗</span></Link> : <p className="search-command-hint">Explore EsteeGold, EsteeBags and the complete collection.</p>}</div>
+        </div>
+      </div>
     </>
   );
 }

@@ -1,159 +1,53 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
-import { ArrowBigRight } from "lucide-react";
+
+import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { ArrowRight, SlidersHorizontal } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
-const categories = [
-  {
-    id: "1",
-    title: "Rings",
-    details: "rings are the best thing that",
-    src: "/images/Products-page/Combinations.jpg",
-    type: "old fashioned",
-  },
-  {
-    id: "2",
-    title: "Necklaces",
-    details: "necklaces are the best thing that",
-    src: "/images/Products-page/Wedding-ring.jpg",
-    src2: "/images/Products-page/rings-title.jpg",
-    price: "100 €",
-    type: "minimalistic",
-  },
-  {
-    id: "3",
-    title: "Bracelets",
-    details: "bracelets are the best thing that",
-    src: "/images/Products-page/Earings-title.jpg",
-    src2: "/images/Products-page/rings-title.jpg",
-    price: "100 €",
-    type: "modern",
-  },
-  {
-    id: "4",
-    title: "Rings",
-    details: "rings are the best thing that",
-    src: "/images/Products-page/rings-title.jpg",
-    src2: "/images/Products-page/Earings-title.jpg",
-    price: "100 €",
-    type: "minimalistic",
-  },
-  {
-    id: "5",
-    title: "Necklaces",
-    details: "necklaces are the best thing that",
-    src: "/images/Products-page/hand Combinations.jpg",
-    src2: "/images/Products-page/rings-title.jpg",
-    price: "100 €",
-    type: "minimalistic",
-  },
-  {
-    id: "6",
-    title: "earrings",
-    details: "bracelets are the best thing that",
-    src: "/images/Products-page/necklesses-title.jpg",
-    src2: "/images/Products-page/Wedding-ring.jpg",
-    price: "100 €",
-    type: "realistic",
-  },
-];
-const uniqueType = Array.from(new Set(categories.map((cat) => cat.type)));
-const uniqueCat = Array.from(new Set(categories.map((cat) => cat.title)));
-
-function CategoriesPage() {
-  /* const [selectedType, setSelectedType] = useState("all");
-  const [filteredCategories, setFilteredCategories] = useState(categories);
-  const[loading, setLoading] = useState(true)
-  const [error, setError] = useState(null); */
-  const [isSelected, setIsSelected] = useState(false);
-  return (
-    <div className="w-screen h-full bg-gray-200 py-24">
-      <div className="Hero-container flex items-center justify-center my-4 w-screen  bg-gray-400">
-        <img
-          src="/images/Hero-bg-3.jpg"
-          alt="hero-image"
-          className="w-screen h-[40rem] object-cover"
-        />
-      </div>
-      <div className="h-20 w-full opacity-50 z-0 relative">
-        <select className="absolute right-8 top-4 w-[1/8] h-1/2 rounded-md flex items*center justify-center outline-0 border-none px-4 uppercase">
-          {uniqueType.map((type, index) => (
-            <option key={index} value={type} className="text-gray-800">
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className=" w-full md:grid lg:grid-cols-4 flex flex-col items-center justify-center gap-5 md:gap-2 mt-14 px-10">
-        <div className="category-list col-start-1 w-full h-full flex flex-col items-start ps-10 pt-20 justify-start group transition-all duration-300 ">
-          <div className="">
-            <h3 className="flex gap-10 font-dreamFont text-2xl font-semibold text-gray-800 mb-5">
-              Categories
-              <span
-                onClick={() => setIsSelected(!isSelected)}
-                className={`rotate-90 hover:cursor-pointer ${
-                  isSelected ? "-rotate-90" : ""
-                } transition-all duration-500`}
-              >
-                &gt;
-              </span>
-            </h3>
-            {isSelected ? (
-              <ul key={categories.id}>
-                <Link
-                  href="/productsId"
-                  className=" flex flex-col gap-4 cursor-pointer uppercase group-hover:text-gray-900 group-hover:underline transition-all duration-300"
-                >
-                  {uniqueCat.map((type, index) => {
-                    return (
-                      <li key={index} className="text-gray-800 my-2">
-                        {type}
-                      </li>
-                    );
-                  })}
-                </Link>
-              </ul>
-            ) : (
-              ""
-            )}
-          </div>
-        </div>
-        <div className="category-items-card col-start-2 col-span-3 grid grid-cols-1  md:grid-cols-2 xl:grid-cols-3 gap-16 cursor-pointer mx-5">
-          {categories.map((category, index) => {
-            return (
-              <div
-                className={`item-card relative group ${
-                  index % 2 === 1 ? "md:mt-20" : ""
-                }`}
-                key={category.id}
-              >
-                <img
-                  src={category.src}
-                  alt={category.title}
-                  className="w-full h-[36rem]"
-                />
-                <div
-                  className={`w-full h-0 overflow-hidden group group-hover:h-full absolute bottom-0 left-0 group-hover:top-0 transition-all duration-500 `}
-                >
-                  <img
-                    src={category.src2}
-                    alt={category.title}
-                    className="w-full h-full "
-                  />
-                  <div className="absolute h-0 w-full bottom-0 left-0 flex items-center justify-between opacity-50 bg-gray-800  group-hover:h-[20%] transition-all duration-[700] text-white px-4 text-lg ">
-                    <p>{category.title}</p>
-                    <p>{category.price}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
+function displayPrice(product) {
+  const price = Number(product.price || 0);
+  const discount = Number(product.discount_percent || 0);
+  return Math.max(0, price - price * discount / 100);
 }
 
-export default CategoriesPage;
-// import { useEffect, useState } from "react";
+export default function CategoriesPage() {
+  const [products, setProducts] = useState([]);
+  const [branch, setBranch] = useState("all");
+  const [category, setCategory] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setBranch(params.get("branch") || "all");
+    fetch(`/api/catalog${params.get("branch") ? `?branch=${params.get("branch") === "gold" ? "EsteeGold" : "EsteeBags"}` : ""}`)
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Catalog unavailable")))
+      .then((data) => setProducts(data.products || []))
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const visible = useMemo(() => products.filter((product) => category === "all" || product.category === category), [products, category]);
+  const categories = ["all", ...Array.from(new Set(products.map((product) => product.category)))];
+
+  return (
+    <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-32 md:px-10">
+      <div className="mx-auto max-w-7xl">
+        <section className="grid gap-10 border-b border-black/10 pb-12 md:grid-cols-[1fr_0.7fr] md:items-end">
+          <div><p className="text-[9px] uppercase tracking-[0.3em] text-black/40">The shop / {branch === "all" ? "All collections" : branch === "gold" ? "EsteeGold" : "EsteeBags"}</p><h1 className="mt-5 font-serif text-[clamp(4.5rem,11vw,11rem)] leading-[0.7] tracking-[-0.075em]">Find your<br /><i>piece.</i></h1></div>
+          <p className="max-w-md text-sm leading-7 text-black/50">The storefront now reads from the EsteeHouse catalog. Products, branches, images, prices and discounts come from the same source used by checkout.</p>
+        </section>
+        <section className="flex flex-col gap-4 border-b border-black/10 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            <Link href="/categories" className={`rounded-full border px-4 py-2 text-[8px] uppercase tracking-[0.2em] ${branch === "all" ? "bg-black text-white" : "border-black/15"}`}>All</Link>
+            <Link href="/categories?branch=gold" className={`rounded-full border px-4 py-2 text-[8px] uppercase tracking-[0.2em] ${branch === "gold" ? "bg-black text-white" : "border-black/15"}`}>EsteeGold</Link>
+            <Link href="/categories?branch=bags" className={`rounded-full border px-4 py-2 text-[8px] uppercase tracking-[0.2em] ${branch === "bags" ? "bg-black text-white" : "border-black/15"}`}>EsteeBags</Link>
+          </div>
+          <label className="flex items-center gap-3 text-[8px] uppercase tracking-[0.2em] text-black/45"><SlidersHorizontal size={13}/><select value={category} onChange={(event) => setCategory(event.target.value)} className="bg-transparent outline-none"><option value="all">All categories</option>{categories.slice(1).map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+        </section>
+        {loading ? <section className="grid min-h-[45vh] place-items-center text-[9px] uppercase tracking-[0.25em] text-black/40">Loading the house...</section> : error ? <section className="grid min-h-[45vh] place-items-center text-center"><div><p className="font-serif text-4xl">Catalog unavailable.</p><p className="mt-3 text-sm text-black/45">{error}</p></div></section> : visible.length === 0 ? <section className="grid min-h-[45vh] place-items-center text-center"><div><p className="font-serif text-4xl">Nothing here yet.</p><p className="mt-3 text-sm text-black/45">EsteeBags will appear here as soon as its real product records are added.</p></div></section> : <section className="grid gap-x-5 gap-y-16 py-12 sm:grid-cols-2 lg:grid-cols-3">{visible.map((product, index) => { const finalPrice = displayPrice(product); const discounted = Number(product.discount_percent || 0) > 0; return <Link href={`/product/${product.id}`} key={product.id} className={`group ${index % 3 === 1 ? "lg:translate-y-12" : ""}`}><div className="relative aspect-[0.78] overflow-hidden bg-[#d7d0c3]"><Image src={product.image_url || "/images/Hero-bg-1.jpg"} alt={product.name} fill className="object-cover transition duration-700 group-hover:scale-[1.035]" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />{discounted && <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-2 text-[8px] uppercase tracking-[0.18em]">-{product.discount_percent}%</span>}<div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/75 p-4 text-white backdrop-blur-sm transition duration-500 group-hover:translate-y-0"><div className="flex items-center justify-between text-[9px] uppercase tracking-[0.2em]"><span>View piece</span><ArrowRight size={13}/></div></div></div><div className="mt-4 flex items-start justify-between gap-5"><div><p className="text-[8px] uppercase tracking-[0.2em] text-black/35">{product.branch} / {product.category}</p><h2 className="mt-2 font-serif text-2xl tracking-[-0.035em]">{product.name}</h2></div><div className="text-right text-sm">{discounted && <p className="text-xs text-black/35 line-through">€{Number(product.price).toFixed(2)}</p>}<p>€{finalPrice.toFixed(2)}</p></div></div></Link>; })}</section>}
+      </div>
+    </main>
+  );
+}
