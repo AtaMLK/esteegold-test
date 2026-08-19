@@ -62,7 +62,7 @@ export async function POST(request) {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized. Administrator access is required." }, { status: 401 });
     const { row, stock } = clean(await request.json(), { requireStock: true });
     const client = adminClient();
-    const { data, error } = await client.from("commerce_products").insert(row).select().single();
+    const { data, error } = await client.from("commerce_products").insert({ id: crypto.randomUUID(), ...row }).select().single();
     if (error) throw error;
     const { error: inventoryError } = await client.from("commerce_inventory").insert({ product_id: data.id, available_quantity: stock, reserved_quantity: 0 });
     if (inventoryError) {
