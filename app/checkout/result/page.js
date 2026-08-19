@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useCart } from "../../context/cartContext";
 
 function ResultContent() {
   const params = useSearchParams();
+  const { clearCart } = useCart();
   const status = params.get("status");
   const success = status === "success";
   const review = status === "review";
   const order = params.get("order");
+
+  useEffect(() => {
+    if (success) clearCart();
+  }, [success, clearCart]);
 
   const title = success ? "Thank you." : review ? "Payment received." : "Payment failed.";
   const message = success
