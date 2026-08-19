@@ -55,8 +55,23 @@ export async function POST(request, { params }) {
 
     const result = await retrieveCheckoutForm({ locale: Iyzipay.LOCALE.EN, conversationId, token });
     const verified = result.status === "success" && result.paymentStatus === "SUCCESS";
+    const providerAmount = result.paidPrice ?? result.price;
+    const providerCurrency = result.currency;
     const transaction = result.itemTransactions?.find((item) => item.paymentTransactionId) || result.itemTransactions?.[0];
     const paymentTransactionId = transaction?.paymentTransactionId || payment.payment_transaction_id || null;
+
+    const providerAmountMatches = providerAmount == null || money(providerAmount) === money(order.total);
+    const providerCurrencyMatches = !providerCurrency || String(providerCurrency).toUpperCase() === String(order.currency).toUpperCase();
+    if (verified && (!providerAmountMatches || !providerCurrencyMatches)) {
+      await supabaseAdmin.from("commerce_payments").update({
+        provider_status: "provider_amount_or_currency_mismatch",
+        payment_status: "failed",
+        raw_response: result,
+        verified_at: new Date().toISOString(),
+      }).eq("id", payment.id);
+      await supabaseAdmin.from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.order_id);
+      return NextResponse.redirect(new URL(`/checkout/result?status=failure&reason=provider-amount-mismatch&conversationId=${encodeURIComponent(conversationId)}`, request.url));
+    }
 
     const { error: paymentUpdateError } = await supabaseAdmin.from("commerce_payments").update({
       payment_id: result.paymentId || payment.payment_id || null,
