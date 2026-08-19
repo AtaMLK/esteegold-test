@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../_lib/supabase";
-import { useError } from "../context/errorContext";
+import { supabase } from "../../_lib/supabase";
+import { useError } from "../../context/errorContext";
 
 export default function AdminSignOut() {
   const router = useRouter();
