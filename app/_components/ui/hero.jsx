@@ -39,9 +39,6 @@ export default function Hero() {
   const [collection, setCollection] = useState("gold");
   const [chapter, setChapter] = useState(0);
 
-  const activeImages = collection === "gold" ? goldImages : bagImages;
-  const activeStory = stories[collection];
-
   useLayoutEffect(() => {
     const root = rootRef.current;
     const stage = stageRef.current;
@@ -49,14 +46,16 @@ export default function Hero() {
     if (!root || !stage || !model) return;
 
     const ctx = gsap.context(() => {
-      const allChapterRefs = chapterRefs.current.filter(Boolean);
-      const goldRefs = goldImageRefs.current.filter(Boolean);
-      const bagRefs = bagImageRefs.current.filter(Boolean);
-      gsap.set([...goldRefs, ...bagRefs], { autoAlpha: 0, scale: 1.08, rotate: 2 });
-      gsap.set(goldRefs[0], { autoAlpha: 1, scale: 1, rotate: 0 });
-      gsap.set(allChapterRefs, { autoAlpha: 0, y: 38 });
-      gsap.set(allChapterRefs[0], { autoAlpha: 1, y: 0 });
+      const imageRefs = collection === "gold" ? goldImageRefs.current : bagImageRefs.current;
+      const allImages = imageRefs.filter(Boolean);
+      const chapters = chapterRefs.current.filter(Boolean);
+
+      gsap.set(chapters, { autoAlpha: 0, y: 38 });
+      gsap.set(chapters[0], { autoAlpha: 1, y: 0 });
+      gsap.set(allImages, { autoAlpha: 0, scale: 1.08, rotate: 2, xPercent: 0, yPercent: 0 });
+      gsap.set(allImages[0], { autoAlpha: 1, scale: 1, rotate: 0 });
       gsap.set(model, { y: 25, scale: 0.92, rotateY: -7, rotateZ: -1.5 });
+      gsap.set(progressRef.current, { scaleY: 0 });
 
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
@@ -64,47 +63,50 @@ export default function Hero() {
       });
 
       timeline.to(model, { y: -15, scale: 1.03, rotateY: 7, rotateZ: 1.5, duration: 1 });
+
       for (let index = 0; index < 3; index += 1) {
         timeline
-          .call(() => setChapter(index + 1), [], ">")
-          .to(allChapterRefs[index], { autoAlpha: 0, y: -38, duration: 0.2 })
-          .to(allChapterRefs[index + 1], { autoAlpha: 1, y: 0, duration: 0.2 }, "<")
-          .to(goldRefs[index], { autoAlpha: 0, scale: 1.08, rotate: -2, duration: 0.2 }, "<")
-          .to(goldRefs[index + 1], { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.2 }, "<")
+          .call(() => setChapter(index + 1))
+          .to(chapters[index], { autoAlpha: 0, y: -38, duration: 0.2 })
+          .to(chapters[index + 1], { autoAlpha: 1, y: 0, duration: 0.2 }, "<")
+          .to(allImages[index], { autoAlpha: 0, scale: 1.08, rotate: -2, duration: 0.2 }, "<")
+          .to(allImages[index + 1], { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.2 }, "<")
           .to(model, { y: -35 - (index + 1) * 8, rotateY: index % 2 ? -6 : 6, rotateZ: index % 2 ? -1.5 : 1.5, duration: 0.7 });
       }
 
       gsap.to(progressRef.current, { scaleY: 1, transformOrigin: "top center", scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: true } });
     }, root);
+
     return () => ctx.revert();
-  }, []);
+  }, [collection]);
 
   function switchCollection() {
-    const outgoing = collection === "gold" ? "gold" : "bags";
-    const incoming = collection === "gold" ? "bags" : "gold";
-    const outgoingRefs = outgoing === "gold" ? goldImageRefs.current : bagImageRefs.current;
-    const incomingRefs = incoming === "gold" ? goldImageRefs.current : bagImageRefs.current;
-    const outgoingEl = outgoingRefs[chapter] || outgoingRefs[0];
-    const incomingEl = incomingRefs[0];
-    if (!outgoingEl || !incomingEl || !modelRef.current) {
-      setCollection(incoming);
-      setChapter(0);
-      return;
-    }
+    const outgoingRefs = collection === "gold" ? goldImageRefs.current : bagImageRefs.current;
+    const incomingRefs = collection === "gold" ? bagImageRefs.current : goldImageRefs.current;
+    const outgoing = outgoingRefs[chapter] || outgoingRefs[0];
+    const incoming = incomingRefs[0];
+    if (!outgoing || !incoming || !modelRef.current) return;
 
-    gsap.killTweensOf([outgoingEl, incomingEl, modelRef.current, orbitRef.current]);
-    const tl = gsap.timeline({ defaults: { ease: "power3.inOut" }, onComplete: () => setCollection(incoming) });
-    tl.set(incomingEl, { autoAlpha: 1, xPercent: 115, yPercent: 3, scale: 0.68, rotate: 12 })
-      .set(modelRef.current, { transformOrigin: "50% 50%" })
-      .to(orbitRef.current, { rotation: "+=180", duration: 1.2, ease: "power2.inOut" }, 0)
-      .to(outgoingEl, { xPercent: -118, yPercent: 8, scale: 0.68, rotate: -16, rotateY: -28, duration: 1.2 }, 0)
-      .to(incomingEl, { xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, duration: 1.2 }, 0.03)
-      .to(modelRef.current, { scale: 1.02, rotateY: 8, duration: 0.65 }, 0.42)
-      .to(modelRef.current, { scale: 1, rotateY: 0, duration: 0.55 }, 0.9)
-      .call(() => { setChapter(0); window.scrollTo({ top: rootRef.current?.offsetTop || 0, behavior: "smooth" }); });
+    const nextCollection = collection === "gold" ? "bags" : "gold";
+    gsap.killTweensOf([outgoing, incoming, modelRef.current, orbitRef.current]);
+
+    gsap.timeline({
+      defaults: { ease: "power3.inOut" },
+      onComplete: () => {
+        setCollection(nextCollection);
+        setChapter(0);
+        window.scrollTo({ top: rootRef.current?.offsetTop || 0, behavior: "smooth" });
+      },
+    })
+      .set(incoming, { autoAlpha: 1, xPercent: 115, yPercent: 3, scale: 0.68, rotate: 12 })
+      .to(orbitRef.current, { rotation: "+=180", duration: 1.25, ease: "power2.inOut" }, 0)
+      .to(outgoing, { xPercent: -118, yPercent: 8, scale: 0.68, rotate: -16, rotateY: -28, duration: 1.25 }, 0)
+      .to(incoming, { xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, duration: 1.25 }, 0.03)
+      .to(modelRef.current, { scale: 1.04, rotateY: 8, duration: 0.6 }, 0.42)
+      .to(modelRef.current, { scale: 1, rotateY: 0, duration: 0.55 }, 0.92);
   }
 
-  const visibleStory = activeStory[chapter];
+  const activeStory = stories[collection];
 
   return (
     <section ref={rootRef} className="hero-story">
@@ -116,12 +118,14 @@ export default function Hero() {
         <div className="hero-progress" aria-hidden="true"><span ref={progressRef} /></div>
 
         <div className="hero-copy">
-          <div className="hero-chapter hero-chapter-live">
-            <p className="hero-eyebrow">{visibleStory.eyebrow}</p>
-            <h1>{visibleStory.title}</h1>
-            <p className="hero-description">{visibleStory.text}</p>
-            {chapter === 3 && <Link className="hero-cta" href={collection === "gold" ? "/gold" : "/bags"}>Explore {collection === "gold" ? "EsteeGold" : "EsteeBags"} <ArrowUpRight size={17} strokeWidth={1.7} /></Link>}
-          </div>
+          {activeStory.map((story, index) => (
+            <div key={story.eyebrow} ref={(node) => (chapterRefs.current[index] = node)} className="hero-chapter">
+              <p className="hero-eyebrow">{story.eyebrow}</p>
+              <h1>{story.title}</h1>
+              <p className="hero-description">{story.text}</p>
+              {index === 3 && <Link className="hero-cta" href={collection === "gold" ? "/gold" : "/bags"}>Explore {collection === "gold" ? "EsteeGold" : "EsteeBags"} <ArrowUpRight size={17} strokeWidth={1.7} /></Link>}
+            </div>
+          ))}
         </div>
 
         <div className="hero-model-wrap" aria-hidden="true">
@@ -141,8 +145,7 @@ export default function Hero() {
 
         <div className="hero-collection-switch">
           <button type="button" onClick={switchCollection} aria-label={`Switch to ${collection === "gold" ? "EsteeBags" : "EsteeGold"}`}>
-            <span>{collection === "gold" ? "Explore EsteeBags" : "Back to EsteeGold"}</span>
-            <MoveRight size={16} />
+            <span>{collection === "gold" ? "Explore EsteeBags" : "Back to EsteeGold"}</span><MoveRight size={16} />
           </button>
         </div>
         <div className="hero-scroll-hint"><ArrowDown size={15} /><span>Scroll to discover</span></div>
