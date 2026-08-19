@@ -5,6 +5,7 @@ import { CartProvider } from "./context/cartContext";
 import { UserProvider } from "./context/userContext";
 import "./globals.css";
 import "../styles/fonts.css";
+import "../styles/styles.css";
 
 export const metadata = {
   title: "EsteeHouse — EsteeGold & EsteeBags",
