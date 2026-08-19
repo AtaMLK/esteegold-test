@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useCart } from "../context/cartContext";
 
 export default function CheckoutPage() {
-  const { items, subtotal } = useCart();
+  const { items, subtotal, unitPrice } = useCart();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedShipping, setAcceptedShipping] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -23,9 +23,9 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: items.map(({ id, quantity }) => ({ id, quantity })),
+          items: items.map(({ id, quantity, options }) => ({ id, quantity, options })),
           customer: { fullName: form.get("fullName"), email: form.get("email"), phone: form.get("phone"), identityNumber: form.get("identityNumber") },
-          address: { address: form.get("address"), city: form.get("city"), postalCode: form.get("postalCode") },
+          address: { address: form.get("address"), city: form.get("city"), postalCode: form.get("postalCode"), country: "Turkey" },
           acceptedTerms,
           acceptedShipping,
         }),
@@ -59,8 +59,7 @@ export default function CheckoutPage() {
             <button type="submit" disabled={!canContinue} className="mt-10 w-full rounded-full bg-black px-6 py-4 text-[9px] uppercase tracking-[0.25em] text-white transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:opacity-30">{submitting ? "Opening secure payment..." : "Continue to secure payment"}</button>
             <p className="mt-4 text-center text-[9px] uppercase tracking-[0.18em] text-black/35">Your card details are entered on the iyzico hosted payment page.</p>
           </form>
-
-          <aside className="lg:sticky lg:top-28 lg:h-fit"><p className="text-[9px] uppercase tracking-[0.28em] text-black/40">Order summary</p><div className="mt-5 rounded-[2rem] bg-black p-7 text-white md:p-9"><p className="font-serif text-4xl tracking-[-0.04em]">Your bag</p><div className="mt-7 space-y-3">{items.map((item) => <div key={item.key} className="flex justify-between gap-5 text-sm"><span className="text-white/55">{item.name} × {item.quantity}</span><span>€{(Number(item.price) * item.quantity).toFixed(2)}</span></div>)}</div><div className="my-7 border-t border-white/10" /><div className="flex justify-between"><span className="text-white/50">Subtotal</span><span>€{subtotal.toFixed(2)}</span></div><Link href="/cart" className="mt-10 inline-block border-b border-white/30 pb-2 text-[9px] uppercase tracking-[0.24em]">Back to bag →</Link></div></aside>
+          <aside className="lg:sticky lg:top-28 lg:h-fit"><p className="text-[9px] uppercase tracking-[0.28em] text-black/40">Order summary</p><div className="mt-5 rounded-[2rem] bg-black p-7 text-white md:p-9"><p className="font-serif text-4xl tracking-[-0.04em]">Your bag</p><div className="mt-7 space-y-3">{items.map((item) => <div key={item.key} className="flex justify-between gap-5 text-sm"><span className="text-white/55">{item.name} × {item.quantity}</span><span>€{(unitPrice(item) * item.quantity).toFixed(2)}</span></div>)}</div><div className="my-7 border-t border-white/10" /><div className="flex justify-between"><span className="text-white/50">Subtotal</span><span>€{subtotal.toFixed(2)}</span></div><Link href="/cart" className="mt-10 inline-block border-b border-white/30 pb-2 text-[9px] uppercase tracking-[0.24em]">Back to bag →</Link></div></aside>
         </div>
       </div>
     </main>
