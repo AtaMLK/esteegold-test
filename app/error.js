@@ -1,16 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { RefreshCw } from "lucide-react";
-import { useError } from "./context/errorContext";
 
 export default function AppError({ error, reset }) {
-  const { reportError } = useError();
-
-  useEffect(() => {
-    reportError(error, "This page could not be loaded. Please try again.");
-  }, [error, reportError]);
-
   return (
     <main className="grid min-h-[70vh] place-items-center bg-[var(--paper)] px-6 text-center">
       <div className="max-w-xl">
