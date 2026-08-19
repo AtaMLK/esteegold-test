@@ -44,39 +44,23 @@ export default function Hero() {
     const stage = stageRef.current;
     const model = modelRef.current;
     if (!root || !stage || !model) return;
-
     const ctx = gsap.context(() => {
       const imageRefs = collection === "gold" ? goldImageRefs.current : bagImageRefs.current;
       const allImages = imageRefs.filter(Boolean);
       const chapters = chapterRefs.current.filter(Boolean);
-
       gsap.set(chapters, { autoAlpha: 0, y: 38 });
       gsap.set(chapters[0], { autoAlpha: 1, y: 0 });
       gsap.set(allImages, { autoAlpha: 0, scale: 1.08, rotate: 2, xPercent: 0, yPercent: 0 });
       gsap.set(allImages[0], { autoAlpha: 1, scale: 1, rotate: 0 });
       gsap.set(model, { y: 25, scale: 0.92, rotateY: -7, rotateZ: -1.5 });
       gsap.set(progressRef.current, { scaleY: 0 });
-
-      const timeline = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: 1, pin: stage, anticipatePin: 1 },
-      });
-
+      const timeline = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: 1, pin: stage, anticipatePin: 1 } });
       timeline.to(model, { y: -15, scale: 1.03, rotateY: 7, rotateZ: 1.5, duration: 1 });
-
       for (let index = 0; index < 3; index += 1) {
-        timeline
-          .call(() => setChapter(index + 1))
-          .to(chapters[index], { autoAlpha: 0, y: -38, duration: 0.2 })
-          .to(chapters[index + 1], { autoAlpha: 1, y: 0, duration: 0.2 }, "<")
-          .to(allImages[index], { autoAlpha: 0, scale: 1.08, rotate: -2, duration: 0.2 }, "<")
-          .to(allImages[index + 1], { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.2 }, "<")
-          .to(model, { y: -35 - (index + 1) * 8, rotateY: index % 2 ? -6 : 6, rotateZ: index % 2 ? -1.5 : 1.5, duration: 0.7 });
+        timeline.call(() => setChapter(index + 1)).to(chapters[index], { autoAlpha: 0, y: -38, duration: 0.2 }).to(chapters[index + 1], { autoAlpha: 1, y: 0, duration: 0.2 }, "<").to(allImages[index], { autoAlpha: 0, scale: 1.08, rotate: -2, duration: 0.2 }, "<").to(allImages[index + 1], { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.2 }, "<").to(model, { y: -35 - (index + 1) * 8, rotateY: index % 2 ? -6 : 6, rotateZ: index % 2 ? -1.5 : 1.5, duration: 0.7 });
       }
-
       gsap.to(progressRef.current, { scaleY: 1, transformOrigin: "top center", scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: true } });
     }, root);
-
     return () => ctx.revert();
   }, [collection]);
 
@@ -86,70 +70,27 @@ export default function Hero() {
     const outgoing = outgoingRefs[chapter] || outgoingRefs[0];
     const incoming = incomingRefs[0];
     if (!outgoing || !incoming || !modelRef.current) return;
-
     const nextCollection = collection === "gold" ? "bags" : "gold";
     gsap.killTweensOf([outgoing, incoming, modelRef.current, orbitRef.current]);
-
-    gsap.timeline({
-      defaults: { ease: "power3.inOut" },
-      onComplete: () => {
-        setCollection(nextCollection);
-        setChapter(0);
-        window.scrollTo({ top: rootRef.current?.offsetTop || 0, behavior: "smooth" });
-      },
-    })
-      .set(incoming, { autoAlpha: 1, xPercent: 115, yPercent: 3, scale: 0.68, rotate: 12 })
-      .to(orbitRef.current, { rotation: "+=180", duration: 1.25, ease: "power2.inOut" }, 0)
-      .to(outgoing, { xPercent: -118, yPercent: 8, scale: 0.68, rotate: -16, rotateY: -28, duration: 1.25 }, 0)
-      .to(incoming, { xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, duration: 1.25 }, 0.03)
-      .to(modelRef.current, { scale: 1.04, rotateY: 8, duration: 0.6 }, 0.42)
-      .to(modelRef.current, { scale: 1, rotateY: 0, duration: 0.55 }, 0.92);
+    gsap.timeline({ defaults: { ease: "power3.inOut" }, onComplete: () => { setCollection(nextCollection); setChapter(0); window.scrollTo({ top: rootRef.current?.offsetTop || 0, behavior: "smooth" }); } }).set(incoming, { autoAlpha: 1, xPercent: 115, yPercent: 3, scale: 0.68, rotate: 12 }).to(orbitRef.current, { rotation: "+=180", duration: 1.25, ease: "power2.inOut" }, 0).to(outgoing, { xPercent: -118, yPercent: 8, scale: 0.68, rotate: -16, rotateY: -28, duration: 1.25 }, 0).to(incoming, { xPercent: 0, yPercent: 0, scale: 1, rotate: 0, rotateY: 0, duration: 1.25 }, 0.03).to(modelRef.current, { scale: 1.04, rotateY: 8, duration: 0.6 }, 0.42).to(modelRef.current, { scale: 1, rotateY: 0, duration: 0.55 }, 0.92);
   }
 
   const activeStory = stories[collection];
-
   return (
     <section ref={rootRef} className="hero-story">
       <div ref={stageRef} className="hero-stage">
-        <div className="hero-noise" aria-hidden="true" />
-        <div className="hero-glow hero-glow-one" aria-hidden="true" />
-        <div className="hero-glow hero-glow-two" aria-hidden="true" />
-        <div className="hero-topline"><span>ESTEEHOUSE / 2026</span></div>
-        <div className="hero-progress" aria-hidden="true"><span ref={progressRef} /></div>
-
-        <div className="hero-copy">
-          {activeStory.map((story, index) => (
-            <div key={story.eyebrow} ref={(node) => (chapterRefs.current[index] = node)} className="hero-chapter">
-              <p className="hero-eyebrow">{story.eyebrow}</p>
-              <h1>{story.title}</h1>
-              <p className="hero-description">{story.text}</p>
-              {index === 3 && <Link className="hero-cta" href={collection === "gold" ? "/gold" : "/bags"}>Explore {collection === "gold" ? "EsteeGold" : "EsteeBags"} <ArrowUpRight size={17} strokeWidth={1.7} /></Link>}
-            </div>
-          ))}
-        </div>
-
+        <div className="hero-noise" aria-hidden="true" /><div className="hero-glow hero-glow-one" aria-hidden="true" /><div className="hero-glow hero-glow-two" aria-hidden="true" />
+        <div className="hero-topline"><span>ESTEEHOUSE / 2026</span></div><div className="hero-progress" aria-hidden="true"><span ref={progressRef} /></div>
+        <div className="hero-copy">{activeStory.map((story, index) => <div key={story.eyebrow} ref={(node) => (chapterRefs.current[index] = node)} className="hero-chapter"><p className="hero-eyebrow">{story.eyebrow}</p><h1>{story.title}</h1><p className="hero-description">{story.text}</p>{index === 3 && <Link className="hero-cta" href={collection === "gold" ? "/gold" : "/bags"}>Explore {collection === "gold" ? "EsteeGold" : "EsteeBags"} <ArrowUpRight size={17} strokeWidth={1.7} /></Link>}</div>)}</div>
         <div className="hero-model-wrap" aria-hidden="true">
-          <div ref={orbitRef} className="hero-switch-orbit"><span /><i /><b /></div>
-          <div className="hero-model-ring ring-one" />
-          <div className="hero-model-ring ring-two" />
+          <div ref={orbitRef} className="hero-switch-orbit"><span /><i /><b /></div><div className="hero-model-ring ring-one" /><div className="hero-model-ring ring-two" />
           <div ref={modelRef} className="hero-model">
-            <div className="hero-collection-layer hero-collection-gold">
-              {goldImages.map((image, index) => <img key={image} ref={(node) => (goldImageRefs.current[index] = node)} src={image} alt="" className="hero-model-image" />)}
-            </div>
-            <div className="hero-collection-layer hero-collection-bags">
-              {bagImages.map((image, index) => <img key={image} ref={(node) => (bagImageRefs.current[index] = node)} src={image} alt="" className="hero-model-image" />)}
-            </div>
-          </div>
-          <div className="hero-model-shadow" />
+            <div className="hero-collection-layer hero-collection-gold">{goldImages.map((image, index) => <img key={image} ref={(node) => (goldImageRefs.current[index] = node)} src={image} alt="" className="hero-model-image" />)}</div>
+            <div className="hero-collection-layer hero-collection-bags">{bagImages.map((image, index) => <img key={image} ref={(node) => (bagImageRefs.current[index] = node)} src={image} alt="" className="hero-model-image" onError={(event) => { event.currentTarget.src = "/images/Hero-bg-3.jpg"; }} />)}</div>
+          </div><div className="hero-model-shadow" />
         </div>
-
-        <div className="hero-collection-switch">
-          <button type="button" onClick={switchCollection} aria-label={`Switch to ${collection === "gold" ? "EsteeBags" : "EsteeGold"}`}>
-            <span>{collection === "gold" ? "Explore EsteeBags" : "Back to EsteeGold"}</span><MoveRight size={16} />
-          </button>
-        </div>
-        <div className="hero-scroll-hint"><ArrowDown size={15} /><span>Scroll to discover</span></div>
-        <div className="hero-index">{collection === "gold" ? "GOLD / 04" : "BAGS / 20"}</div>
+        <div className="hero-collection-switch"><button type="button" onClick={switchCollection} aria-label={`Switch to ${collection === "gold" ? "EsteeBags" : "EsteeGold"}`}><span>{collection === "gold" ? "Explore EsteeBags" : "Back to EsteeGold"}</span><MoveRight size={16} /></button></div>
+        <div className="hero-scroll-hint"><ArrowDown size={15} /><span>Scroll to discover</span></div><div className="hero-index">{collection === "gold" ? "GOLD / 04" : "BAGS / 20"}</div>
       </div>
     </section>
   );
