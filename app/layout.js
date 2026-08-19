@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import SiteChrome from "./_components/ui/site-chrome";
 import { CartProvider } from "./context/cartContext";
 import { UserProvider } from "./context/userContext";
+import { ErrorProvider } from "./context/errorContext";
 import "./globals.css";
 import "../styles/fonts.css";
 import "../styles/styles.css";
@@ -15,12 +16,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <UserProvider>
-          <CartProvider>
-            <SiteChrome>{children}</SiteChrome>
-            <Toaster />
-          </CartProvider>
-        </UserProvider>
+        <ErrorProvider>
+          <UserProvider>
+            <CartProvider>
+              <SiteChrome>{children}</SiteChrome>
+              <Toaster />
+            </CartProvider>
+          </UserProvider>
+        </ErrorProvider>
       </body>
     </html>
   );
