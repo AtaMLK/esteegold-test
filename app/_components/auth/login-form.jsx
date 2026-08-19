@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Eye, EyeOff } from "lucide-react";
+import { supabase } from "@/app/_lib/supabase";
 import { useUser } from "@/app/context/userContext";
 import "./login-form.css";
 
@@ -16,10 +17,21 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false); const [googleLoading, setGoogleLoading] = useState(false); const [error, setError] = useState("");
   const next = searchParams.get("next"); const destination = next && next.startsWith("/") ? next : "/profile";
 
+  async function isAdmin() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return false;
+    const response = await fetch("/api/admin/me", { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" });
+    return response.ok;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault(); setError(""); setLoading(true);
-    try { await signInWithEmail(email.trim(), password); router.replace(destination); router.refresh(); }
-    catch (err) { setError(err?.message || "We could not sign you in. Check your email and password."); }
+    try {
+      await signInWithEmail(email.trim(), password);
+      const admin = await isAdmin();
+      router.replace(admin ? "/admin" : destination);
+      router.refresh();
+    } catch (err) { setError(err?.message || "We could not sign you in. Check your email and password."); }
     finally { setLoading(false); }
   }
 
@@ -43,7 +55,7 @@ export default function LoginForm() {
         <button className="auth-primary" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in"}<ArrowUpRight size={16} /></button>
       </form>
       <div className="auth-divider"><span>OR</span></div><button className="auth-google" type="button" onClick={handleGoogle} disabled={googleLoading}>{googleLoading ? "Opening Google…" : "Continue with Google"}</button>
-      <div className="auth-foot"><div><Link href="/auth/register">Create a customer account</Link><br /><Link href="/auth/login?next=/admin">Admin sign in</Link></div><span>Admin access is still enforced by the authorised admin email.</span></div>
+      <div className="auth-foot"><div><Link href="/auth/register">Create a customer account</Link><br /><Link href="/auth/login?next=/admin">Admin sign in</Link></div><span>Admin access is enforced server-side by the authorised admin email.</span></div>
     </section>
   </main>;
 }
