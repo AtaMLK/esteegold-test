@@ -18,34 +18,20 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
-
   const next = searchParams.get("next");
   const destination = next && next.startsWith("/") ? next : "/profile";
 
   async function handleSubmit(event) {
-    event.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await signInWithEmail(email.trim(), password);
-      router.replace(destination);
-      router.refresh();
-    } catch (err) {
-      setError(err?.message || "We could not sign you in. Check your email and password.");
-    } finally {
-      setLoading(false);
-    }
+    event.preventDefault(); setError(""); setLoading(true);
+    try { await signInWithEmail(email.trim(), password); router.replace(destination); router.refresh(); }
+    catch (err) { setError(err?.message || "We could not sign you in. Check your email and password."); }
+    finally { setLoading(false); }
   }
 
   async function handleGoogle() {
-    setError("");
-    setGoogleLoading(true);
-    try {
-      await signInWithGoogle(destination);
-    } catch (err) {
-      setError(err?.message || "Google sign-in could not be started.");
-      setGoogleLoading(false);
-    }
+    setError(""); setGoogleLoading(true);
+    try { await signInWithGoogle(destination); }
+    catch (err) { setError(err?.message || "Google sign-in could not be started."); setGoogleLoading(false); }
   }
 
   if (user) {
@@ -54,12 +40,7 @@ export default function LoginForm() {
 
   return (
     <main className="auth-shell">
-      <div className="auth-side">
-        <div><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div>
-        <div className="auth-side-copy"><p>Two collections.<br />One house.</p><small>Sign in to follow orders, save your details and continue your collection.</small></div>
-        <div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div>
-      </div>
-
+      <div className="auth-side"><div><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div><div className="auth-side-copy"><p>Two collections.<br />One house.</p><small>Sign in to follow orders, save your details and continue your collection.</small></div><div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div></div>
       <section className="auth-card">
         <div className="auth-heading"><p className="auth-kicker">WELCOME BACK</p><h1>Sign in.</h1><p className="auth-copy">Use your customer account or your authorised admin account.</p></div>
         <form onSubmit={handleSubmit} className="auth-form">
@@ -70,7 +51,7 @@ export default function LoginForm() {
         </form>
         <div className="auth-divider"><span>OR</span></div>
         <button className="auth-google" type="button" onClick={handleGoogle} disabled={googleLoading}>{googleLoading ? "Opening Google…" : "Continue with Google"}</button>
-        <div className="auth-foot"><Link href="/auth/register">Create a customer account</Link><span>Admin access is controlled by the authorised admin email.</span></div>
+        <div className="auth-foot"><div><Link href="/auth/register">Create a customer account</Link><br /><Link href="/auth/login?next=/admin">Admin sign in</Link></div><span>Admin access is still enforced by the authorised admin email.</span></div>
       </section>
     </main>
   );
