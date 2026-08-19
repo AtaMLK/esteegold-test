@@ -15,8 +15,7 @@ function ResultContent() {
 
   useEffect(() => {
     if (success) clearCart();
-    // A successful result is the only state that clears the local bag.
-  }, [success]);
+  }, [success, clearCart]);
 
   const title = success ? "Thank you." : review ? "Payment received." : "Payment failed.";
   const message = success
