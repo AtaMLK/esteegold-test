@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import Footer from "./_components/ui/footer";
-import Header from "./_components/ui/header";
+import SiteChrome from "./_components/ui/site-chrome";
 import { CartProvider } from "./context/cartContext";
 import { UserProvider } from "./context/userContext";
 import "./globals.css";
@@ -18,10 +17,8 @@ export default function RootLayout({ children }) {
       <body>
         <UserProvider>
           <CartProvider>
-            <Header />
-            <main>{children}</main>
+            <SiteChrome>{children}</SiteChrome>
             <Toaster />
-            <Footer />
           </CartProvider>
         </UserProvider>
       </body>
