@@ -41,7 +41,7 @@ export default function LoginForm() {
     setError("");
     setGoogleLoading(true);
     try {
-      await signInWithGoogle();
+      await signInWithGoogle(destination);
     } catch (err) {
       setError(err?.message || "Google sign-in could not be started.");
       setGoogleLoading(false);
@@ -62,19 +62,14 @@ export default function LoginForm() {
 
       <section className="auth-card">
         <div className="auth-heading"><p className="auth-kicker">WELCOME BACK</p><h1>Sign in.</h1><p className="auth-copy">Use your customer account or your authorised admin account.</p></div>
-
         <form onSubmit={handleSubmit} className="auth-form">
           <label><span>Email address</span><input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="you@example.com" required /></label>
           <label><span>Password</span><div className="auth-password"><input value={password} onChange={(e) => setPassword(e.target.value)} type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Your password" required /><button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button></div></label>
-
           {error && <p className="auth-error" role="alert">{error}</p>}
-
           <button className="auth-primary" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in"}<ArrowUpRight size={16} /></button>
         </form>
-
         <div className="auth-divider"><span>OR</span></div>
         <button className="auth-google" type="button" onClick={handleGoogle} disabled={googleLoading}>{googleLoading ? "Opening Google…" : "Continue with Google"}</button>
-
         <div className="auth-foot"><Link href="/auth/register">Create a customer account</Link><span>Admin access is controlled by the authorised admin email.</span></div>
       </section>
     </main>
