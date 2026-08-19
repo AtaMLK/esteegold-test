@@ -1,5 +1,5 @@
-import EsteeHouseHome from "./_components/ui/estee-house-home";
+import Main from "./_components/ui/main";
 
 export default function HomePage() {
-  return <EsteeHouseHome />;
+  return <Main />;
 }
