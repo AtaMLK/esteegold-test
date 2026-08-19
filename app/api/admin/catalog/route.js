@@ -31,7 +31,7 @@ function clean(body) {
   const price = Number(body.price);
   const stock = Number(body.stock ?? 0);
   if (!body.name?.trim()) throw new Error("Product name is required.");
-  if (!Number.isFinite(price) || price < 0) throw new Error("Price must be a valid positive number.");
+  if (!Number.isFinite(price) || price < 0) throw new Error("Price must be a valid non-negative number.");
   if (!Number.isFinite(discount) || discount < 0 || discount > 100) throw new Error("Discount must be between 0 and 100.");
   if (!Number.isInteger(stock) || stock < 0) throw new Error("Stock must be a non-negative integer.");
   if (!["EsteeGold", "EsteeBags"].includes(body.branch)) throw new Error("Invalid branch.");
@@ -53,6 +53,11 @@ export async function PATCH(request) {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const body = await request.json();
     if (!body.id) throw new Error("Product id is required.");
+    if (Object.keys(body).every((key) => ["id", "active"].includes(key))) {
+      const { data, error } = await adminClient().from("commerce_products").update({ active: body.active === true, updated_at: new Date().toISOString() }).eq("id", body.id).select().single();
+      if (error) throw error;
+      return NextResponse.json({ product: data });
+    }
     const row = clean(body);
     const { data, error } = await adminClient().from("commerce_products").update(row).eq("id", body.id).select().single();
     if (error) throw error;
