@@ -7,26 +7,25 @@ const STORAGE_KEY = "esteehouse-wishlist";
 
 export function WishlistProvider({ children }) {
   const [ids, setIds] = useState([]);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "[]");
       if (Array.isArray(saved)) setIds(saved.map(String));
-    } catch {}
+    } catch {} finally { setHydrated(true); }
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(ids)); } catch {}
-  }, [ids]);
+  }, [ids, hydrated]);
 
   const value = useMemo(() => ({
     ids,
     count: ids.length,
     has: (id) => ids.includes(String(id)),
-    toggle: (id) => setIds((current) => {
-      const key = String(id);
-      return current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-    }),
+    toggle: (id) => setIds((current) => { const key = String(id); return current.includes(key) ? current.filter((item) => item !== key) : [...current, key]; }),
     clear: () => setIds([]),
   }), [ids]);
 
