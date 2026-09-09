@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import SiteChrome from "./_components/ui/site-chrome";
 import { CartProvider } from "./context/cartContext";
 import { UserProvider } from "./context/userContext";
+import { WishlistProvider } from "./context/wishlistContext";
 import { ErrorProvider } from "./context/errorContext";
 import "./globals.css";
 import "../styles/fonts.css";
@@ -18,10 +19,12 @@ export default function RootLayout({ children }) {
       <body>
         <ErrorProvider>
           <UserProvider>
-            <CartProvider>
-              <SiteChrome>{children}</SiteChrome>
-              <Toaster />
-            </CartProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <SiteChrome>{children}</SiteChrome>
+                <Toaster />
+              </CartProvider>
+            </WishlistProvider>
           </UserProvider>
         </ErrorProvider>
       </body>
