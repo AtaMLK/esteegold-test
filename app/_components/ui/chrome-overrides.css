@@ -1,0 +1,56 @@
+/* Final responsive chrome pass: the wordmark and controls keep independent lanes on small screens. */
+@media (max-width: 700px) {
+  .header-container-absolute,
+  .header-container-flex {
+    display: flex !important;
+    position: fixed !important;
+    inset: 0 0 auto 0;
+    height: 74px !important;
+    min-height: 74px;
+    z-index: 50;
+    border-bottom: 1px solid rgba(23,23,20,.14) !important;
+  }
+  .header-wrapper {
+    width: 100% !important;
+    height: 100%;
+    padding: 0 70px 0 16px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between !important;
+    box-sizing: border-box;
+  }
+  .header-logo {
+    flex: 0 0 auto;
+    max-width: calc(100% - 92px);
+    margin: 0 !important;
+    font-size: clamp(1.35rem, 7vw, 1.8rem) !important;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .header-icons {
+    flex: 0 0 auto;
+    margin-left: auto;
+    gap: 6px !important;
+  }
+  .header-menu {
+    position: absolute !important;
+    right: 8px;
+    top: 11px;
+    width: 48px !important;
+    height: 48px;
+    z-index: 61;
+  }
+  .burger {
+    position: relative !important;
+    inset: auto !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+@media (max-width: 370px) {
+  .header-wrapper { padding-left: 12px !important; padding-right: 64px !important; }
+  .header-logo { font-size: 1.3rem !important; }
+  .header-icons { gap: 4px !important; }
+  .search-trigger { width: 38px !important; }
+}
