@@ -7,6 +7,7 @@ import { ErrorProvider } from "./context/errorContext";
 import "./globals.css";
 import "../styles/fonts.css";
 import "../styles/styles.css";
+import "./_components/ui/chrome-overrides.css";
 
 export const metadata = {
   title: "EsteeHouse — EsteeGold & EsteeBags",
