@@ -18,14 +18,15 @@ function enrichProduct(product) {
 }
 
 async function readDatabaseProducts(client, branch, ids) {
-  const baseSelect = "id,name,branch,category,description,image_url,price,discount_percent,active";
+  const baseSelect = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active";
   let query = client.from("commerce_products").select(`${baseSelect},story`).eq("active", true);
   if (branch) query = query.eq("branch", branch);
   if (Array.isArray(ids)) query = query.in("id", ids);
   let result = await query.order("created_at", { ascending: false });
 
-  if (result.error && /story|column/i.test(result.error.message || "")) {
-    query = client.from("commerce_products").select(baseSelect).eq("active", true);
+  if (result.error && /story|price_eur|price_try|price_usd_override|column/i.test(result.error.message || "")) {
+    const legacySelect = "id,name,branch,category,description,image_url,price,discount_percent,active";
+    query = client.from("commerce_products").select(legacySelect).eq("active", true);
     if (branch) query = query.eq("branch", branch);
     if (Array.isArray(ids)) query = query.in("id", ids);
     result = await query.order("created_at", { ascending: false });
@@ -33,6 +34,37 @@ async function readDatabaseProducts(client, branch, ids) {
 
   if (result.error) throw result.error;
   return result.data || [];
+}
+
+async function readMedia(client, productIds) {
+  if (!productIds.length) return new Map();
+  const { data, error } = await client
+    .from("commerce_product_media")
+    .select("id,product_id,kind,url,storage_path,alt_text,sort_order,is_primary")
+    .in("product_id", productIds)
+    .order("sort_order", { ascending: true });
+  if (error) {
+    // The storefront remains compatible until the media migration is applied.
+    if (/relation|commerce_product_media|does not exist|column/i.test(error.message || "")) return new Map();
+    throw error;
+  }
+  const map = new Map();
+  for (const row of data || []) {
+    if (!map.has(String(row.product_id))) map.set(String(row.product_id), []);
+    map.get(String(row.product_id)).push(row);
+  }
+  return map;
+}
+
+async function readPricingSettings(client) {
+  const { data, error } = await client
+    .from("commerce_pricing_settings")
+    .select("eur_usd_rate")
+    .eq("id", true)
+    .maybeSingle();
+  if (error && /relation|commerce_pricing_settings|does not exist|column/i.test(error.message || "")) return { eur_usd_rate: 1.08 };
+  if (error) throw error;
+  return data || { eur_usd_rate: 1.08 };
 }
 
 export async function getProducts({ branch = null, ids = null, search = "", includeSamples = true } = {}) {
@@ -43,8 +75,7 @@ export async function getProducts({ branch = null, ids = null, search = "", incl
   const demoProducts = includeSamples
     ? sampleProducts.filter((product) => !databaseIds.has(String(product.id)))
     : [];
-
-  return [...databaseProducts, ...demoProducts]
+  const products = [...databaseProducts, ...demoProducts]
     .filter((product) => !branch || product.branch === branch)
     .filter((product) => !Array.isArray(ids) || ids.map(String).includes(String(product.id)))
     .filter((product) => {
@@ -53,6 +84,24 @@ export async function getProducts({ branch = null, ids = null, search = "", incl
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedSearch));
     });
+
+  const media = await readMedia(client, databaseProducts.map((p) => String(p.id)));
+  const settings = await readPricingSettings(client);
+  return products.map((product) => {
+    const eur = Number(product.price_eur ?? product.price ?? 0);
+    const tryPrice = Number(product.price_try ?? 0);
+    const usd = product.price_usd_override_enabled && product.price_usd_override != null
+      ? Number(product.price_usd_override)
+      : eur * Number(settings.eur_usd_rate || 1.08);
+    return {
+      ...product,
+      price_eur: Number(eur.toFixed(2)),
+      price_try: tryPrice > 0 ? Number(tryPrice.toFixed(2)) : null,
+      price_usd: Number(usd.toFixed(2)),
+      media: media.get(String(product.id)) || [],
+      pricing_rate_eur_usd: Number(settings.eur_usd_rate || 1.08),
+    };
+  });
 }
 
 export async function getProductMap(ids) {
