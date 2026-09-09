@@ -20,7 +20,7 @@ function enrichProduct(product) {
 export async function getProducts({ branch = null, ids = null, search = "", includeSamples = true } = {}) {
   const normalizedSearch = String(search || "").trim().toLowerCase();
   const client = getServerClient();
-  let query = client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active").eq("active", true);
+  let query = client.from("commerce_products").select("id,name,branch,category,description,story,image_url,price,discount_percent,active").eq("active", true);
   if (branch) query = query.eq("branch", branch);
   if (Array.isArray(ids)) query = query.in("id", ids);
 
