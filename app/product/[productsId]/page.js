@@ -46,13 +46,14 @@ export default function ProductId({ params }) {
 
   const price = finalPrice(product);
   const discounted = Number(product.discount_percent || 0) > 0;
+  const story = product.story || "I wanted this piece to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why it belongs here.";
 
   return (
     <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-28 md:px-10 md:pt-32">
       <div className="mx-auto max-w-7xl">
         <Link href="/categories" className="inline-flex items-center gap-2 text-[9px] uppercase tracking-[0.24em] text-black/45 hover:text-black"><ArrowLeft size={14}/> Back to collection</Link>
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
-          <div className="relative min-h-[65vh] overflow-hidden bg-[#d7d0c3] md:min-h-[78vh]"><Image src={product.image_url || "/images/Hero-bg-1.jpg"} alt={product.name} fill priority className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" /></div>
+          <div className="relative min-h-[65vh] overflow-hidden bg-[#d7d0c3] md:min-h-[78vh]"><Image src={product.image_url || "/images/Hero-bg-1.jpg"} alt={product.name} fill priority className="object-cover" sizes="(max-width: 1024px) 100vw, 60vw" unoptimized={product.image_url?.startsWith("http")} /></div>
           <div className="flex flex-col justify-center py-5">
             <p className="text-[9px] uppercase tracking-[0.3em] text-black/40">{product.branch} / {product.category}</p>
             <h1 className="mt-5 font-serif text-[clamp(3.5rem,7vw,7rem)] leading-[0.76] tracking-[-0.065em]">{product.name}</h1>
@@ -63,7 +64,14 @@ export default function ProductId({ params }) {
             <Link href="/shipping" className="mt-5 text-center text-[9px] uppercase tracking-[0.2em] text-black/45 underline underline-offset-4">Shipping & returns</Link>
           </div>
         </div>
-        <section className="mt-20 border-t border-black/10 pt-10 md:mt-32 md:grid md:grid-cols-[0.35fr_1fr] md:gap-10"><p className="text-[9px] uppercase tracking-[0.28em] text-black/40">The EsteeHouse approach</p><p className="max-w-3xl font-serif text-[clamp(2rem,4vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">Objects should feel made, not manufactured.</p></section>
+        <section className="mt-20 grid gap-10 border-t border-black/10 pt-10 md:mt-32 md:grid-cols-[0.35fr_1fr] md:gap-10">
+          <p className="text-[9px] uppercase tracking-[0.28em] text-black/40">The story / {product.name}</p>
+          <div>
+            <p className="max-w-3xl font-serif text-[clamp(2.4rem,4.5vw,5rem)] leading-[0.9] tracking-[-0.05em]">Made slowly. Kept for a reason.</p>
+            <p className="mt-8 max-w-2xl text-base leading-8 text-black/60">{story}</p>
+          </div>
+        </section>
+        <section className="mt-20 border-t border-black/10 pt-10 md:mt-28 md:grid md:grid-cols-[0.35fr_1fr] md:gap-10"><p className="text-[9px] uppercase tracking-[0.28em] text-black/40">The EsteeHouse approach</p><p className="max-w-3xl font-serif text-[clamp(2rem,4vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">Objects should feel made, not manufactured.</p></section>
       </div>
     </main>
   );
