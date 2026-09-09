@@ -15,19 +15,17 @@ function enrichProduct(product) {
 }
 
 async function readDatabaseProducts(client, branch, ids) {
-  const baseSelect = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active";
-  let query = client.from("commerce_products").select(`${baseSelect},story`).eq("active", true);
+  const select = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,story";
+  let query = client.from("commerce_products").select(select).eq("active", true);
   if (branch) query = query.eq("branch", branch);
   if (Array.isArray(ids)) query = query.in("id", ids);
-  let result = await query.order("created_at", { ascending: false });
-
+  let result = await query;
   if (result.error) {
-    const legacySelect = "id,name,branch,category,description,image_url,price,discount_percent,active";
-    let legacyQuery = client.from("commerce_products").select(legacySelect).eq("active", true);
+    let legacyQuery = client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active").eq("active", true);
     if (branch) legacyQuery = legacyQuery.eq("branch", branch);
     if (Array.isArray(ids)) legacyQuery = legacyQuery.in("id", ids);
-    const legacyResult = await legacyQuery.order("created_at", { ascending: false });
-    if (legacyResult.error) throw legacyResult.error;
+    const legacyResult = await legacyQuery;
+    if (legacyResult.error) return [];
     return legacyResult.data || [];
   }
   return result.data || [];
@@ -39,10 +37,7 @@ async function readMedia(client, productIds) {
     const { data, error } = await client.from("commerce_product_media").select("id,product_id,kind,url,storage_path,alt_text,sort_order,is_primary").in("product_id", productIds).order("sort_order", { ascending: true });
     if (error) return new Map();
     const map = new Map();
-    for (const row of data || []) {
-      if (!map.has(String(row.product_id))) map.set(String(row.product_id), []);
-      map.get(String(row.product_id)).push(row);
-    }
+    for (const row of data || []) { if (!map.has(String(row.product_id))) map.set(String(row.product_id), []); map.get(String(row.product_id)).push(row); }
     return map;
   } catch { return new Map(); }
 }
@@ -65,7 +60,6 @@ export async function getProducts({ branch = null, ids = null, search = "", incl
     .filter((product) => !branch || product.branch === branch)
     .filter((product) => !Array.isArray(ids) || ids.map(String).includes(String(product.id)))
     .filter((product) => !normalizedSearch || [product.name, product.category, product.branch, product.description, product.story].filter(Boolean).some((value) => String(value).toLowerCase().includes(normalizedSearch)));
-
   const media = await readMedia(client, databaseProducts.map((p) => String(p.id)));
   const settings = await readPricingSettings(client);
   return products.map((product) => {
@@ -80,10 +74,7 @@ export async function getProductMap(ids) {
   const requestedIds = ids.map(String);
   const products = await getProducts({ ids: requestedIds, includeSamples: false });
   const map = new Map(products.map((product) => [String(product.id), product]));
-  if (map.size !== requestedIds.length) {
-    const missing = requestedIds.filter((id) => !map.has(id));
-    throw new Error(`Unknown or inactive product: ${missing.join(", ")}`);
-  }
+  if (map.size !== requestedIds.length) { const missing = requestedIds.filter((id) => !map.has(id)); throw new Error(`Unknown or inactive product: ${missing.join(", ")}`); }
   return map;
 }
 
