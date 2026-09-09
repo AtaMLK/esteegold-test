@@ -17,23 +17,34 @@ function enrichProduct(product) {
   };
 }
 
+async function readDatabaseProducts(client, branch, ids) {
+  const baseSelect = "id,name,branch,category,description,image_url,price,discount_percent,active";
+  let query = client.from("commerce_products").select(`${baseSelect},story`).eq("active", true);
+  if (branch) query = query.eq("branch", branch);
+  if (Array.isArray(ids)) query = query.in("id", ids);
+  let result = await query.order("created_at", { ascending: false });
+
+  if (result.error && /story|column/i.test(result.error.message || "")) {
+    query = client.from("commerce_products").select(baseSelect).eq("active", true);
+    if (branch) query = query.eq("branch", branch);
+    if (Array.isArray(ids)) query = query.in("id", ids);
+    result = await query.order("created_at", { ascending: false });
+  }
+
+  if (result.error) throw result.error;
+  return result.data || [];
+}
+
 export async function getProducts({ branch = null, ids = null, search = "", includeSamples = true } = {}) {
   const normalizedSearch = String(search || "").trim().toLowerCase();
   const client = getServerClient();
-  let query = client.from("commerce_products").select("id,name,branch,category,description,story,image_url,price,discount_percent,active").eq("active", true);
-  if (branch) query = query.eq("branch", branch);
-  if (Array.isArray(ids)) query = query.in("id", ids);
-
-  const { data, error } = await query.order("created_at", { ascending: false });
-  if (error) throw error;
-
-  const databaseProducts = (data || []).map(enrichProduct);
+  const databaseProducts = (await readDatabaseProducts(client, branch, ids)).map(enrichProduct);
   const databaseIds = new Set(databaseProducts.map((product) => String(product.id)));
   const demoProducts = includeSamples
     ? sampleProducts.filter((product) => !databaseIds.has(String(product.id)))
     : [];
 
-  const combined = [...databaseProducts, ...demoProducts]
+  return [...databaseProducts, ...demoProducts]
     .filter((product) => !branch || product.branch === branch)
     .filter((product) => !Array.isArray(ids) || ids.map(String).includes(String(product.id)))
     .filter((product) => {
@@ -42,8 +53,6 @@ export async function getProducts({ branch = null, ids = null, search = "", incl
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedSearch));
     });
-
-  return combined;
 }
 
 export async function getProductMap(ids) {
