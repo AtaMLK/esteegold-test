@@ -26,9 +26,7 @@ function CollectionPanel({ number, name, subtitle, href, image, children }) {
           <h2 className="font-serif text-[clamp(4.5rem,13vw,13rem)] leading-[0.72] tracking-[-0.075em]">{name}</h2>
           <div className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <p className="max-w-md text-sm leading-6 text-white/75">{children}</p>
-            <Link href={href} className="group flex w-fit items-center gap-3 border-b border-white/40 pb-2 text-[9px] uppercase tracking-[0.24em]">
-              Enter collection <span className="transition-transform duration-300 group-hover:translate-x-2">→</span>
-            </Link>
+            <Link href={href} className="group flex w-fit items-center gap-3 border-b border-white/40 pb-2 text-[9px] uppercase tracking-[0.24em]">Enter collection <span className="transition-transform duration-300 group-hover:translate-x-2">→</span></Link>
           </div>
         </div>
       </div>
@@ -46,18 +44,22 @@ export default function EsteeHouseHome() {
           </motion.div>
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50" />
         </div>
-        <div className="relative flex min-h-[100svh] flex-col justify-between p-5 text-white md:p-8">
-          <div className="mt-24 grid grid-cols-2 gap-8 md:grid-cols-4">
-            <div>
+        <div className="relative flex min-h-[100svh] flex-col justify-between px-5 pb-8 pt-28 text-white md:px-8 md:pb-12 md:pt-32">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 md:gap-8">
+            <div className="max-w-[220px]">
               <p className="text-[8px] uppercase tracking-[0.3em] text-white/55">A creative house</p>
-              <p className="mt-2 max-w-[170px] text-xs leading-5 text-white/75">Jewelry, accessories and handmade bags with their own character.</p>
+              <p className="mt-2 text-xs leading-5 text-white/75">Jewelry, accessories and handmade bags with their own character.</p>
             </div>
-            <div className="hidden md:block" /><div className="hidden md:block" />
-            <div className="text-right"><p className="text-[8px] uppercase tracking-[0.3em] text-white/55">01 / 02</p><p className="mt-2 text-xs text-white/75">EsteeGold · EsteeBags</p></div>
+            <div className="hidden md:block" />
+            <div className="hidden md:block" />
+            <div className="text-left sm:text-right md:pr-16">
+              <p className="text-[8px] uppercase tracking-[0.3em] text-white/55">01 / 02</p>
+              <p className="mt-2 text-xs text-white/75">EsteeGold · EsteeBags</p>
+            </div>
           </div>
-          <div className="pb-8 md:pb-12">
+          <div className="pb-2 md:pb-0">
             <motion.p initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.65, duration: 0.9 }} className="mb-5 text-[9px] uppercase tracking-[0.32em] text-white/65">Welcome to</motion.p>
-            <motion.h1 initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.45, duration: 1.1, ease: [0.76, 0, 0.24, 1] }} className="max-w-6xl font-serif text-[clamp(5.5rem,15vw,15rem)] leading-[0.68] tracking-[-0.085em]">EsteeHouse</motion.h1>
+            <motion.h1 initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.45, duration: 1.1, ease: [0.76, 0, 0.24, 1] }} className="max-w-6xl font-serif text-[clamp(5rem,15vw,15rem)] leading-[0.68] tracking-[-0.085em]">EsteeHouse</motion.h1>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 1 }} className="mt-9 flex flex-col gap-4 text-[9px] uppercase tracking-[0.25em] sm:flex-row sm:items-center sm:justify-between">
               <span>Two ways of making. One house.</span><span className="animate-pulse">Scroll to explore ↓</span>
             </motion.div>
@@ -69,16 +71,16 @@ export default function EsteeHouseHome() {
         <p className="text-[9px] uppercase tracking-[0.28em] text-black/40">The idea / 01</p>
         <div>
           <p className="max-w-4xl font-serif text-[clamp(3rem,7vw,7.5rem)] leading-[0.88] tracking-[-0.06em]">Different materials.<br />Different moods.<br /><i>One house.</i></p>
-          <p className="mt-10 max-w-xl text-sm leading-7 text-black/55">EsteeHouse brings together pieces that are made to be worn, carried and remembered. EsteeGold is our refined side. EsteeBags is our handmade, expressive side.</p>
+          <p className="mt-10 max-w-xl text-sm leading-7 text-black/55">I started EsteeHouse around a simple idea: good objects do not need to shout. EsteeGold is the precise side of the house. EsteeBags is where colour, texture and a little irregularity get more room.</p>
         </div>
       </section>
 
-      <CollectionPanel number="1" name="EsteeGold" subtitle="Jewelry / accessories" href="/gold" image="/images/Hero-bg-2.jpg">Jewelry and accessories designed around detail, proportion and the small moments that make an object feel personal.</CollectionPanel>
-      <CollectionPanel number="2" name="EsteeBags" subtitle="Handmade / paracord / knit" href="/bags" image="/images/Hero-bg-3.jpg">Handmade bags with color, texture and visible personality. Each piece should look like it was made by someone, not by a machine.</CollectionPanel>
+      <CollectionPanel number="1" name="EsteeGold" subtitle="Jewelry / accessories" href="/gold" image="/images/Hero-bg-2.jpg">Pieces designed around proportion, touch and the small decisions that make something feel like yours.</CollectionPanel>
+      <CollectionPanel number="2" name="EsteeBags" subtitle="Handmade / paracord / knit" href="/bags" image="/images/Hero-bg-3.jpg">Bags with visible texture and personality. I would rather you see the hand in the work than have everything look perfectly uniform.</CollectionPanel>
 
       <section className="relative grid min-h-[78vh] items-center gap-10 overflow-hidden bg-[#e8e1d5] px-5 py-20 md:grid-cols-[0.7fr_1.3fr] md:px-10">
         <div className="absolute -right-24 top-20 h-72 w-72 rounded-full border border-black/10 md:h-[30rem] md:w-[30rem]" />
-        <div className="relative"><p className="text-[9px] uppercase tracking-[0.28em] text-black/40">Made by hand / 02</p><p className="mt-8 max-w-md text-sm leading-7 text-black/55">We want the material to stay visible. The knot, the shine, the irregularity, the tiny difference between one piece and the next.</p></div>
+        <div className="relative"><p className="text-[9px] uppercase tracking-[0.28em] text-black/40">Made by hand / 02</p><p className="mt-8 max-w-md text-sm leading-7 text-black/55">I leave room for the material to show itself: the knot, the shine, the tiny irregularity, the difference between one piece and the next.</p></div>
         <div className="relative"><p className="font-serif text-[clamp(4rem,10vw,11rem)] leading-[0.76] tracking-[-0.075em]">Keep the<br /><i>character.</i></p></div>
       </section>
 
