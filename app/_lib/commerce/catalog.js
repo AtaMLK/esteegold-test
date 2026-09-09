@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { sampleProducts } from "./sample-products";
 
 function getServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
@@ -7,21 +8,50 @@ function getServerClient() {
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-export async function getProducts({ branch = null, ids = null } = {}) {
+function enrichProduct(product) {
+  if (product.story) return product;
+  const branch = product.branch === "EsteeGold" ? "the jewelry" : "the bag";
+  return {
+    ...product,
+    story: `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.`,
+  };
+}
+
+export async function getProducts({ branch = null, ids = null, search = "", includeSamples = true } = {}) {
+  const normalizedSearch = String(search || "").trim().toLowerCase();
   const client = getServerClient();
   let query = client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active").eq("active", true);
   if (branch) query = query.eq("branch", branch);
   if (Array.isArray(ids)) query = query.in("id", ids);
+
   const { data, error } = await query.order("created_at", { ascending: false });
   if (error) throw error;
-  return data || [];
+
+  const databaseProducts = (data || []).map(enrichProduct);
+  const databaseIds = new Set(databaseProducts.map((product) => String(product.id)));
+  const demoProducts = includeSamples
+    ? sampleProducts.filter((product) => !databaseIds.has(String(product.id)))
+    : [];
+
+  const combined = [...databaseProducts, ...demoProducts]
+    .filter((product) => !branch || product.branch === branch)
+    .filter((product) => !Array.isArray(ids) || ids.map(String).includes(String(product.id)))
+    .filter((product) => {
+      if (!normalizedSearch) return true;
+      return [product.name, product.category, product.branch, product.description, product.story]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(normalizedSearch));
+    });
+
+  return combined;
 }
 
 export async function getProductMap(ids) {
-  const products = await getProducts({ ids });
+  const requestedIds = ids.map(String);
+  const products = await getProducts({ ids: requestedIds, includeSamples: false });
   const map = new Map(products.map((product) => [String(product.id), product]));
-  if (map.size !== ids.length) {
-    const missing = ids.filter((id) => !map.has(String(id)));
+  if (map.size !== requestedIds.length) {
+    const missing = requestedIds.filter((id) => !map.has(id));
     throw new Error(`Unknown or inactive product: ${missing.join(", ")}`);
   }
   return map;
