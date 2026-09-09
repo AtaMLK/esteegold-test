@@ -1,9 +1,5 @@
-function page() {
-    return (
-        <div>
-            
-        </div>
-    )
-}
+import { redirect } from "next/navigation";
 
-export default page
+export default function LegacyWishlistRoute() {
+  redirect("/wishlist");
+}
