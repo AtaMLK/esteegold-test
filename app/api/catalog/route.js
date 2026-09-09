@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProducts } from "../../_lib/commerce/catalog";
+import { getRegionalPrice, regionForRequest } from "../../_lib/commerce/regional-pricing";
 
 export async function GET(request) {
   try {
@@ -10,7 +11,15 @@ export async function GET(request) {
     if (branchParam && !["EsteeGold", "EsteeBags"].includes(branchParam)) return NextResponse.json({ error: "Invalid branch." }, { status: 400 });
     const ids = idParam ? idParam.split(",").map((id) => id.trim()).filter(Boolean) : null;
     const products = await getProducts({ branch: branchParam || null, ids, search });
-    return NextResponse.json({ products }, { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } });
+    const region = regionForRequest(request);
+    const regionalProducts = products.map((product) => ({
+      ...product,
+      regional_price: getRegionalPrice(product, { eur_usd_rate: product.pricing_rate_eur_usd }, region),
+    }));
+    return NextResponse.json(
+      { products: regionalProducts, region },
+      { headers: { "Cache-Control": "private, max-age=60, stale-while-revalidate=300, Vary: X-Vercel-IP-Country" } },
+    );
   } catch (error) {
     console.error("Catalog error", error);
     return NextResponse.json({ error: "Unable to load catalog." }, { status: 500 });
