@@ -92,7 +92,7 @@ export async function DELETE(request) {
     const body = await request.json();
     if (!body.id) return NextResponse.json({ error: "Media id is required." }, { status: 400 });
     const client = adminClient();
-    const { data: media, error: mediaError } = await client.from("commerce_product_media").select("id,storage_path").eq("id", body.id).maybeSingle();
+    const { data: media, error: mediaError } = await client.from("commerce_product_media").select("id,product_id,storage_path").eq("id", body.id).maybeSingle();
     if (mediaError) throw mediaError;
     if (!media) return NextResponse.json({ error: "Media not found." }, { status: 404 });
     if (media.storage_path) await client.storage.from("product-media").remove([media.storage_path]);
