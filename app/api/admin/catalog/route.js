@@ -48,16 +48,19 @@ async function enrich(products) {
   return withMedia(await withStock(products));
 }
 
+const SELECT = "id,name,branch,category,description,story,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,created_at,updated_at";
+
 export async function GET(request) {
   try {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized. Administrator access is required." }, { status: 401 });
-    const { data, error } = await adminClient().from("commerce_products").select("id,name,branch,category,description,story,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,created_at,updated_at").order("created_at", { ascending: false });
-    if (error && /price_eur|price_try|price_usd_override|story|column/i.test(error.message || "")) {
-      const legacy = await adminClient().from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active,created_at,updated_at").order("created_at", { ascending: false });
+    const client = adminClient();
+    let { data, error } = await client.from("commerce_products").select(SELECT).order("created_at", { ascending: false });
+    if (error && /price_eur|price_try|price_usd_override|material_options|size_type|stone_options|column/i.test(error.message || "")) {
+      const legacy = await client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active,created_at,updated_at").order("created_at", { ascending: false });
       if (legacy.error) throw legacy.error;
-      return NextResponse.json({ products: await enrich(legacy.data || []) });
+      data = (legacy.data || []).map((p) => ({ ...p, material_options: ["925 Sterling Silver"], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "" }));
     }
-    if (error) throw error;
+    if (error && !data) throw error;
     return NextResponse.json({ products: await enrich(data || []) });
   } catch (error) {
     console.error("[admin/catalog GET]", error);
@@ -65,17 +68,35 @@ export async function GET(request) {
   }
 }
 
+function arrayText(value, fallback = []) {
+  if (!Array.isArray(value)) return fallback;
+  return value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 30);
+}
+
+function optionObjects(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => {
+    if (typeof item === "string") return { name: item.trim() };
+    return { name: String(item?.name || "").trim(), note: String(item?.note || "").trim() };
+  }).filter((item) => item.name).slice(0, 30);
+}
+
 function clean(body, { requireStock = false } = {}) {
   const discount = Number(body.discount_percent ?? 0);
   const priceEur = Number(body.price_eur ?? body.price);
   const priceTry = body.price_try === "" || body.price_try == null ? null : Number(body.price_try);
   const priceUsdOverride = body.price_usd_override === "" || body.price_usd_override == null ? null : Number(body.price_usd_override);
+  const sizeType = ["none", "ring", "bracelet", "necklace"].includes(body.size_type) ? body.size_type : "none";
+  const materialOptions = arrayText(body.material_options, ["925 Sterling Silver"]);
+  const sizeOptions = arrayText(body.size_options);
+  const stoneOptions = optionObjects(body.stone_options);
   if (!body.name?.trim()) throw new Error("Product name is required.");
   if (!Number.isFinite(priceEur) || priceEur < 0) throw new Error("EUR price must be a valid non-negative number.");
   if (priceTry != null && (!Number.isFinite(priceTry) || priceTry < 0)) throw new Error("TRY price must be a valid non-negative number.");
   if (priceUsdOverride != null && (!Number.isFinite(priceUsdOverride) || priceUsdOverride < 0)) throw new Error("USD override must be a valid non-negative number.");
   if (!Number.isFinite(discount) || discount < 0 || discount > 100) throw new Error("Discount must be between 0 and 100.");
   if (!["EsteeGold", "EsteeBags"].includes(body.branch)) throw new Error("Invalid branch. Choose EsteeGold or EsteeBags.");
+  if (sizeType !== "none" && !sizeOptions.length) throw new Error("Add at least one size option for this product.");
   let stock;
   if (requireStock || body.stock !== undefined) {
     stock = Number(body.stock ?? 0);
@@ -96,6 +117,13 @@ function clean(body, { requireStock = false } = {}) {
       price_usd_override_enabled: body.price_usd_override_enabled === true,
       discount_percent: discount,
       active: body.active !== false,
+      material_options: materialOptions,
+      size_type: sizeType,
+      size_options: sizeOptions,
+      stone_options: stoneOptions,
+      stone_required: body.stone_required === true,
+      gold_available: body.gold_available === true,
+      customization_note: body.customization_note?.trim() || "",
       updated_at: new Date().toISOString(),
     },
     stock,
