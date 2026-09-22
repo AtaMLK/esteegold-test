@@ -37,6 +37,7 @@ export function CartProvider({ children }) {
     setItems((current) => {
       const key = `${product.id}:${JSON.stringify(options)}`;
       const existing = current.find((item) => item.key === key);
+      if (current.length && current.some((item) => (item.currency || "EUR") !== (product.currency || "EUR"))) return current;
       if (existing) return current.map((item) => item.key === key ? { ...item, quantity: item.quantity + quantity } : item);
       return [...current, { ...product, key, quantity, options }];
     });
