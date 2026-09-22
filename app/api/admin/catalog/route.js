@@ -55,7 +55,7 @@ export async function GET(request) {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized. Administrator access is required." }, { status: 401 });
     const client = adminClient();
     let { data, error } = await client.from("commerce_products").select(SELECT).order("created_at", { ascending: false });
-    if (error && /price_eur|price_try|price_usd_override|material_options|size_type|stone_options|column/i.test(error.message || "")) {
+    if (error && /price_eur|price_try|price_usd_override|gold_price_eur|gold_price_try|material_options|size_type|stone_options|column/i.test(error.message || "")) {
       const legacy = await client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active,created_at,updated_at").order("created_at", { ascending: false });
       if (legacy.error) throw legacy.error;
       data = (legacy.data || []).map((p) => ({ ...p, material_options: ["925 Sterling Silver"], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "", gold_price_eur: null, gold_price_try: null }));
