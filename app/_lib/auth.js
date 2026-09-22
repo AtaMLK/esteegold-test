@@ -12,12 +12,19 @@ export async function signInWithEmail(email, password) {
   return data.user;
 }
 
-export async function signInWithGoogle(redirectTo = "/profile") {
+export async function signInWithProvider(provider, redirectTo = "/profile") {
   const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "");
   const safePath = redirectTo?.startsWith("/") ? redirectTo : "/profile";
-  const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${origin}${safePath}` } });
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: origin + safePath },
+  });
   if (error) throw error;
   return data;
+}
+
+export async function signInWithGoogle(redirectTo = "/profile") {
+  return signInWithProvider("google", redirectTo);
 }
 
 export async function sendPasswordReset(email) {
