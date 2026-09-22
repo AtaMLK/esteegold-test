@@ -111,13 +111,18 @@ begin
       1,coalesce(price_eur,price),0,coalesce(price_eur,price),coalesce(price_eur,price)
     from public.commerce_products where id=v_product;
 
-    if v_payment='success' then
+    if v_payment in ('success','refunded') then
       insert into public.commerce_payments(order_id,provider,conversation_id,payment_status,amount,currency,provider_status,verified_at)
-      values(v_order_id,'demo','DEMO-'||v_order_no,'success',118,'EUR','demo',now());
+      values(v_order_id,'demo','DEMO-'||v_order_no,v_payment,118,'EUR','demo',now());
     end if;
   end loop;
-end $$;
+end $;
 
+insert into public.commerce_refunds(order_id,payment_id,payment_transaction_id,amount,currency,status,provider_refund_id,provider_status,reason,completed_at)
+select o.id,p.id,p.payment_transaction_id,p.amount,p.currency,'success','DEMO-REFUND-006','demo','Demo refund lifecycle',now()
+from public.commerce_orders o join public.commerce_payments p on p.order_id=o.id
+where o.order_number='EH-DEMO-006'
+on conflict (provider_refund_id) do nothing;
 
 create table if not exists public.commerce_shipments (
   id uuid primary key default gen_random_uuid(),
