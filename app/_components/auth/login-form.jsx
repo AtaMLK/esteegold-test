@@ -3,17 +3,22 @@
 import { signInWithGoogle, signInWithEmail } from "@/app/_lib/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/app/_lib/supabase";
 import { useUser } from "@/app/context/userContext";
+import { gsap } from "gsap";
 import "./login-form.css";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useUser();
+
+  const next = searchParams.get("next");
+  const destination = next && next.startsWith("/") ? next : "/profile";
   const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
+
   const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,37 +28,78 @@ export default function LoginForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const next = searchParams.get("next");
-  const destination = next && next.startsWith("/") ? next : "/profile";
 
-  useEffect(() => {
-    setMode(searchParams.get("mode") === "register" ? "register" : "login");
-  }, [searchParams]);
+  const sideRef = useRef(null);
 
   async function isAdmin() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) return false;
-    const response = await fetch("/api/admin/me", { headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" });
+
+    const response = await fetch("/api/admin/me", {
+      headers: { Authorization: "Bearer " + session.access_token },
+      cache: "no-store",
+    });
+
     return response.ok;
   }
 
+  // A customer who is already signed in should never get stuck on /auth/login.
   useEffect(() => {
     if (!user) return;
+
     let cancelled = false;
+
     (async () => {
-      if (await isAdmin() && !cancelled) router.replace("/admin");
+      const admin = await isAdmin();
+      if (!cancelled) {
+        router.replace(admin ? "/admin" : destination);
+        router.refresh();
+      }
     })();
-    return () => { cancelled = true; };
-  }, [user]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, destination, router]);
+
+  useEffect(() => {
+    const target = searchParams.get("mode") === "register" ? "register" : "login";
+    setMode(target);
+
+    if (sideRef.current) {
+      gsap.set(sideRef.current, {
+        rotationY: target === "register" ? -180 : 0,
+        transformOrigin: "left center",
+      });
+    }
+  }, [searchParams]);
 
   function flip(nextMode) {
+    if (nextMode === mode) return;
+
     setError("");
     setMessage("");
     setMode(nextMode);
+
     const params = new URLSearchParams();
-    params.set("mode", nextMode);
+    if (nextMode === "register") params.set("mode", "register");
     if (next) params.set("next", next);
-    window.history.replaceState({}, "", "/auth/login?" + params.toString());
+
+    window.history.replaceState(
+      {},
+      "",
+      "/auth/login" + (params.toString() ? "?" + params.toString() : "")
+    );
+
+    if (!sideRef.current) return;
+
+    gsap.killTweensOf(sideRef.current);
+    gsap.to(sideRef.current, {
+      rotationY: nextMode === "register" ? -180 : 0,
+      duration: 1.15,
+      ease: "power3.inOut",
+      overwrite: true,
+    });
   }
 
   async function handleLogin(event) {
@@ -61,6 +107,7 @@ export default function LoginForm() {
     setError("");
     setMessage("");
     setLoading(true);
+
     try {
       await signInWithEmail(email.trim(), password);
       const admin = await isAdmin();
@@ -78,8 +125,10 @@ export default function LoginForm() {
     setError("");
     setMessage("");
     setLoading(true);
+
     try {
       if (!name.trim()) throw new Error("Your name is required.");
+
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
@@ -89,15 +138,17 @@ export default function LoginForm() {
           emailRedirectTo: siteUrl + "/auth/login",
         },
       });
+
       if (signUpError) throw signUpError;
+
       if (data.session) {
         router.replace("/profile");
         router.refresh();
         return;
       }
+
       setMessage("Your account is created. Check your email to confirm it, then sign in.");
-      setMode("login");
-      const params = new URLSearchParams(); if (next) params.set("next", next); window.history.replaceState({}, "", "/auth/login" + (params.toString() ? "?" + params.toString() : ""));
+      flip("login");
     } catch (err) {
       setError(err?.message || "We could not create your account.");
     } finally {
@@ -109,6 +160,7 @@ export default function LoginForm() {
     setError("");
     setMessage("");
     setGoogleLoading(true);
+
     try {
       await signInWithGoogle(destination);
     } catch (err) {
@@ -117,34 +169,123 @@ export default function LoginForm() {
     }
   }
 
-  if (user) {
-    const displayName = user.user_metadata?.full_name || user.email;
-    return <div className="auth-shell"><div className="auth-card auth-signed-card"><p className="auth-kicker">ESTEEHOUSE / ACCOUNT</p><h1>You are in.</h1><p className="auth-copy">Signed in as {displayName}.</p><button className="auth-primary" type="button" onClick={async () => router.replace(await isAdmin() ? "/admin" : destination)}>Continue <ArrowUpRight size={16}/></button></div></div>;
-  }
-
-  const isRegister = mode === "register";
-  return <main className="auth-shell">
-    <div className={"auth-paper " + (isRegister ? "is-register" : "is-login")}>
-      <div className="auth-side">
-        <div><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div>
-        <div className="auth-side-copy"><p>Two collections.<br />One house.</p><small>{isRegister ? "Create your account to follow orders, save your details and continue your collection." : "Sign in to follow orders, save your details and continue your collection."}</small></div>
-        <div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div>
-      </div>
+  function renderPanel(isRegister) {
+    return (
       <section className="auth-card">
-        <div className="auth-heading"><p className="auth-kicker">{isRegister ? "WELCOME IN" : "WELCOME BACK"}</p><h1>{isRegister ? "Sign up." : "Sign in."}</h1><p className="auth-copy">{isRegister ? "Create your customer account. No passport or ID is needed for account creation." : "Use your customer account or your authorised admin account."}</p></div>
+        <div className="auth-heading">
+          <p className="auth-kicker">{isRegister ? "WELCOME IN" : "WELCOME BACK"}</p>
+          <h1>{isRegister ? "Sign up." : "Sign in."}</h1>
+          <p className="auth-copy">
+            {isRegister
+              ? "Create your account. No passport or ID is needed."
+              : "Use your customer account or your authorised admin account."}
+          </p>
+        </div>
+
         <form onSubmit={isRegister ? handleRegister : handleLogin} className="auth-form">
-          {isRegister && <label><span>Name</span><input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Your name" required /></label>}
-          <label><span>Email address</span><input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="you@example.com" required /></label>
-          <label><span>Password</span><div className="auth-password"><input value={password} onChange={(e) => setPassword(e.target.value)} type={showPassword ? "text" : "password"} autoComplete={isRegister ? "new-password" : "current-password"} placeholder="Your password" minLength={6} required /><button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>
-          {!isRegister && <div className="auth-forgot"><Link href="/auth/forgot-password">Forgot password?</Link></div>}
+          {isRegister && (
+            <label>
+              <span>Name</span>
+              <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Your name" required />
+            </label>
+          )}
+
+          <label>
+            <span>Email address</span>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="you@example.com" required />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <div className="auth-password">
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type={showPassword ? "text" : "password"}
+                autoComplete={isRegister ? "new-password" : "current-password"}
+                placeholder="Your password"
+                minLength={6}
+                required
+              />
+              <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Hide password" : "Show password"}>
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </label>
+
+          {!isRegister && (
+            <div className="auth-forgot">
+              <Link href="/auth/forgot-password">Forgot password?</Link>
+            </div>
+          )}
+
           {error && <p className="auth-error" role="alert">{error}</p>}
           {message && <p className="auth-success" role="status">{message}</p>}
-          <button className="auth-primary" type="submit" disabled={loading}>{loading ? (isRegister ? "Creating account…" : "Signing in…") : (isRegister ? "Create account" : "Sign in")}<ArrowUpRight size={16}/></button>
+
+          <button className="auth-primary" type="submit" disabled={loading}>
+            {loading
+              ? (isRegister ? "Creating account…" : "Signing in…")
+              : (isRegister ? "Create account" : "Sign in")}
+            <ArrowUpRight size={16} />
+          </button>
         </form>
+
         <div className="auth-divider"><span>OR</span></div>
-        <button className="auth-google" type="button" onClick={handleGoogle} disabled={googleLoading}>{googleLoading ? "Opening Google…" : "Continue with Google"}</button>
-        <div className="auth-foot"><button type="button" className="auth-switch" onClick={() => flip(isRegister ? "login" : "register")}>{isRegister ? "Already have an account? Sign in" : "New here? Create an account"}</button>{!isRegister && destination === "/admin" && <span>Admin access is enforced server-side by the authorised admin email.</span>}</div>
+
+        <button className="auth-google" type="button" onClick={handleGoogle} disabled={googleLoading}>
+          {googleLoading ? "Opening Google…" : "Continue with Google"}
+        </button>
+
+        <div className="auth-foot">
+          <button
+            type="button"
+            className="auth-switch"
+            onClick={() => flip(isRegister ? "login" : "register")}
+          >
+            {isRegister ? "Already have an account? Sign in" : "New here? Create an account"}
+          </button>
+        </div>
       </section>
-    </div>
-  </main>;
+    );
+  }
+
+  // While the existing session is being resolved, render nothing on the auth page.
+  // Once a user is known, the effect above immediately sends them to the destination.
+  if (user) return null;
+
+  const isRegister = mode === "register";
+
+  return (
+    <main className="auth-shell">
+      <div className="auth-paper">
+        <section className="auth-register-panel" aria-hidden={!isRegister}>
+          {renderPanel(true)}
+        </section>
+
+        <section className="auth-login-panel" aria-hidden={isRegister}>
+          {renderPanel(false)}
+        </section>
+
+        <div ref={sideRef} className="auth-side" aria-hidden="true">
+          <div className="auth-side-face auth-side-front">
+            <div><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div>
+            <div className="auth-side-copy">
+              <p>Two collections.<br />One house.</p>
+              <small>Sign in to follow orders, save your details and continue your collection.</small>
+            </div>
+            <div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div>
+          </div>
+
+          <div className="auth-side-face auth-side-back">
+            <div><span>ESTEEHOUSE</span><span>02 / JOIN</span></div>
+            <div className="auth-side-copy">
+              <p>Made to<br />belong.</p>
+              <small>Create an account and keep your collection, orders and details together.</small>
+            </div>
+            <div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 }
