@@ -28,6 +28,7 @@ export default function LoginForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [redirecting, setRedirecting] = useState(false);
 
   const curtainRef = useRef(null);
   const loginRef = useRef(null);
@@ -47,15 +48,27 @@ export default function LoginForm() {
   }
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setRedirecting(false);
+      return;
+    }
 
     let cancelled = false;
+    setRedirecting(true);
 
     (async () => {
-      const admin = await isAdmin();
-      if (!cancelled) {
-        router.replace(admin ? "/admin" : destination);
-        router.refresh();
+      try {
+        const admin = await isAdmin();
+        if (!cancelled) {
+          router.replace(admin ? "/admin" : destination);
+          router.refresh();
+        }
+      } catch {
+        if (!cancelled) {
+          // A failed admin check must never leave the auth page blank.
+          router.replace(destination);
+          router.refresh();
+        }
       }
     })();
 
@@ -358,7 +371,16 @@ export default function LoginForm() {
     );
   }
 
-  if (user) return null;
+  if (redirecting) {
+    return (
+      <main className="auth-shell auth-redirecting" aria-live="polite">
+        <div className="auth-redirect-message">
+          <span>ESTEEHOUSE</span>
+          <small>Opening your account…</small>
+        </div>
+      </main>
+    );
+  }
 
   const isRegister = mode === "register";
 
