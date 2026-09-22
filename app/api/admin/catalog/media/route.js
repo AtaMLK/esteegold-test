@@ -98,6 +98,8 @@ export async function DELETE(request) {
     if (media.storage_path) await client.storage.from("product-media").remove([media.storage_path]);
     const { error } = await client.from("commerce_product_media").delete().eq("id", body.id);
     if (error) throw error;
+    const { data: replacement } = await client.from("commerce_product_media").select("url").eq("product_id", media.product_id).eq("kind", "image").order("sort_order", { ascending: true }).limit(1).maybeSingle();
+    await client.from("commerce_products").update({ image_url: replacement?.url || null, updated_at: new Date().toISOString() }).eq("id", media.product_id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[admin/catalog/media DELETE]", error);
