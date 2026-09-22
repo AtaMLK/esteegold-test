@@ -12,6 +12,18 @@ export async function notifyAdminNewOrder(order) {
   }
 
   const customer = order.customer_snapshot || {};
+  const adminUrl = (process.env.NEXT_PUBLIC_SITE_URL || "") + "/admin/orders";
+  const html = [
+    '<div style="font-family:Arial,sans-serif;line-height:1.6">',
+    "<h2>New order " + escapeHtml(order.order_number) + "</h2>",
+    "<p><strong>Customer:</strong> " + escapeHtml(customer.fullName || "Guest") + "</p>",
+    "<p><strong>Email:</strong> " + escapeHtml(customer.email || "—") + "</p>",
+    "<p><strong>Total:</strong> " + escapeHtml(order.currency) + " " + escapeHtml(Number(order.total || 0).toFixed(2)) + "</p>",
+    "<p><strong>Status:</strong> " + escapeHtml(order.status) + "</p>",
+    '<p><a href="' + escapeHtml(adminUrl) + '">Open admin orders</a></p>',
+    "</div>",
+  ].join("");
+
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: "Bearer " + apiKey },
@@ -19,7 +31,7 @@ export async function notifyAdminNewOrder(order) {
       from,
       to: [to],
       subject: "New EsteeHouse order " + order.order_number,
-      html: "<div style="font-family:Arial,sans-serif;line-height:1.6"><h2>New order " + escapeHtml(order.order_number) + "</h2><p><strong>Customer:</strong> " + escapeHtml(customer.fullName || "Guest") + "</p><p><strong>Email:</strong> " + escapeHtml(customer.email || "—") + "</p><p><strong>Total:</strong> " + escapeHtml(order.currency) + " " + escapeHtml(Number(order.total || 0).toFixed(2)) + "</p><p><strong>Status:</strong> " + escapeHtml(order.status) + "</p><p><a href="" + escapeHtml((process.env.NEXT_PUBLIC_SITE_URL || "") + "/admin/orders") + "">Open admin orders</a></p></div>",
+      html,
     }),
   });
 
