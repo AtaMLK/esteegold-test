@@ -31,7 +31,7 @@ export async function PATCH(request) {
     const { id, status } = await request.json();
     const allowed = ["pending_payment", "paid", "processing", "shipped", "delivered", "canceled", "payment_failed"];
     if (!id || !allowed.includes(status)) return NextResponse.json({ error: "Invalid order status." }, { status: 400 });
-    const { data, error } = await adminClient().rpc("set_commerce_order_status", { p_order_id: id, p_status: status });
+    const { data, error } = await adminClient().rpc("transition_commerce_order_status", { p_order_id: id, p_new_status: status });
     if (error) throw error;
     if (!data?.success) throw new Error("Order status change was not completed.");
     return NextResponse.json({ order: data });
