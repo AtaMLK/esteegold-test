@@ -108,6 +108,7 @@ export default function AdminOrdersPage() {
       setError(e.message);
     }
   }
+  function nextStatuses(current) { const map = { pending_payment: ["pending_payment","paid","payment_failed"], paid: ["paid","processing","shipped"], processing: ["processing","shipped"], shipped: ["shipped","delivered"], delivered: ["delivered"], canceled: ["canceled"], payment_failed: ["payment_failed"] }; return map[current] || [current]; }
   function openOrder(order) {
     const next = open === order.id ? null : order.id;
     setOpen(next);
