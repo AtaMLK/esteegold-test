@@ -28,7 +28,14 @@ export async function POST(request) {
       const product = productMap.get(String(item.id));
       const quantity = Math.max(1, Math.min(99, Math.floor(Number(item.quantity || 1))));
       const regional = getRegionalPrice(product, { eur_usd_rate: product.pricing_rate_eur_usd || 1.08 }, region);
-      const listPrice = regional.amount, discountPercent = Number(product.discount_percent || 0), unitDiscount = Math.round(listPrice * discountPercent) / 100, finalPrice = Math.max(0, Math.round((listPrice - unitDiscount) * 100) / 100);
+      const selectedOptions = item.options && typeof item.options === "object" ? item.options : {};
+      const material = String(selectedOptions.material || "");
+      const isGold = material.toLowerCase().includes("gold");
+      if (product.size_type !== "none" && product.size_options?.length && !product.size_options.includes(String(selectedOptions.size || ""))) throw new Error(`INVALID_SIZE:${product.name}`);
+      if (product.stone_required && !selectedOptions.stone) throw new Error(`STONE_REQUIRED:${product.name}`);
+      const listPrice = isGold ? Number(region === "TR" ? product.gold_price_try : product.gold_price_eur) : regional.amount;
+      if (isGold && (!Number.isFinite(listPrice) || listPrice <= 0)) throw new Error(`GOLD_PRICE_NOT_CONFIGURED:${product.name}`);
+      const discountPercent = Number(product.discount_percent || 0), unitDiscount = Math.round(listPrice * discountPercent) / 100, finalPrice = Math.max(0, Math.round((listPrice - unitDiscount) * 100) / 100);
       return { id: product.id, product, quantity, currency: regional.currency, pricing: { listPrice, discountPercent, unitDiscount, finalPrice }, options: item.options && typeof item.options === "object" ? item.options : {} };
     });
     const currency = safeItems[0].currency;
