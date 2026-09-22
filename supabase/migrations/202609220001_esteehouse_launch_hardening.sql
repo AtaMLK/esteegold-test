@@ -55,6 +55,7 @@ create policy "public can read product media"
 insert into storage.buckets (id, name, public)
 values ('product-media', 'product-media', true)
 on conflict (id) do update set public = true;
+update storage.buckets set file_size_limit = 15728640, allowed_mime_types = array['image/*','video/mp4','video/webm','video/quicktime'] where id = 'product-media';
 
 -- Demo orders are deliberately identifiable and contain no real customer credentials.
 do $$
