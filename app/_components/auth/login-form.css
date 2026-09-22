@@ -178,6 +178,56 @@
   background:#171714;
   color:#f3f0e9;
 }
+.auth-socials{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.55rem;
+}
+.auth-social-secondary{
+  width:100%;
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(23,23,20,.22);
+  background:transparent;
+  color:#171714;
+  cursor:pointer;
+  font-size:8px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  transition:background .25s ease,color .25s ease,transform .25s ease;
+}
+.auth-social-secondary:hover{
+  background:#171714;
+  color:#f3f0e9;
+  transform:translateY(-1px);
+}
+.auth-social-secondary:disabled{
+  cursor:wait;
+  opacity:.55;
+}
+.auth-redirecting{
+  display:grid;
+  place-items:center;
+}
+.auth-redirect-message{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.8rem;
+  color:#171714;
+}
+.auth-redirect-message span{
+  font-size:8px;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+}
+.auth-redirect-message small{
+  font-size:10px;
+  color:rgba(23,23,20,.42);
+  letter-spacing:.08em;
+}
 .auth-foot{
   display:flex;
   justify-content:flex-start;
