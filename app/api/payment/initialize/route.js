@@ -31,6 +31,10 @@ export async function POST(request) {
       const selectedOptions = item.options && typeof item.options === "object" ? item.options : {};
       const material = String(selectedOptions.material || "");
       const isGold = material.toLowerCase().includes("gold");
+      const materialNames = (product.material_options || []).map((value) => typeof value === "string" ? value : value?.name).filter(Boolean);
+      if (material && materialNames.length && !materialNames.includes(material)) throw new Error(`INVALID_MATERIAL:${product.name}`);
+      const stoneNames = (product.stone_options || []).map((value) => typeof value === "string" ? value : value?.name).filter(Boolean);
+      if (selectedOptions.stone && stoneNames.length && !stoneNames.includes(String(selectedOptions.stone))) throw new Error(`INVALID_STONE:${product.name}`);
       if (product.size_type !== "none" && product.size_options?.length && !product.size_options.includes(String(selectedOptions.size || ""))) throw new Error(`INVALID_SIZE:${product.name}`);
       if (product.stone_required && !selectedOptions.stone) throw new Error(`STONE_REQUIRED:${product.name}`);
       const listPrice = isGold ? Number(region === "TR" ? product.gold_price_try : product.gold_price_eur) : regional.amount;
