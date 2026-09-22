@@ -30,9 +30,11 @@ export default function LoginForm() {
   const loginPanelRef = useRef(null);
   const registerPanelRef = useRef(null);
   const flipTimeline = useRef(null);
+  const internalModeChange = useRef(false);
 
   useEffect(() => {
     const nextMode = searchParams.get("mode") === "register" ? "register" : "login";
+    if (internalModeChange.current) { internalModeChange.current = false; return; }
     setMode(nextMode);
     if (!sideRef.current) return;
     gsap.set(sideRef.current, {
@@ -69,6 +71,7 @@ export default function LoginForm() {
     const params = new URLSearchParams();
     if (nextMode === "register") params.set("mode", "register");
     if (next) params.set("next", next);
+    internalModeChange.current = true;
     window.history.replaceState({}, "", "/auth/login" + (params.toString() ? "?" + params.toString() : ""));
     setMode(nextMode);
 
