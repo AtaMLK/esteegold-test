@@ -21,7 +21,7 @@ export async function signInWithGoogle(redirectTo = "/profile") {
 }
 
 export async function sendPasswordReset(email) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "");
   const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${origin}/auth/reset-password` });
   if (error) throw error;
 }
