@@ -29,7 +29,10 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const sideRef = useRef(null);
+  const curtainRef = useRef(null);
+  const loginRef = useRef(null);
+  const registerRef = useRef(null);
+  const animatingRef = useRef(false);
 
   async function isAdmin() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -43,7 +46,6 @@ export default function LoginForm() {
     return response.ok;
   }
 
-  // A customer who is already signed in should never get stuck on /auth/login.
   useEffect(() => {
     if (!user) return;
 
@@ -66,40 +68,104 @@ export default function LoginForm() {
     const target = searchParams.get("mode") === "register" ? "register" : "login";
     setMode(target);
 
-    if (sideRef.current) {
-      gsap.set(sideRef.current, {
-        rotationY: target === "register" ? -180 : 0,
-        transformOrigin: "left center",
-      });
+    if (!curtainRef.current || !loginRef.current || !registerRef.current) return;
+
+    gsap.killTweensOf([curtainRef.current, loginRef.current, registerRef.current]);
+
+    if (target === "register") {
+      gsap.set(curtainRef.current, { xPercent: 100, rotationY: 0, rotationZ: 0 });
+      gsap.set(loginRef.current, { opacity: 0, x: 24 });
+      gsap.set(registerRef.current, { opacity: 1, x: 0 });
+    } else {
+      gsap.set(curtainRef.current, { xPercent: 0, rotationY: 0, rotationZ: 0 });
+      gsap.set(loginRef.current, { opacity: 1, x: 0 });
+      gsap.set(registerRef.current, { opacity: 0, x: -24 });
     }
   }, [searchParams]);
 
-  function flip(nextMode) {
-    if (nextMode === mode) return;
-
-    setError("");
-    setMessage("");
-    setMode(nextMode);
-
+  function updateUrl(nextMode) {
     const params = new URLSearchParams();
     if (nextMode === "register") params.set("mode", "register");
     if (next) params.set("next", next);
-
     window.history.replaceState(
       {},
       "",
       "/auth/login" + (params.toString() ? "?" + params.toString() : "")
     );
+  }
 
-    if (!sideRef.current) return;
+  function flip(nextMode) {
+    if (nextMode === mode || animatingRef.current) return;
 
-    gsap.killTweensOf(sideRef.current);
-    gsap.to(sideRef.current, {
-      rotationY: nextMode === "register" ? -180 : 0,
-      duration: 1.15,
-      ease: "power3.inOut",
-      overwrite: true,
+    setError("");
+    setMessage("");
+    setMode(nextMode);
+    updateUrl(nextMode);
+    animatingRef.current = true;
+
+    const toRegister = nextMode === "register";
+    const timeline = gsap.timeline({
+      defaults: { overwrite: "auto" },
+      onComplete: () => {
+        animatingRef.current = false;
+      },
     });
+
+    if (toRegister) {
+      timeline
+        .to(loginRef.current, {
+          opacity: 0,
+          x: 28,
+          duration: 0.38,
+          ease: "power2.in",
+        }, 0)
+        .set(registerRef.current, { opacity: 1, x: -28 }, 0.32)
+        .to(curtainRef.current, {
+          xPercent: 100,
+          rotationY: -7,
+          rotationZ: -0.35,
+          duration: 1.15,
+          ease: "power4.inOut",
+        }, 0.05)
+        .to(registerRef.current, {
+          x: 0,
+          duration: 0.65,
+          ease: "power3.out",
+        }, 0.62)
+        .to(curtainRef.current, {
+          rotationY: 0,
+          rotationZ: 0,
+          duration: 0.22,
+          ease: "power2.out",
+        }, 1.02);
+    } else {
+      timeline
+        .to(registerRef.current, {
+          opacity: 0,
+          x: -28,
+          duration: 0.38,
+          ease: "power2.in",
+        }, 0)
+        .set(loginRef.current, { opacity: 1, x: 28 }, 0.32)
+        .to(curtainRef.current, {
+          xPercent: 0,
+          rotationY: 7,
+          rotationZ: 0.35,
+          duration: 1.15,
+          ease: "power4.inOut",
+        }, 0.05)
+        .to(loginRef.current, {
+          x: 0,
+          duration: 0.65,
+          ease: "power3.out",
+        }, 0.62)
+        .to(curtainRef.current, {
+          rotationY: 0,
+          rotationZ: 0,
+          duration: 0.22,
+          ease: "power2.out",
+        }, 1.02);
+    }
   }
 
   async function handleLogin(event) {
@@ -249,41 +315,35 @@ export default function LoginForm() {
     );
   }
 
-  // While the existing session is being resolved, render nothing on the auth page.
-  // Once a user is known, the effect above immediately sends them to the destination.
   if (user) return null;
 
   const isRegister = mode === "register";
 
   return (
     <main className="auth-shell">
-      <div className="auth-paper">
-        <section className="auth-register-panel" aria-hidden={!isRegister}>
+      <div className="auth-stage">
+        <section ref={registerRef} className="auth-panel auth-register-panel" aria-hidden={!isRegister}>
           {renderPanel(true)}
         </section>
 
-        <section className="auth-login-panel" aria-hidden={isRegister}>
+        <section ref={loginRef} className="auth-panel auth-login-panel" aria-hidden={isRegister}>
           {renderPanel(false)}
         </section>
 
-        <div ref={sideRef} className="auth-side" aria-hidden="true">
-          <div className="auth-side-face auth-side-front">
-            <div><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div>
-            <div className="auth-side-copy">
+        <div ref={curtainRef} className="auth-curtain" aria-hidden="true">
+          <div className="auth-curtain-face">
+            <div className="auth-meta"><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div>
+            <div className="auth-brand">
               <p>Two collections.<br />One house.</p>
-              <small>Sign in to follow orders, save your details and continue your collection.</small>
+              <span>EST. / HANDMADE</span>
             </div>
-            <div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div>
+            <div className="auth-meta"><span>ISTANBUL / 2026</span><span>HANDMADE OBJECTS</span></div>
           </div>
+        </div>
 
-          <div className="auth-side-face auth-side-back">
-            <div><span>ESTEEHOUSE</span><span>02 / JOIN</span></div>
-            <div className="auth-side-copy">
-              <p>Made to<br />belong.</p>
-              <small>Create an account and keep your collection, orders and details together.</small>
-            </div>
-            <div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div>
-          </div>
+        <div className="auth-corner">
+          <span>ESTEEHOUSE</span>
+          <span>{isRegister ? "02 / JOIN" : "01 / ACCOUNT"}</span>
         </div>
       </div>
     </main>
