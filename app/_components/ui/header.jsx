@@ -16,6 +16,7 @@ export default function Header() {
   const [query, setQuery] = useState("");
   useEffect(() => { setSearchOpen(false); setQuery(""); }, [pathname]);
   const accountHref = user ? "/profile" : `/auth/login?next=${encodeURIComponent("/profile")}`;
+  const accountName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "";
 
   function closeSearch() {
     setSearchOpen(false);
@@ -37,7 +38,7 @@ export default function Header() {
           <div className="header-icons">
             <button type="button" className={`search-trigger ${searchOpen ? "active" : ""}`} onClick={() => setSearchOpen(true)} aria-label="Open search"><span>Search</span><Search size={17} /></button>
             <Link href="/cart" aria-label={`Shopping bag, ${itemCount} items`} className="header-bag-link"><ShoppingBag className="header-icon" size={18} /><span>BAG</span><span className="header-bag-count">{itemCount}</span></Link>
-            <Link href={accountHref} aria-label={user ? "Open account" : "Sign in"}><span className={`header-user ${user ? "is-signed-in" : ""}`}><User size={18} /></span></Link>
+            <Link href={accountHref} aria-label={user ? `Open account for ${accountName}` : "Sign in"} className="header-account-link">{user && <span className="header-account-name">{accountName}</span>}<span className={`header-user ${user ? "is-signed-in" : ""}`}><User size={18} /></span></Link>
           </div>
         </div>
         <div className="header-menu"><Menu /></div>
