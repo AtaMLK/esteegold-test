@@ -89,7 +89,7 @@ function clean(body, { requireStock = false } = {}) {
   const goldPriceEur = body.gold_price_eur === "" || body.gold_price_eur == null ? null : Number(body.gold_price_eur);
   const goldPriceTry = body.gold_price_try === "" || body.gold_price_try == null ? null : Number(body.gold_price_try);
   const sizeType = ["none", "ring", "bracelet", "necklace"].includes(body.size_type) ? body.size_type : "none";
-  const materialOptions = arrayText(body.material_options, ["925 Sterling Silver"]);
+  const materialOptions = arrayText(body.material_options, ["925 Sterling Silver"]); if (body.gold_available && !materialOptions.some((value) => /gold/i.test(value))) materialOptions.push("18K Gold");
   const sizeOptions = arrayText(body.size_options);
   const stoneOptions = optionObjects(body.stone_options);
   if (!body.name?.trim()) throw new Error("Product name is required.");
