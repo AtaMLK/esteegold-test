@@ -14,7 +14,7 @@ function enrichProduct(product) {
 }
 
 async function readDatabaseProducts(client, branch, ids) {
-  const select = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,story,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note";
+  const select = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,story,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,gold_price_eur,gold_price_try";
   let query = client.from("commerce_products").select(select).eq("active", true);
   if (branch) query = query.eq("branch", branch);
   if (Array.isArray(ids)) query = query.in("id", ids);
