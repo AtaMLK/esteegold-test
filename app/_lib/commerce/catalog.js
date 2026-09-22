@@ -11,7 +11,7 @@ function getServerClient() {
 function enrichProduct(product) {
   if (product.story) return product;
   const branch = product.branch === "EsteeGold" ? "the jewelry" : "the bag";
-  return { ...product, story: `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.` };
+  return { ...product, story: `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.`, material_options: product.material_options || ["925 Sterling Silver"], size_type: product.size_type || "none", size_options: product.size_options || [], stone_options: product.stone_options || [], stone_required: Boolean(product.stone_required), gold_available: Boolean(product.gold_available), customization_note: product.customization_note || "" };
 }
 
 async function readDatabaseProducts(client, branch, ids) {
@@ -26,7 +26,7 @@ async function readDatabaseProducts(client, branch, ids) {
     if (Array.isArray(ids)) legacyQuery = legacyQuery.in("id", ids);
     const legacyResult = await legacyQuery;
     if (legacyResult.error) return [];
-    return legacyResult.data || [];
+    return (legacyResult.data || []).map((product) => ({ ...product, material_options: ["925 Sterling Silver"], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "" }));
   }
   return result.data || [];
 }
