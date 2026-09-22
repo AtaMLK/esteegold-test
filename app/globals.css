@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --paper: #e8e1d5;
-  --paper-deep: #d8d0c1;
+  --paper: #f1ecdf;
+  --paper-deep: #e1d9cb;
   --ink: #11110f;
   --line: rgba(17, 17, 15, 0.14);
 }
