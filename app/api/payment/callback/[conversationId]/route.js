@@ -65,7 +65,7 @@ export async function POST(request, { params }) {
 
     const { data: order, error: orderError } = await supabaseAdmin
       .from("commerce_orders")
-      .select("id, order_number, total, currency, status, payment_status")
+      .select("id, order_number, total, currency, status, payment_status, customer_snapshot")
       .eq("id", payment.order_id)
       .single();
 
