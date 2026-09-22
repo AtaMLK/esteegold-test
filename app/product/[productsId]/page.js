@@ -12,7 +12,7 @@ function finalPrice(product, selectedOptions = {}) { const regional = product.re
 function currencySymbol(currency) { return currency === "TRY" ? "₺" : currency === "USD" ? "$" : "€"; }
 
 export default function ProductId({ params }) {
-  const { productsId } = use(params), { addItem } = useCart();
+  const { productsId } = use(params), { addItem, items: cartItems } = useCart();
   const [product, setProduct] = useState(null), [related, setRelated] = useState([]), [quantity, setQuantity] = useState(1), [added, setAdded] = useState(false), [loading, setLoading] = useState(true), [error, setError] = useState(""), [options, setOptions] = useState({ material: "", size: "", stone: "" });
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function ProductId({ params }) {
     return () => { cancelled = true; };
   }, [productsId]);
 
-  function addToCart() { if (!product) return; if (product.size_type !== "none" && !options.size) { setError("Please choose a size."); return; } if (product.stone_required && !options.stone) { setError("Please choose a stone."); return; } const selectedPrice = finalPrice(product, options); if (selectedPrice == null) { setError("Gold is available by request, but its price has not been configured yet."); return; } setError(""); addItem({ ...product, price: selectedPrice, finalPrice: selectedPrice, currency: product.regional_price?.currency || "EUR" }, quantity, options); setAdded(true); window.setTimeout(() => setAdded(false), 1800); }
+  function addToCart() { if (!product) return; if (product.size_type !== "none" && !options.size) { setError("Please choose a size."); return; } if (product.stone_required && !options.stone) { setError("Please choose a stone."); return; } if (cartItems.length && cartItems.some((item) => (item.currency || "EUR") !== (product.regional_price?.currency || "EUR"))) { setError("Your bag already uses another currency. Finish or clear that bag before adding this piece."); return; } const selectedPrice = finalPrice(product, options); if (selectedPrice == null) { setError("Gold is available by request, but its price has not been configured yet."); return; } setError(""); addItem({ ...product, price: selectedPrice, finalPrice: selectedPrice, currency: product.regional_price?.currency || "EUR" }, quantity, options); setAdded(true); window.setTimeout(() => setAdded(false), 1800); }
   if (loading) return <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-36 md:px-10"><p className="text-[9px] uppercase tracking-[0.25em] text-black/40">Loading piece...</p></main>;
   if (error || !product) return <main className="grid min-h-screen place-items-center bg-[var(--paper)] px-5 text-center"><div><p className="font-serif text-5xl">Piece not found.</p><p className="mt-3 text-sm text-black/45">{error || "This product is no longer available."}</p><Link href="/categories" className="mt-8 inline-block rounded-full bg-black px-6 py-4 text-[9px] uppercase tracking-[0.25em] text-white">Back to shop</Link></div></main>;
 
