@@ -124,112 +124,93 @@ export default function LoginForm() {
 
     setError("");
     setMessage("");
-    setMode(nextMode);
-    updateUrl(nextMode);
     animatingRef.current = true;
 
     const toRegister = nextMode === "register";
-    const loginCard = loginRef.current?.querySelector(".auth-card");
-    const registerCard = registerRef.current?.querySelector(".auth-card");
+    const curtain = curtainRef.current;
+    const loginPanel = loginRef.current;
+    const registerPanel = registerRef.current;
+    const loginCard = loginPanel?.querySelector(".auth-card");
+    const registerCard = registerPanel?.querySelector(".auth-card");
+
+    if (!curtain || !loginPanel || !registerPanel || !loginCard || !registerCard) {
+      setMode(nextMode);
+      updateUrl(nextMode);
+      animatingRef.current = false;
+      return;
+    }
+
+    const oldCard = toRegister ? loginCard : registerCard;
+    const newCard = toRegister ? registerCard : loginCard;
+    const oldPanel = toRegister ? loginPanel : registerPanel;
+    const newPanel = toRegister ? registerPanel : loginPanel;
+
+    // The state changes only after the curtain has crossed the screen.
+    // This keeps the transition visually continuous instead of swapping the
+    // React content before the animation starts.
+    gsap.killTweensOf([curtain, oldPanel, newPanel, oldCard, newCard]);
+
+    gsap.set(oldPanel, { opacity: 1, x: 0 });
+    gsap.set(newPanel, { opacity: 1, x: 0 });
+    gsap.set(oldCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
+    gsap.set(newCard, { opacity: 0, x: toRegister ? -34 : 34, y: 16, scale: 0.985, filter: "blur(5px)" });
 
     const timeline = gsap.timeline({
       defaults: { overwrite: "auto" },
       onComplete: () => {
+        setMode(nextMode);
+        updateUrl(nextMode);
+        gsap.set(oldPanel, { opacity: 0 });
+        gsap.set(newPanel, { opacity: 1, x: 0 });
+        gsap.set(newCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
         animatingRef.current = false;
       },
     });
 
-    if (toRegister) {
-      timeline
-        .to(loginCard, {
-          opacity: 0,
-          x: 34,
-          y: -8,
-          scale: 0.985,
-          filter: "blur(5px)",
-          duration: 0.42,
-          ease: "power3.in",
-        }, 0)
-        .set(registerCard, {
-          opacity: 0,
-          x: -30,
-          y: 12,
-          scale: 0.985,
-          filter: "blur(5px)",
-        }, 0)
-        .to(curtainRef.current, {
-          xPercent: 100,
-          rotationY: -6,
-          rotationZ: -0.3,
-          skewX: -0.8,
-          scaleX: 1.035,
-          duration: 1.2,
-          ease: "power4.inOut",
-        }, 0.04)
-        .to(registerCard, {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          filter: "blur(0px)",
-          duration: 0.7,
-          ease: "power3.out",
-        }, 0.62)
-        .to(curtainRef.current, {
-          rotationY: 0,
-          rotationZ: 0,
-          skewX: 0,
-          scaleX: 1,
-          duration: 0.28,
-          ease: "power2.out",
-        }, 0.98);
-    } else {
-      timeline
-        .to(registerCard, {
-          opacity: 0,
-          x: -34,
-          y: -8,
-          scale: 0.985,
-          filter: "blur(5px)",
-          duration: 0.42,
-          ease: "power3.in",
-        }, 0)
-        .set(loginCard, {
-          opacity: 0,
-          x: 30,
-          y: 12,
-          scale: 0.985,
-          filter: "blur(5px)",
-        }, 0)
-        .to(curtainRef.current, {
-          xPercent: 0,
-          rotationY: 6,
-          rotationZ: 0.3,
-          skewX: 0.8,
-          scaleX: 1.035,
-          duration: 1.2,
-          ease: "power4.inOut",
-        }, 0.04)
-        .to(loginCard, {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          filter: "blur(0px)",
-          duration: 0.7,
-          ease: "power3.out",
-        }, 0.62)
-        .to(curtainRef.current, {
-          rotationY: 0,
-          rotationZ: 0,
-          skewX: 0,
-          scaleX: 1,
-          duration: 0.28,
-          ease: "power2.out",
-        }, 0.98);
-    }
-  }
+    // 1. The outgoing editorial content recedes.
+    timeline.to(oldCard, {
+      opacity: 0,
+      x: toRegister ? 30 : -30,
+      y: -8,
+      scale: 0.985,
+      filter: "blur(4px)",
+      duration: 0.42,
+      ease: "power3.in",
+    }, 0);
 
+    // 2. The black field crosses the viewport like a heavy editorial sheet.
+    // The tiny skew/3D bend gives the edge a physical, fabric-like feel.
+    timeline.to(curtain, {
+      xPercent: toRegister ? 100 : 0,
+      rotationY: toRegister ? -8 : 8,
+      rotationZ: toRegister ? -0.45 : 0.45,
+      skewX: toRegister ? -1.1 : 1.1,
+      scaleX: 1.045,
+      duration: 1.18,
+      ease: "expo.inOut",
+    }, 0.08);
+
+    // 3. Reveal the new form from underneath the moving black field.
+    timeline.to(newCard, {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      duration: 0.72,
+      ease: "power3.out",
+    }, 0.67);
+
+    // 4. Let the black edge settle perfectly flat.
+    timeline.to(curtain, {
+      rotationY: 0,
+      rotationZ: 0,
+      skewX: 0,
+      scaleX: 1,
+      duration: 0.3,
+      ease: "power2.out",
+    }, 1.02);
+  }
   async function handleLogin(event) {
     event.preventDefault();
     setError("");
