@@ -15,7 +15,7 @@ export default function CheckoutPage() {
   async function handleSubmit(event) {
     event.preventDefault(); if (!canContinue) return; setError(""); setSubmitting(true); const form = new FormData(event.currentTarget);
     try {
-      const response = await fetch("/api/payment/initialize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: items.map(({ id, quantity, options }) => ({ id, quantity, options })), customer: { fullName: form.get("fullName"), email: form.get("email"), phone: form.get("phone"), identityNumber: form.get("identityNumber") }, address: { address: form.get("address"), city: form.get("city"), postalCode: form.get("postalCode"), country: form.get("country") }, acceptedTerms, acceptedShipping }) });
+      const response = await fetch("/api/payment/initialize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: items.map(({ id, quantity, options }) => ({ id, quantity, options })), customer: { fullName: form.get("fullName"), email: form.get("email"), phone: form.get("phone") }, address: { address: form.get("address"), city: form.get("city"), postalCode: form.get("postalCode"), country: form.get("country") }, acceptedTerms, acceptedShipping }) });
       const data = await response.json(); if (!response.ok) throw new Error(data.error || "Payment could not be initialized."); window.location.assign(data.paymentPageUrl);
     } catch (submissionError) { setError(submissionError.message || "Payment could not be initialized."); setSubmitting(false); }
   }
