@@ -127,7 +127,7 @@ export default function LoginForm() {
     <div className={"auth-paper " + (isRegister ? "is-register" : "is-login")}>
       <div className="auth-side">
         <div><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div>
-        <div className="auth-side-copy"><p>Two collections.<br />One house.</p><small>{isRegister ? "Create a customer account to follow orders, save details and continue your collection." : "Sign in to follow orders, save your details and continue your collection."}</small></div>
+        <div className="auth-side-copy"><p>Two collections.<br />One house.</p><small>{isRegister ? "Create your account to follow orders, save your details and continue your collection." : "Sign in to follow orders, save your details and continue your collection."}</small></div>
         <div><span>ISTANBUL / 2026</span><span>EST. / HANDMADE</span></div>
       </div>
       <section className="auth-card">
@@ -143,7 +143,7 @@ export default function LoginForm() {
         </form>
         <div className="auth-divider"><span>OR</span></div>
         <button className="auth-google" type="button" onClick={handleGoogle} disabled={googleLoading}>{googleLoading ? "Opening Google…" : "Continue with Google"}</button>
-        <div className="auth-foot"><button type="button" className="auth-switch" onClick={() => flip(isRegister ? "login" : "register")}>{isRegister ? "Already have an account? Sign in" : "Create a customer account"}</button>{!isRegister && destination === "/admin" && <span>Admin access is enforced server-side by the authorised admin email.</span>}</div>
+        <div className="auth-foot"><button type="button" className="auth-switch" onClick={() => flip(isRegister ? "login" : "register")}>{isRegister ? "Already have an account? Sign in" : "New here? Create an account"}</button>{!isRegister && destination === "/admin" && <span>Admin access is enforced server-side by the authorised admin email.</span>}</div>
       </section>
     </div>
   </main>;
