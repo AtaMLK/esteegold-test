@@ -114,3 +114,26 @@ begin
     end if;
   end loop;
 end $$;
+
+
+create table if not exists public.commerce_shipments (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.commerce_orders(id) on delete cascade,
+  carrier text, tracking_number text, tracking_url text,
+  shipped_at timestamptz, estimated_delivery_at timestamptz, delivered_at timestamptz,
+  notes text, created_at timestamptz not null default now(), updated_at timestamptz not null default now(),
+  unique(order_id)
+);
+
+alter table public.commerce_shipments enable row level security;
+revoke all on table public.commerce_shipments from anon, authenticated;
+
+insert into public.commerce_shipments(order_id,carrier,tracking_number,shipped_at,estimated_delivery_at,delivered_at,notes)
+select id,'Demo Express','DEMO-TRACK-004',now()-interval '2 days',now()+interval '3 days',null,'Demo shipment for admin testing.'
+from public.commerce_orders where order_number='EH-DEMO-004'
+on conflict(order_id) do nothing;
+
+insert into public.commerce_shipments(order_id,carrier,tracking_number,shipped_at,estimated_delivery_at,delivered_at,notes)
+select id,'Demo Express','DEMO-TRACK-005',now()-interval '10 days',now()-interval '5 days',now()-interval '6 days','Demo delivered shipment.'
+from public.commerce_orders where order_number='EH-DEMO-005'
+on conflict(order_id) do nothing;
