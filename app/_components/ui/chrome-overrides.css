@@ -54,3 +54,6 @@
   .header-icons { gap: 4px !important; }
   .search-trigger { width: 38px !important; }
 }
+
+.header-account-link{display:inline-flex;align-items:center;gap:8px}.header-account-name{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:rgba(23,23,20,.58)}
+@media(max-width:700px){.header-account-name{display:none}}
