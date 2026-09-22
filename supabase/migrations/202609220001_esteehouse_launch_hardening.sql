@@ -23,6 +23,8 @@ alter table public.commerce_products
   add column if not exists stone_options jsonb not null default '[]'::jsonb,
   add column if not exists stone_required boolean not null default false,
   add column if not exists gold_available boolean not null default false,
+  add column if not exists gold_price_eur numeric(12,2),
+  add column if not exists gold_price_try numeric(12,2),
   add column if not exists customization_note text not null default '';
 
 create table if not exists public.commerce_product_media (
