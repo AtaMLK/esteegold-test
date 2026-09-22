@@ -1,9 +1,5 @@
-import RegisterForm from "@/app/_components/auth/register-form";
+import { redirect } from "next/navigation";
 
-function page() {
-  return (
-    <RegisterForm className="h-screen w-screen flex flex-col items-center justify-center" />
-  );
+export default function RegisterPage() {
+  redirect("/auth/login?mode=register");
 }
-
-export default page;
