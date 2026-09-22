@@ -9,13 +9,12 @@ function getServerClient() {
 }
 
 function enrichProduct(product) {
-  if (product.story) return product;
   const branch = product.branch === "EsteeGold" ? "the jewelry" : "the bag";
-  return { ...product, story: `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.`, material_options: product.material_options || ["925 Sterling Silver"], size_type: product.size_type || "none", size_options: product.size_options || [], stone_options: product.stone_options || [], stone_required: Boolean(product.stone_required), gold_available: Boolean(product.gold_available), customization_note: product.customization_note || "" };
+  return { ...product, story: product.story || `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.`, material_options: product.material_options || ["925 Sterling Silver"], size_type: product.size_type || "none", size_options: product.size_options || [], stone_options: product.stone_options || [], stone_required: Boolean(product.stone_required), gold_available: Boolean(product.gold_available), customization_note: product.customization_note || "" };
 }
 
 async function readDatabaseProducts(client, branch, ids) {
-  const select = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,story";
+  const select = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,story,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note";
   let query = client.from("commerce_products").select(select).eq("active", true);
   if (branch) query = query.eq("branch", branch);
   if (Array.isArray(ids)) query = query.in("id", ids);
