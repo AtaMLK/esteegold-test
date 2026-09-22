@@ -95,7 +95,8 @@ export default function LoginForm() {
         return;
       }
       setMessage("Your account is created. Check your email to confirm it, then sign in.");
-      flip("login");
+      setMode("login");
+      const params = new URLSearchParams(); if (next) params.set("next", next); window.history.replaceState({}, "", "/auth/login" + (params.toString() ? "?" + params.toString() : ""));
     } catch (err) {
       setError(err?.message || "We could not create your account.");
     } finally {
