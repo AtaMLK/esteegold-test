@@ -192,8 +192,10 @@
   gap:.55rem;
 }
 .auth-social-button{
+  width:100%;
   min-width:0;
   height:42px;
+  padding:0 .7rem;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -208,9 +210,14 @@
   transition:background .25s ease,color .25s ease,transform .25s ease,border-color .25s ease;
 }
 .auth-provider-icon{
-  width:13px;
-  height:13px;
-  flex:0 0 13px;
+  display:block;
+  width:14px!important;
+  height:14px!important;
+  min-width:14px!important;
+  max-width:14px!important;
+  min-height:14px!important;
+  max-height:14px!important;
+  flex:0 0 14px;
 }
 .auth-social-button:hover{
   background:#171714;
@@ -378,5 +385,35 @@
 @media(prefers-reduced-motion:reduce){
   .auth-curtain,.auth-panel{
     transition:none!important;
+  }
+}
+
+@media(max-width:800px){
+  .auth-stage{
+    width:100%;
+  }
+  .auth-panel{
+    width:100%;
+  }
+  .auth-card{
+    width:calc(100% - 3rem);
+    max-width:560px;
+    box-sizing:border-box;
+  }
+  .auth-socials{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .auth-social-button{
+    width:100%;
+    min-width:0;
+    padding:0 .45rem;
+  }
+  .auth-social-button span{
+    font-size:7px;
+    white-space:nowrap;
+  }
+  .auth-provider-icon{
+    width:14px!important;
+    height:14px!important;
   }
 }
