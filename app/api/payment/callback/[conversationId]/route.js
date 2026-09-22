@@ -1,6 +1,7 @@
 import Iyzipay from "iyzipay";
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../_lib/supabaseAdmin";
+import { notifyAdminNewOrder } from "../../../../_lib/notifications";
 
 /* const client = new Iyzipay({
   apiKey: process.env.IYZIPAY_API_KEY,
@@ -128,6 +129,7 @@ export async function POST(request, { params }) {
       return NextResponse.redirect(new URL(`/checkout/result?status=review&conversationId=${encodeURIComponent(conversationId)}`, request.url));
     }
 
+    try { await notifyAdminNewOrder({ ...order, status: "paid" }); } catch (notificationError) { console.error("[order notification]", notificationError); }
     return NextResponse.redirect(new URL(`/checkout/result?status=success&order=${encodeURIComponent(finalized.orderNumber)}&conversationId=${encodeURIComponent(conversationId)}`, request.url));
   } catch (error) {
     console.error("Iyzico callback verification error", error);
