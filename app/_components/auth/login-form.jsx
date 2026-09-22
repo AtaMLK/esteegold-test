@@ -70,16 +70,41 @@ export default function LoginForm() {
 
     if (!curtainRef.current || !loginRef.current || !registerRef.current) return;
 
-    gsap.killTweensOf([curtainRef.current, loginRef.current, registerRef.current]);
+    const loginCard = loginRef.current.querySelector(".auth-card");
+    const registerCard = registerRef.current.querySelector(".auth-card");
+
+    gsap.killTweensOf([
+      curtainRef.current,
+      loginRef.current,
+      registerRef.current,
+      loginCard,
+      registerCard,
+    ]);
 
     if (target === "register") {
-      gsap.set(curtainRef.current, { xPercent: 100, rotationY: 0, rotationZ: 0 });
+      gsap.set(curtainRef.current, {
+        xPercent: 100,
+        rotationY: 0,
+        rotationZ: 0,
+        skewX: 0,
+        scaleX: 1,
+      });
       gsap.set(loginRef.current, { opacity: 0, x: 24 });
       gsap.set(registerRef.current, { opacity: 1, x: 0 });
+      gsap.set(loginCard, { opacity: 0, x: 24, y: 0, scale: 1, filter: "blur(0px)" });
+      gsap.set(registerCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
     } else {
-      gsap.set(curtainRef.current, { xPercent: 0, rotationY: 0, rotationZ: 0 });
+      gsap.set(curtainRef.current, {
+        xPercent: 0,
+        rotationY: 0,
+        rotationZ: 0,
+        skewX: 0,
+        scaleX: 1,
+      });
       gsap.set(loginRef.current, { opacity: 1, x: 0 });
       gsap.set(registerRef.current, { opacity: 0, x: -24 });
+      gsap.set(loginCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
+      gsap.set(registerCard, { opacity: 0, x: -24, y: 0, scale: 1, filter: "blur(0px)" });
     }
   }, [searchParams]);
 
@@ -104,6 +129,9 @@ export default function LoginForm() {
     animatingRef.current = true;
 
     const toRegister = nextMode === "register";
+    const loginCard = loginRef.current?.querySelector(".auth-card");
+    const registerCard = registerRef.current?.querySelector(".auth-card");
+
     const timeline = gsap.timeline({
       defaults: { overwrite: "auto" },
       onComplete: () => {
@@ -113,58 +141,92 @@ export default function LoginForm() {
 
     if (toRegister) {
       timeline
-        .to(loginRef.current, {
+        .to(loginCard, {
           opacity: 0,
-          x: 28,
-          duration: 0.38,
-          ease: "power2.in",
+          x: 34,
+          y: -8,
+          scale: 0.985,
+          filter: "blur(5px)",
+          duration: 0.42,
+          ease: "power3.in",
         }, 0)
-        .set(registerRef.current, { opacity: 1, x: -28 }, 0.32)
+        .set(registerCard, {
+          opacity: 0,
+          x: -30,
+          y: 12,
+          scale: 0.985,
+          filter: "blur(5px)",
+        }, 0)
         .to(curtainRef.current, {
           xPercent: 100,
-          rotationY: -7,
-          rotationZ: -0.35,
-          duration: 1.15,
+          rotationY: -6,
+          rotationZ: -0.3,
+          skewX: -0.8,
+          scaleX: 1.035,
+          duration: 1.2,
           ease: "power4.inOut",
-        }, 0.05)
-        .to(registerRef.current, {
+        }, 0.04)
+        .to(registerCard, {
+          opacity: 1,
           x: 0,
-          duration: 0.65,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: 0.7,
           ease: "power3.out",
         }, 0.62)
         .to(curtainRef.current, {
           rotationY: 0,
           rotationZ: 0,
-          duration: 0.22,
+          skewX: 0,
+          scaleX: 1,
+          duration: 0.28,
           ease: "power2.out",
-        }, 1.02);
+        }, 0.98);
     } else {
       timeline
-        .to(registerRef.current, {
+        .to(registerCard, {
           opacity: 0,
-          x: -28,
-          duration: 0.38,
-          ease: "power2.in",
+          x: -34,
+          y: -8,
+          scale: 0.985,
+          filter: "blur(5px)",
+          duration: 0.42,
+          ease: "power3.in",
         }, 0)
-        .set(loginRef.current, { opacity: 1, x: 28 }, 0.32)
+        .set(loginCard, {
+          opacity: 0,
+          x: 30,
+          y: 12,
+          scale: 0.985,
+          filter: "blur(5px)",
+        }, 0)
         .to(curtainRef.current, {
           xPercent: 0,
-          rotationY: 7,
-          rotationZ: 0.35,
-          duration: 1.15,
+          rotationY: 6,
+          rotationZ: 0.3,
+          skewX: 0.8,
+          scaleX: 1.035,
+          duration: 1.2,
           ease: "power4.inOut",
-        }, 0.05)
-        .to(loginRef.current, {
+        }, 0.04)
+        .to(loginCard, {
+          opacity: 1,
           x: 0,
-          duration: 0.65,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: 0.7,
           ease: "power3.out",
         }, 0.62)
         .to(curtainRef.current, {
           rotationY: 0,
           rotationZ: 0,
-          duration: 0.22,
+          skewX: 0,
+          scaleX: 1,
+          duration: 0.28,
           ease: "power2.out",
-        }, 1.02);
+        }, 0.98);
     }
   }
 
