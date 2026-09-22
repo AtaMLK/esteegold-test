@@ -13,7 +13,7 @@ export async function signInWithEmail(email, password) {
 }
 
 export async function signInWithGoogle(redirectTo = "/profile") {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "");
   const safePath = redirectTo?.startsWith("/") ? redirectTo : "/profile";
   const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${origin}${safePath}` } });
   if (error) throw error;
