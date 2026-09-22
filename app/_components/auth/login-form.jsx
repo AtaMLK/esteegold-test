@@ -1,6 +1,6 @@
 "use client";
 
-import { signInWithGoogle, signInWithEmail } from "@/app/_lib/auth";
+import { signInWithGoogle, signInWithProvider, signInWithEmail } from "@/app/_lib/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -278,15 +278,19 @@ export default function LoginForm() {
     }
   }
 
-  async function handleGoogle() {
+  async function handleSocial(provider) {
     setError("");
     setMessage("");
     setGoogleLoading(true);
 
     try {
-      await signInWithGoogle(destination);
+      if (provider === "google") {
+        await signInWithGoogle(destination);
+      } else {
+        await signInWithProvider(provider, destination);
+      }
     } catch (err) {
-      setError(err?.message || "Google sign-in could not be started.");
+      setError(err?.message || "Social sign-in could not be started.");
       setGoogleLoading(false);
     }
   }
@@ -299,8 +303,8 @@ export default function LoginForm() {
           <h1>{isRegister ? "Sign up." : "Sign in."}</h1>
           <p className="auth-copy">
             {isRegister
-              ? "Create your account. No passport or ID is needed."
-              : "Use your customer account or your authorised admin account."}
+              ? "Create your EsteeHouse account and keep your details in one place."
+              : "Sign in to manage your EsteeHouse account, orders, and profile."}
           </p>
         </div>
 
@@ -354,9 +358,17 @@ export default function LoginForm() {
 
         <div className="auth-divider"><span>OR</span></div>
 
-        <button className="auth-google" type="button" onClick={handleGoogle} disabled={googleLoading}>
-          {googleLoading ? "Opening Google…" : "Continue with Google"}
-        </button>
+        <div className="auth-socials">
+          <button className="auth-google" type="button" onClick={() => handleSocial("google")} disabled={googleLoading}>
+            Continue with Google
+          </button>
+          <button className="auth-social-secondary" type="button" onClick={() => handleSocial("apple")} disabled={googleLoading}>
+            Continue with Apple
+          </button>
+          <button className="auth-social-secondary" type="button" onClick={() => handleSocial("facebook")} disabled={googleLoading}>
+            Continue with Facebook
+          </button>
+        </div>
 
         <div className="auth-foot">
           <button
