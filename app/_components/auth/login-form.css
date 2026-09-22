@@ -36,6 +36,8 @@
   width:min(560px,calc(100% - 7rem));
   margin:auto;
   padding:2.5rem 0;
+  will-change:transform,opacity,filter;
+  transform-origin:center center;
 }
 .auth-login-panel .auth-card{
   margin-left:clamp(2rem,7vw,7rem);
@@ -207,8 +209,19 @@
   transform-style:preserve-3d;
   transform-origin:left center;
   will-change:transform;
+  backface-visibility:hidden;
   background:#171714;
   box-shadow:14px 0 45px rgba(23,23,20,.12);
+}
+.auth-curtain:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.018),transparent 28%,transparent 72%,rgba(255,255,255,.035)),
+    radial-gradient(circle at 52% 48%,rgba(255,255,255,.045),transparent 38%);
+  opacity:.9;
 }
 .auth-curtain:after{
   content:"";
