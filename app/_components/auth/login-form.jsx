@@ -1,6 +1,7 @@
 "use client";
 
 import { signInWithGoogle, signInWithEmail } from "@/app/_lib/auth";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Eye, EyeOff } from "lucide-react";
