@@ -28,17 +28,19 @@ async function completeSignedUpload(request) {
   if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
   const { data: existing } = await client.from("commerce_product_media").select("sort_order").eq("product_id", productId).order("sort_order", { ascending: false }).limit(1);
   let sortOrder = Number(existing?.[0]?.sort_order || 0) + 1;
-  const rows = files.map((file) => ({
+  const rows = files.map((file, index) => ({
     product_id: productId,
     kind: file.kind === "video" ? "video" : "image",
     url: client.storage.from("product-media").getPublicUrl(String(file.path)).data.publicUrl,
     storage_path: String(file.path),
     alt_text: String(file.altText || product.name),
     sort_order: sortOrder++,
-    is_primary: false,
+    is_primary: !(existing?.length) && index === 0,
   }));
   const { data, error } = await client.from("commerce_product_media").insert(rows).select();
   if (error) throw error;
+  const primary = (data || []).find((item) => item.kind === "image");
+  if (primary) await client.from("commerce_products").update({ image_url: primary.url, updated_at: new Date().toISOString() }).eq("id", productId);
   return NextResponse.json({ media: data || [] }, { status: 201 });
 }
 
