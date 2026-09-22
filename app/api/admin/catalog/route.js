@@ -48,7 +48,7 @@ async function enrich(products) {
   return withMedia(await withStock(products));
 }
 
-const SELECT = "id,name,branch,category,description,story,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,created_at,updated_at";
+const SELECT = "id,name,branch,category,description,story,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,gold_price_eur,gold_price_try,created_at,updated_at";
 
 export async function GET(request) {
   try {
@@ -58,7 +58,7 @@ export async function GET(request) {
     if (error && /price_eur|price_try|price_usd_override|material_options|size_type|stone_options|column/i.test(error.message || "")) {
       const legacy = await client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active,created_at,updated_at").order("created_at", { ascending: false });
       if (legacy.error) throw legacy.error;
-      data = (legacy.data || []).map((p) => ({ ...p, material_options: ["925 Sterling Silver"], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "" }));
+      data = (legacy.data || []).map((p) => ({ ...p, material_options: ["925 Sterling Silver"], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "", gold_price_eur: null, gold_price_try: null }));
     }
     if (error && !data) throw error;
     return NextResponse.json({ products: await enrich(data || []) });
@@ -86,6 +86,8 @@ function clean(body, { requireStock = false } = {}) {
   const priceEur = Number(body.price_eur ?? body.price);
   const priceTry = body.price_try === "" || body.price_try == null ? null : Number(body.price_try);
   const priceUsdOverride = body.price_usd_override === "" || body.price_usd_override == null ? null : Number(body.price_usd_override);
+  const goldPriceEur = body.gold_price_eur === "" || body.gold_price_eur == null ? null : Number(body.gold_price_eur);
+  const goldPriceTry = body.gold_price_try === "" || body.gold_price_try == null ? null : Number(body.gold_price_try);
   const sizeType = ["none", "ring", "bracelet", "necklace"].includes(body.size_type) ? body.size_type : "none";
   const materialOptions = arrayText(body.material_options, ["925 Sterling Silver"]);
   const sizeOptions = arrayText(body.size_options);
@@ -94,6 +96,8 @@ function clean(body, { requireStock = false } = {}) {
   if (!Number.isFinite(priceEur) || priceEur < 0) throw new Error("EUR price must be a valid non-negative number.");
   if (priceTry != null && (!Number.isFinite(priceTry) || priceTry < 0)) throw new Error("TRY price must be a valid non-negative number.");
   if (priceUsdOverride != null && (!Number.isFinite(priceUsdOverride) || priceUsdOverride < 0)) throw new Error("USD override must be a valid non-negative number.");
+  if (goldPriceEur != null && (!Number.isFinite(goldPriceEur) || goldPriceEur < 0)) throw new Error("Gold EUR price must be a valid non-negative number.");
+  if (goldPriceTry != null && (!Number.isFinite(goldPriceTry) || goldPriceTry < 0)) throw new Error("Gold TRY price must be a valid non-negative number.");
   if (!Number.isFinite(discount) || discount < 0 || discount > 100) throw new Error("Discount must be between 0 and 100.");
   if (!["EsteeGold", "EsteeBags"].includes(body.branch)) throw new Error("Invalid branch. Choose EsteeGold or EsteeBags.");
   if (sizeType !== "none" && !sizeOptions.length) throw new Error("Add at least one size option for this product.");
@@ -124,6 +128,8 @@ function clean(body, { requireStock = false } = {}) {
       stone_required: body.stone_required === true,
       gold_available: body.gold_available === true,
       customization_note: body.customization_note?.trim() || "",
+      gold_price_eur: goldPriceEur,
+      gold_price_try: goldPriceTry,
       updated_at: new Date().toISOString(),
     },
     stock,
