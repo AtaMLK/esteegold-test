@@ -2,7 +2,7 @@ export default function manifest() {
   return {
     name: "EsteeHouse",
     short_name: "EsteeHouse",
-    description: "EsteeHouse handmade jewelry and bags.",
+    description: "EsteeHouse — handmade bags and silver.",
     start_url: "/",
     display: "standalone",
     background_color: "#f1ecdf",

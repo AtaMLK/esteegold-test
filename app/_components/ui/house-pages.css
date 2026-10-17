@@ -1,0 +1,76 @@
+body.house-site { overflow-x: clip; overflow-y: visible; }
+.house-public { color: #292e24; letter-spacing: normal; }
+.house-public main { font-family: Arial, Helvetica, sans-serif; }
+.house-public main h1, .house-public main h2, .house-public main h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+.house-public main:not(.house-experience) h1 { line-height: .94; letter-spacing: -.065em; }
+.house-public main:not(.house-experience) h2 { line-height: 1.02; }
+.house-public main:not(.house-experience) .bg-black { background-color: #343c2c; }
+.house-public input::placeholder, .house-public textarea::placeholder { color: #747b66; opacity: 1; }
+.house-public :is(a, button, input, select, textarea):focus-visible { outline: 2px solid #68734f; outline-offset: 5px; }
+.house-public main:not(.house-experience) input, .house-public main:not(.house-experience) textarea, .house-public main:not(.house-experience) select { font-size: max(16px, 1em); }
+.catalog-page .catalog-filter-bar { top: 80px; background: #f1ecdfed; }
+.catalog-page .catalog-intro { position: relative; isolation: isolate; padding-bottom: 65px; }
+.catalog-page .catalog-intro h1 { font-size: clamp(64px, 8vw, 120px); }
+.catalog-visual { position: absolute; right: 30%; top: -5px; width: 130px; height: 160px; opacity: .12; z-index: -1; transform: rotate(8deg); overflow: hidden; border-radius: 48% 48% 0 0; }
+.catalog-visual img { object-fit: cover; }
+.catalog-page .catalog-filter-bar button[aria-pressed="true"] { background: #38412e; border-color: #38412e; }
+.catalog-page .catalog-card > div:first-child { border-radius: 3px; }
+.catalog-page .catalog-card:first-child > div:first-child { border-radius: 44% 44% 3px 3px; }
+.house-public .contact-page { background: #f1ecdf; }
+.house-public .contact-hero { background: #e8e5d7; padding-top: 145px; min-height: 780px; isolation: isolate; }
+.house-public .contact-hero-copy { max-width: 58%; margin: 65px 0 90px; }
+.house-public .contact-hero-copy h1 { font-size: clamp(55px, 7.5vw, 114px); }
+.house-public .contact-hero-image { position: absolute; right: 8vw; top: 200px; width: 28vw; height: 440px; max-height: 50vh; border-radius: 48% 48% 0 0; overflow: hidden; transform: rotate(5deg); z-index: -1; }
+.contact-hero-image img { object-fit: cover; }
+.house-public .contact-body { background: #f1ecdf; }
+.house-public .contact-bottom { background: #323b2c; }
+.house-public .contact-details a { overflow-wrap: anywhere; }
+.house-public .contact-page em { color: #68744f; }
+.house-public .contact-bottom em { color: #d7dbc4; }
+.house-public .contact-label { font: 9px/1.6 monospace; text-transform: uppercase; letter-spacing: .16em; color: #636c53; }
+.house-public .contact-info h2, .house-public .contact-bottom h2 { font-size: clamp(48px, 6vw, 85px); }
+.house-public .contact-form-intro, .house-public .contact-form label span { color: #606955; }
+.house-public .contact-bottom .contact-label { color: #c9d0b8; }
+.house-public .contact-hero-bottom { line-height: 1.8; }
+.house-public .story-page { background: #f1ecdf; }
+.story-page .journey-chapter { min-height: 860px; padding-top: 175px; }
+.story-page .journey-copy h1 { font-size: clamp(55px, 6.4vw, 105px); }
+.story-page .journey-copy em { white-space: normal; }
+.story-page .journey-description { max-width: 390px; }
+.story-manifesto { display: grid; grid-template-columns: .8fr 1.2fr; padding: 100px 7vw; gap: 8vw; border-top: 1px solid #71795433; }
+.story-manifesto h2 { font-size: clamp(45px, 6vw, 90px); letter-spacing: -.05em; margin-bottom: 30px; }
+.story-manifesto p:not(.house-eyebrow) { max-width: 490px; font: 14px/1.9 Arial, sans-serif; color: #626b56; }
+.story-collections { display: grid; grid-template-columns: 1fr 1fr; gap: 7vw; padding: 20px 7vw 110px; }
+.story-collection { display: block; }
+.story-collection-media { position: relative; aspect-ratio: .9; overflow: hidden; background: #dfdfd0; border-radius: 46% 46% 2px 2px; }
+.story-collection:nth-child(2) { margin-top: 150px; }
+.story-collection:nth-child(2) .story-collection-media { border-radius: 2px; }
+.story-collection img { object-fit: cover; transition: transform 1s; }
+.story-collection:hover img { transform: scale(1.04); }
+.story-collection-copy { display: flex; align-items: center; justify-content: space-between; margin-top: 25px; border-bottom: 1px solid #929b7e60; padding-bottom: 20px; }
+.story-collection h2 { font-size: 45px; letter-spacing: -.04em; }
+.story-collection p { font: 10px/1.6 monospace; color: #626b56; margin-top: 8px; }
+.footer-container { letter-spacing: normal; }
+.footer-container .footer-studio-link { display: flex; justify-content: space-between; align-items: center; align-self: center; padding: 16px 0; border-bottom: 1px solid #b9c5a875; font: 14px/1.5 Georgia, serif; }
+.footer-container :focus-visible { outline: 2px solid #d3d9bb; outline-offset: 5px; }
+@media (max-width: 700px) {
+  .catalog-page .catalog-filter-bar { top: 74px; }
+  .catalog-page .catalog-intro h1 { font-size: 17vw; }
+  .catalog-visual { right: 0; width: 100px; height: 135px; }
+  .house-public .contact-hero { min-height: 860px; padding-top: 105px; }
+  .house-public .contact-hero-top span:last-child { display: none; }
+  .house-public .contact-hero-copy { max-width: 100%; margin: 40px 0 320px; }
+  .house-public .contact-hero-copy h1 { font-size: clamp(45px, 12.5vw, 75px); }
+  .house-public .contact-hero-image { top: 390px; right: 12vw; width: 57vw; height: 280px; }
+  .house-public .contact-info h2, .house-public .contact-bottom h2 { font-size: 12vw; }
+  .house-public .contact-details a { font-size: 14px; }
+  .story-page .journey-chapter { min-height: auto; padding-top: 140px; padding-bottom: 80px; gap: 40px; }
+  .story-page .journey-copy h1 { font-size: 13vw; }
+  .story-page .journey-image { height: 350px; }
+  .story-manifesto { grid-template-columns: 1fr; gap: 35px; padding: 70px 8vw; }
+  .story-manifesto h2 { font-size: 12vw; }
+  .story-collections { gap: 45px; grid-template-columns: 1fr; padding: 0 8vw 75px; }
+  .story-collection:nth-child(2) { margin-top: 0; }
+  .story-collection-media { aspect-ratio: 1; }
+  .story-collection h2 { font-size: 36px; }
+}

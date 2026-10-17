@@ -1,26 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, MoveHorizontal } from "lucide-react";
 import gsap from "gsap";
-import { Draggable } from "gsap/Draggable";
+import { getGalleryPieces } from "./house-content";
 
-const pieces = [
-  { name: "A study in shape", category: "EsteeGold / Jewelry", image: "/images/Products-page/Ring.jpg", href: "/categories?branch=gold" },
-  { name: "The everyday weave", category: "EsteeBags / Handmade", image: "/images/bags/bag1.jpg", href: "/categories?branch=bags" },
-  { name: "A little expression", category: "EsteeGold / Earrings", image: "/images/Products-page/Earrings.jpg", href: "/categories?branch=gold" },
-  { name: "Texture, carried", category: "EsteeBags / Handmade", image: "/images/bags/bag3.jpg", href: "/categories?branch=bags" },
-  { name: "Color has a place", category: "EsteeGold / Details", image: "/images/Hero-bg-1.jpg", href: "/categories?branch=gold" },
-  { name: "Knotted by hand", category: "EsteeBags / Texture", image: "/images/bags/bag18.jpg", href: "/categories?branch=bags" },
-  { name: "Better together", category: "EsteeGold / Combinations", image: "/images/Products-page/Combinations.jpg", href: "/categories?branch=gold" },
-  { name: "The softer side", category: "EsteeBags / Handmade", image: "/images/bags/bag8.jpg", href: "/categories?branch=bags" },
-];
-
-const wrap = (value) => ((value % pieces.length) + pieces.length) % pieces.length;
-
-export default function RadialGallery() {
+export default function RadialGallery({ collection = "house" }) {
+  const pieces = useMemo(() => getGalleryPieces(collection), [collection]);
   const rootRef = useRef(null);
   const stageRef = useRef(null);
   const controlsRef = useRef(null);
@@ -29,15 +17,15 @@ export default function RadialGallery() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    gsap.registerPlugin(Draggable);
+    const wrap = (value) => ((value % pieces.length) + pieces.length) % pieces.length;
     const stage = stageRef.current;
     const cards = Array.from(stage.querySelectorAll(".arc-card"));
-    const proxy = document.createElement("div");
     const position = { value: 0 };
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
     let metrics;
     let selectedIndex = 0;
     let origin = 0;
+    let pointer = null;
     let samples = [];
     let animation;
     let dragReset;
@@ -88,41 +76,59 @@ export default function RadialGallery() {
 
     measure();
     const context = gsap.context(() => {
-      const [draggable] = Draggable.create(proxy, {
-        type: "x",
-        trigger: stage,
-        dragClickables: true,
-        allowNativeTouchScrolling: true,
-        minimumMovement: 5,
-        onPress() {
-          animation?.kill();
-          clearTimeout(dragReset);
-          dragRef.current = false;
-          origin = position.value;
-          gsap.set(proxy, { x: 0 });
-          this.update();
-          samples = [{ x: 0, time: performance.now() }];
-        },
-        onDrag() {
+      function press(event) {
+        if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+        animation?.kill();
+        clearTimeout(dragReset);
+        dragRef.current = false;
+        origin = position.value;
+        pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+        samples = [{ x: 0, time: performance.now() }];
+      }
+
+      function move(event) {
+        if (!pointer || event.pointerId !== pointer.id) return;
+        const horizontal = event.clientX - pointer.x;
+        const vertical = event.clientY - pointer.y;
+        if (!dragRef.current) {
+          if (Math.abs(horizontal) < 6) return;
+          if (Math.abs(vertical) > Math.abs(horizontal)) { pointer = null; return; }
+          stage.setPointerCapture(event.pointerId);
           dragRef.current = true;
-          position.value = origin - this.x / metrics.pixels;
-          const now = performance.now();
-          samples.push({ x: this.x, time: now });
-          samples = samples.filter((sample) => now - sample.time < 110);
-          render();
-        },
-        onRelease() {
-          const first = samples[0];
-          const last = samples[samples.length - 1];
-          const elapsed = first && last ? Math.max(16, performance.now() - first.time) : 16;
-          const velocity = first && last ? (last.x - first.x) / elapsed : 0;
-          const drift = reduced ? 0 : Math.max(-2.2, Math.min(2.2, -velocity * 260 / metrics.pixels));
-          settle(Math.round(position.value + drift), true);
-          dragReset = setTimeout(() => { dragRef.current = false; }, 150);
-        },
-      });
+        }
+        if (event.cancelable) event.preventDefault();
+        position.value = origin - horizontal / metrics.pixels;
+        const now = performance.now();
+        samples.push({ x: horizontal, time: now });
+        samples = samples.filter((sample) => now - sample.time < 110);
+        render();
+      }
+
+      function release(event) {
+        if (!pointer || event.pointerId !== pointer.id) return;
+        pointer = null;
+        if (stage.hasPointerCapture(event.pointerId)) stage.releasePointerCapture(event.pointerId);
+        if (!dragRef.current) return;
+        const first = samples[0];
+        const last = samples[samples.length - 1];
+        const elapsed = first && last ? Math.max(16, performance.now() - first.time) : 16;
+        const velocity = first && last ? (last.x - first.x) / elapsed : 0;
+        const drift = reduced || event.type === "pointercancel" ? 0 : Math.max(-2.2, Math.min(2.2, -velocity * 260 / metrics.pixels));
+        settle(Math.round(position.value + drift), true);
+        dragReset = setTimeout(() => { dragRef.current = false; }, 150);
+      }
+
+      stage.addEventListener("pointerdown", press);
+      stage.addEventListener("pointermove", move, { passive: false });
+      stage.addEventListener("pointerup", release);
+      stage.addEventListener("pointercancel", release);
       controlsRef.current = { previous: () => settle(Math.round(position.value) - 1), next: () => settle(Math.round(position.value) + 1), select };
-      return () => draggable.kill();
+      return () => {
+        stage.removeEventListener("pointerdown", press);
+        stage.removeEventListener("pointermove", move);
+        stage.removeEventListener("pointerup", release);
+        stage.removeEventListener("pointercancel", release);
+      };
     }, rootRef);
 
     const observer = new ResizeObserver(measure);
@@ -139,7 +145,7 @@ export default function RadialGallery() {
       controlsRef.current = null;
       context.revert();
     };
-  }, []);
+  }, [pieces]);
 
   function onKeyDown(event) {
     if (event.key === "ArrowRight") { event.preventDefault(); controlsRef.current?.next(); }
@@ -150,7 +156,7 @@ export default function RadialGallery() {
 
   return (
     <section id="collection" ref={rootRef} className={"radial-gallery " + (ready ? "is-ready" : "")} aria-labelledby="gallery-title" aria-roledescription="carousel" onKeyDown={onKeyDown}>
-      <div className="gallery-heading"><p className="house-eyebrow">A few things worth keeping</p><h2 id="gallery-title">The house <em>edit.</em></h2><p>Follow what catches your eye.</p></div>
+      <div className="gallery-heading"><p className="house-eyebrow">A few things worth keeping</p><h2 id="gallery-title">The {collection === "house" ? "house" : collection === "bags" ? "bag" : "silver"} <em>edit.</em></h2><p>Follow what catches your eye.</p></div>
       <span className="gallery-watermark" aria-hidden="true">COLLECTION</span>
       <div className="arc-stage" ref={stageRef} tabIndex={0} aria-label="Collection gallery. Drag horizontally or use the left and right arrow keys." aria-describedby="gallery-instructions">
         <div className="arc-guide" aria-hidden="true" />

@@ -10,14 +10,15 @@ import "../styles/styles.css";
 import "./_components/ui/chrome-overrides.css";
 
 export const metadata = {
-  title: "EsteeHouse — EsteeGold & EsteeBags",
-  description: "EsteeHouse is a creative house for jewelry, accessories and handmade paracord and knitted bags.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://esteegold-test.vercel.app"),
+  title: "EsteeHouse — Bags & Silver",
+  description: "A creative house for handmade bags and silver. Different materials. Objects with a character of their own.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body className="house-site">
         <ErrorProvider>
           <UserProvider>
             <WishlistProvider>

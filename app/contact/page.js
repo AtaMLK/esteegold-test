@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { ArrowUpRight, Instagram, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
 import "./contact.css";
@@ -26,7 +27,7 @@ export default function ContactPage() {
       <section className="contact-hero">
         <div className="contact-hero-top"><span>ESTEEHOUSE / CONTACT</span><span>ISTANBUL / 2026</span></div>
         <div className="contact-hero-copy"><p>We would like to hear from you.</p><h1>Start a<br /><em>conversation.</em></h1></div>
-        <div className="contact-orbit orbit-contact-a" /><div className="contact-orbit orbit-contact-b" />
+        <div className="contact-hero-image"><Image src="/images/bags/bag3.jpg" alt="A close look at the texture of a handmade bag" fill sizes="(max-width: 700px) 60vw, 30vw" priority /></div>
         <div className="contact-hero-bottom"><span>For orders, wholesale, collaborations or simply a question.</span><span>↓ 01 / 03</span></div>
       </section>
 

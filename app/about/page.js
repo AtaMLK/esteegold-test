@@ -1,37 +1,28 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import "./about.css";
+import { ArrowUpRight } from "lucide-react";
+import "../_components/ui/house-experience.css";
 
-export const metadata = { title: "About — EsteeHouse" };
+export const metadata = {
+  title: "The House — Bags & Silver | EsteeHouse",
+  description: "Two materials. One point of view. Discover the world of EsteeHouse, where handmade bags and silver pieces share an attention to character and detail.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (
-    <main className="about-page">
-      <section className="about-hero">
-        <video className="about-hero-media" autoPlay muted loop playsInline poster="/images/about.JPG">
-          <source src="/video/about.mp4" type="video/mp4" />
-        </video>
-        <div className="about-hero-overlay" />
-        <div className="about-hero-top"><span>ESTEEHOUSE / ABOUT</span><span>ISTANBUL / 2026</span></div>
-        <div className="about-hero-bottom"><p>Jewelry / accessories / handmade bags</p><h1>Made with<br /><em>character.</em></h1><span className="about-scroll"><ArrowDownRight size={16} /> Scroll</span></div>
+    <main className="house-experience story-page">
+      <section className="journey-chapter journey-chapter--opening">
+        <div className="journey-watermark" aria-hidden="true">THE HOUSE</div>
+        <div className="journey-copy"><p className="house-eyebrow">01 / Behind the objects</p><h1>Different materials.<br /><em>One instinct.</em></h1><p className="journey-description">A knot. A curve. The way light meets a surface. EsteeHouse brings handmade bags and silver together through an attention to the small things.</p><a href="#our-approach" className="house-text-link">A closer look <ArrowUpRight size={16} /></a></div>
+        <figure className="journey-figure"><div className="journey-image"><Image src="/images/bags/bag3.jpg" alt="Handmade bag with visible woven texture" fill sizes="(max-width: 700px) 75vw, 43vw" priority className="journey-photo" /></div><figcaption><span>EsteeHouse / The studio</span><span>Objects with character ↗</span></figcaption></figure>
       </section>
-
-      <section className="about-intro">
-        <div><p className="about-label">01 / THE HOUSE</p></div>
-        <div><h2>Different materials.<br /><em>One point of view.</em></h2><p>EsteeHouse brings together two ways of making: EsteeGold, our jewelry and accessories collection, and EsteeBags, our handmade bag line. The materials change. The attention does not.</p></div>
+      <section className="story-manifesto" id="our-approach"><p className="house-eyebrow">02 / Our point of view</p><div><h2>Less ordinary.<br /><em>More personal.</em></h2><p>We are drawn to objects that have something to say. A bag whose construction is part of its character. A silver piece whose shape becomes familiar with wear. Different ways of making, connected by the same feeling.</p><p>Not everything needs to be perfect to feel considered. The texture, the proportion, the small detail you notice later: that is where an object becomes yours.</p></div></section>
+      <section className="story-collections" aria-label="Two collections, one house">
+        <Link href="/bags" className="story-collection"><div className="story-collection-media"><Image src="/images/bags/bag18.jpg" alt="A bag from the handmade collection" fill sizes="(max-width: 700px) 84vw, 40vw" /></div><div className="story-collection-copy"><div><h2>The bags.</h2><p>A story in every knot.</p></div><ArrowUpRight size={24} /></div></Link>
+        <Link href="/silver" className="story-collection"><div className="story-collection-media"><Image src="/images/Products-page/rings-title.jpg" alt="A study of ring shapes from the house image archive" fill sizes="(max-width: 700px) 84vw, 40vw" /></div><div className="story-collection-copy"><div><h2>The silver.</h2><p>A conversation with light.</p></div><ArrowUpRight size={24} /></div></Link>
       </section>
-
-      <section className="about-duo">
-        <div className="about-duo-image"><img src="/images/Hero-bg-4.jpg" alt="EsteeGold detail" /></div>
-        <div className="about-duo-copy"><p className="about-label">02 / ESTEEGOLD</p><h2>Quiet pieces.<br /><em>Strong details.</em></h2><p>We design jewelry and accessories around proportion, texture and the small details that make an object feel personal. The goal is not noise. It is recognition.</p><Link href="/gold">Explore EsteeGold <ArrowUpRight size={15} /></Link></div>
-      </section>
-
-      <section className="about-duo about-duo-reverse">
-        <div className="about-duo-copy"><p className="about-label">03 / ESTEEBAGS</p><h2>Let the weave<br /><em>tell the story.</em></h2><p>Our bags keep the hand visible: knots, colour, texture and the tiny differences that happen when something is made rather than mass-produced.</p><Link href="/bags">Explore EsteeBags <ArrowUpRight size={15} /></Link></div>
-        <div className="about-duo-image"><img src="/images/bags/bag1.jpg" alt="Handmade EsteeBag" /></div>
-      </section>
-
-      <section className="about-manifesto"><p className="about-label">04 / OUR APPROACH</p><h2>We make things<br /><em>worth keeping.</em></h2><div><span>Objects with character.</span><span>Details with a reason.</span><Link href="/contact">Talk to the studio <ArrowUpRight size={15} /></Link></div></section>
+      <section className="house-closing"><p className="house-eyebrow">03 / A note to the house</p><h2>Every good thing<br /><em>starts somewhere.</em></h2><div className="house-closing-bottom"><p>A question about a piece, an idea, or a collaboration.<br />We would like to hear from you.</p><Link href="/contact" className="house-text-link">Start a conversation <ArrowUpRight size={18} /></Link></div></section>
     </main>
   );
 }
