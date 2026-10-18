@@ -1,27 +1,18 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServiceClient as adminClient, requireAdmin } from "../../../../_lib/server-supabase";
 
-function adminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase server configuration is missing.");
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-}
-async function requireAdmin(request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const client = adminClient();
-  const { data: { user }, error } = await client.auth.getUser(token);
-  if (error || !user?.email) return false;
-  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
-  return allowed.includes(user.email.toLowerCase());
-}
 
 async function completeSignedUpload(request) {
   const body = await request.json();
   const productId = String(body.productId || "").trim();
   const files = Array.isArray(body.files) ? body.files : [];
   if (!productId || !files.length || files.length > 12) throw new Error("Product and 1–12 uploaded files are required.");
+  const paths = new Set();
+  for (const file of files) {
+    const path = String(file.path || "");
+    if (!["image", "video"].includes(file.kind) || !path.startsWith(productId + "/") || path.split("/").some((segment) => segment === ".." || segment === ".") || paths.has(path)) throw new Error("Each media file must have a unique upload path belonging to this product and a valid media type.");
+    paths.add(path);
+  }
   const client = adminClient();
   const { data: product, error: productError } = await client.from("commerce_products").select("id,name").eq("id", productId).maybeSingle();
   if (productError) throw productError;
@@ -48,7 +39,7 @@ export async function POST(request) {
   try {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     const contentType = request.headers.get("content-type") || "";
-    if (contentType.includes("application/json")) return completeSignedUpload(request);
+    if (contentType.includes("application/json")) return await completeSignedUpload(request);
 
     const form = await request.formData();
     const productId = String(form.get("productId") || "").trim();
@@ -92,14 +83,20 @@ export async function DELETE(request) {
     const body = await request.json();
     if (!body.id) return NextResponse.json({ error: "Media id is required." }, { status: 400 });
     const client = adminClient();
-    const { data: media, error: mediaError } = await client.from("commerce_product_media").select("id,product_id,storage_path").eq("id", body.id).maybeSingle();
+    const { data: media, error: mediaError } = await client.from("commerce_product_media").select("id,product_id,storage_path,url,kind").eq("id", body.id).maybeSingle();
     if (mediaError) throw mediaError;
     if (!media) return NextResponse.json({ error: "Media not found." }, { status: 404 });
-    if (media.storage_path) await client.storage.from("product-media").remove([media.storage_path]);
+    if (media.storage_path) {
+      const { error: storageError } = await client.storage.from("product-media").remove([media.storage_path]);
+      if (storageError) throw storageError;
+    }
     const { error } = await client.from("commerce_product_media").delete().eq("id", body.id);
     if (error) throw error;
     const { data: replacement } = await client.from("commerce_product_media").select("url").eq("product_id", media.product_id).eq("kind", "image").order("sort_order", { ascending: true }).limit(1).maybeSingle();
-    await client.from("commerce_products").update({ image_url: replacement?.url || null, updated_at: new Date().toISOString() }).eq("id", media.product_id);
+    if (media.kind === "image") {
+      const { error: imageError } = await client.from("commerce_products").update({ image_url: replacement?.url || null, updated_at: new Date().toISOString() }).eq("id", media.product_id).eq("image_url", media.url);
+      if (imageError) throw imageError;
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[admin/catalog/media DELETE]", error);

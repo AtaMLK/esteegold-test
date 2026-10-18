@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -31,7 +31,14 @@ const blankShipment = {
   notes: "",
 };
 
+function localDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
+}
+
 export default function AdminOrdersPage() {
+  const [changingStatus, setChangingStatus] = useState(null);
   const [orders, setOrders] = useState([]),
     [status, setStatus] = useState("all"),
     [query, setQuery] = useState(""),
@@ -40,7 +47,7 @@ export default function AdminOrdersPage() {
     [error, setError] = useState(""),
     [shipment, setShipment] = useState(blankShipment),
     [savingShipment, setSavingShipment] = useState(false);
-  async function request(url, options = {}) {
+  const request = useCallback(async (url, options = {}) => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -56,8 +63,8 @@ export default function AdminOrdersPage() {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Request failed.");
     return data;
-  }
-  async function load() {
+  }, []);
+  const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -79,10 +86,10 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [request]);
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
   const visible = useMemo(
     () =>
       orders.filter((o) => {
@@ -97,6 +104,9 @@ export default function AdminOrdersPage() {
     [orders, status, query],
   );
   async function updateStatus(id, next) {
+    if (changingStatus) return;
+    setChangingStatus(id);
+    setError("");
     try {
       await request("/api/admin/orders", {
         method: "PATCH",
@@ -106,15 +116,18 @@ export default function AdminOrdersPage() {
       await load();
     } catch (e) {
       setError(e.message);
+    } finally {
+      setChangingStatus(null);
     }
   }
-  function nextStatuses(current) { const map = { pending_payment: ["pending_payment","paid","payment_failed"], paid: ["paid","processing","shipped"], processing: ["processing","shipped"], shipped: ["shipped","delivered"], delivered: ["delivered"], canceled: ["canceled"], payment_failed: ["payment_failed"] }; return map[current] || [current]; }
+  function nextStatuses(order) { const map = { pending_payment: order.payment_status === "success" ? ["pending_payment","paid","payment_failed"] : ["pending_payment","payment_failed"], paid: ["paid","processing","shipped"], processing: ["processing","shipped"], shipped: ["shipped","delivered"], delivered: ["delivered"], canceled: ["canceled"], payment_failed: ["payment_failed"] }; return map[order.status] || [order.status]; }
   function openOrder(order) {
     const next = open === order.id ? null : order.id;
     setOpen(next);
     if (next) setShipment({ ...blankShipment, ...(order.shipment || {}) });
   }
   async function saveShipment(orderId) {
+    if (savingShipment || changingStatus) return;
     setSavingShipment(true);
     setError("");
     try {
@@ -249,6 +262,12 @@ export default function AdminOrdersPage() {
                   </button>
                   {isOpen && (
                     <div className="border-t border-black/10 px-5 pb-6 pt-5">
+                      <label className="mb-6 block max-w-xs text-[9px] uppercase tracking-[.18em] text-black/60">
+                        Order status
+                        <select aria-label={`Order status for ${order.order_number}`} value={order.status} disabled={!!changingStatus || savingShipment} onChange={(event) => updateStatus(order.id, event.target.value)} className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm normal-case tracking-normal outline-none focus:border-black disabled:opacity-40">
+                          {nextStatuses(order).map((next) => <option key={next} value={next}>{next.replaceAll("_", " ")}</option>)}
+                        </select>
+                      </label>
                       <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
                         <div>
                           <p className="text-[8px] uppercase tracking-[.2em] text-black/35">
@@ -334,7 +353,7 @@ export default function AdminOrdersPage() {
                               type="datetime-local"
                               value={
                                 shipment.shipped_at
-                                  ? shipment.shipped_at.slice(0, 16)
+                                  ? localDateTime(shipment.shipped_at)
                                   : ""
                               }
                               onChange={(v) =>
@@ -351,7 +370,7 @@ export default function AdminOrdersPage() {
                               type="datetime-local"
                               value={
                                 shipment.estimated_delivery_at
-                                  ? shipment.estimated_delivery_at.slice(0, 16)
+                                  ? localDateTime(shipment.estimated_delivery_at)
                                   : ""
                               }
                               onChange={(v) =>
@@ -368,7 +387,7 @@ export default function AdminOrdersPage() {
                               type="datetime-local"
                               value={
                                 shipment.delivered_at
-                                  ? shipment.delivered_at.slice(0, 16)
+                                  ? localDateTime(shipment.delivered_at)
                                   : ""
                               }
                               onChange={(v) =>
@@ -397,7 +416,7 @@ export default function AdminOrdersPage() {
                           </label>
                           <button
                             onClick={() => saveShipment(order.id)}
-                            disabled={savingShipment}
+                            disabled={savingShipment || !!changingStatus || order.payment_status !== "success" || !["paid", "processing", "shipped", "delivered"].includes(order.status)}
                             className="mt-5 w-full rounded-full bg-black px-5 py-3 text-[8px] uppercase tracking-[.22em] text-white disabled:opacity-40"
                           >
                             {savingShipment ? "Saving…" : "Save shipment"}

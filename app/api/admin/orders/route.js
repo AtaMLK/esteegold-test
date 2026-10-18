@@ -1,19 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServiceClient as adminClient, requireAdmin } from "../../../_lib/server-supabase";
 
-function adminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase server configuration is missing.");
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-}
-async function requireAdmin(request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const { data: { user } } = await adminClient().auth.getUser(token);
-  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
-  return !!user?.email && allowed.includes(user.email.toLowerCase());
-}
 export async function GET(request) {
   try {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

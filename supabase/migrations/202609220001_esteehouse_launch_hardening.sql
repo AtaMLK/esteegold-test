@@ -116,7 +116,8 @@ begin
       values(v_order_id,'demo','DEMO-'||v_order_no,v_payment,118,'EUR','demo',now());
     end if;
   end loop;
-end $;
+end;
+$$;
 
 insert into public.commerce_refunds(order_id,payment_id,payment_transaction_id,amount,currency,status,provider_refund_id,provider_status,reason,completed_at)
 select o.id,p.id,p.payment_transaction_id,p.amount,p.currency,'success','DEMO-REFUND-006','demo','Demo refund lifecycle',now()

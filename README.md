@@ -57,7 +57,13 @@ Never commit service-role, iyzico, or Resend secrets to Git.
 
 ## Supabase launch migration
 
-After merging this branch to the production branch, apply the migrations to the production Supabase project. The launch-hardening migration repairs the pricing-settings relation, adds configurable jewelry options, creates the product-media bucket/table if needed, and creates clearly labeled demo orders for admin testing.
+The existing production database was created outside migration history. Do not replay historical migrations against it: some include demo orders and seed updates. The additive `20261017234102_repair_commerce_schema_and_access.sql` repair adds missing catalog options, regional pricing and media support, preserves existing records, and restricts privileged commerce functions and private order tables to the server role. This repair contains no demo orders. Its filename matches the version recorded by Supabase when the approved repair was applied.
+
+For local development, set the public Supabase URL/key, `SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_SECRET_KEY`), and `ADMIN_EMAILS` in `.env.local`, then restart the development server. The server key must belong to the same Supabase project as the public URL and must never use a `NEXT_PUBLIC_` name. Configure these variables separately in Vercel and redeploy after changing them.
+
+`ADMIN_EMAILS` is a comma-separated server-only allowlist of confirmed account email addresses. It grants store-dashboard access, not Supabase platform access. Passwords cannot be retrieved from Supabase; use the existing account's sign-in or password-recovery flow. Public catalog reads and authentication checks do not require the server key; private orders, admin operations and checkout do.
+
+Historical records in `orders` and `ordered_items` remain preserved and server-only. The dashboard uses `commerce_orders`; legacy orders require a separately reviewed data migration before they appear there.
 
 ## Media
 

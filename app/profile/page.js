@@ -20,20 +20,28 @@ export default function ProfilePage() {
   useEffect(() => {
     let cancelled = false;
     async function start() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) { if (!cancelled) { setError("Please sign in to see your orders."); setLoading(false); setCheckingRole(false); } return; }
       try {
-        const adminResponse = await fetch("/api/admin/me", { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" });
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!session?.access_token) throw new Error("Please sign in to see your orders.");
+        const headers = { Authorization: `Bearer ${session.access_token}` };
+        const adminResponse = await fetch("/api/admin/me", { headers, cache: "no-store" });
+        if (cancelled) return;
         if (adminResponse.ok) { window.location.replace("/admin"); return; }
-      } catch {}
-      if (!cancelled) setCheckingRole(false);
-      try {
-        const response = await fetch("/api/account/orders", { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" });
+        if (adminResponse.status !== 403) {
+          const data = await adminResponse.json();
+          throw new Error(data.error || "Your session could not be verified. Please sign in again.");
+        }
+        setCheckingRole(false);
+        const response = await fetch("/api/account/orders", { headers, cache: "no-store" });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Could not load your orders.");
         if (!cancelled) setOrders(data.orders || []);
-      } catch (e) { if (!cancelled) setError(e.message); }
-      finally { if (!cancelled) setLoading(false); }
+      } catch (requestError) {
+        if (!cancelled) setError(requestError.message || "Could not open your account.");
+      } finally {
+        if (!cancelled) { setCheckingRole(false); setLoading(false); }
+      }
     }
     start();
     return () => { cancelled = true; };

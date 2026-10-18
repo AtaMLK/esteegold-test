@@ -1,16 +1,22 @@
-import { createClient } from "@supabase/supabase-js";
+import { createPublicServerClient } from "../server-supabase";
 import { sampleProducts } from "./sample-products";
 
-function getServerClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_API_KEY;
-  if (!url || !key) throw new Error("Supabase server configuration is missing.");
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-}
 
 function enrichProduct(product) {
-  const branch = product.branch === "EsteeGold" ? "the jewelry" : "the bag";
-  const category = String(product.category || "").toLowerCase(); const inferredSizeType = category.includes("ring") ? "ring" : category.includes("bracelet") || category.includes("bangle") || category.includes("cuff") ? "bracelet" : category.includes("necklace") || category.includes("chain") ? "necklace" : "none"; const inferredSizes = inferredSizeType === "ring" ? ["50","52","54","56","58","60"] : inferredSizeType === "bracelet" ? ["XS/S · 16 cm","S/M · 18 cm","M/L · 20 cm"] : inferredSizeType === "necklace" ? ["Choker · up to 43 cm","Short · up to 45 cm","Mid-Length · up to 55 cm","Long · up to 75 cm"] : []; const inferredStones = product.name?.toLowerCase().includes("stone") ? [{ name: "Natural stone" }, { name: "Cubic zirconia" }] : []; return { ...product, story: product.story || `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.`, material_options: product.material_options || ["925 Sterling Silver"], size_type: product.size_type || inferredSizeType, size_options: product.size_options?.length ? product.size_options : inferredSizes, stone_options: product.stone_options?.length ? product.stone_options : inferredStones, stone_required: Boolean(product.stone_required), gold_available: Boolean(product.gold_available), gold_price_eur: product.gold_price_eur || null, gold_price_try: product.gold_price_try || null, customization_note: product.customization_note || "" };
+  const branch = product.branch === "EsteeGold" ? "the silver piece" : "the bag";
+  return {
+    ...product,
+    story: product.story || `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.`,
+    material_options: product.material_options || [],
+    size_type: product.size_type || "none",
+    size_options: product.size_options || [],
+    stone_options: product.stone_options || [],
+    stone_required: Boolean(product.stone_required),
+    gold_available: Boolean(product.gold_available),
+    gold_price_eur: product.gold_price_eur ?? null,
+    gold_price_try: product.gold_price_try ?? null,
+    customization_note: product.customization_note || "",
+  };
 }
 
 async function readDatabaseProducts(client, branch, ids) {
@@ -24,8 +30,8 @@ async function readDatabaseProducts(client, branch, ids) {
     if (branch) legacyQuery = legacyQuery.eq("branch", branch);
     if (Array.isArray(ids)) legacyQuery = legacyQuery.in("id", ids);
     const legacyResult = await legacyQuery;
-    if (legacyResult.error) return [];
-    return (legacyResult.data || []).map((product) => ({ ...product, material_options: ["925 Sterling Silver"], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "" }));
+    if (legacyResult.error) throw legacyResult.error;
+    return (legacyResult.data || []).map((product) => ({ ...product, material_options: [], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "" }));
   }
   return result.data || [];
 }
@@ -49,9 +55,9 @@ async function readPricingSettings(client) {
   } catch { return { eur_usd_rate: 1.08 }; }
 }
 
-export async function getProducts({ branch = null, ids = null, search = "", includeSamples = true } = {}) {
+export async function getProducts({ branch = null, ids = null, search = "", includeSamples = false } = {}) {
   const normalizedSearch = String(search || "").trim().toLowerCase();
-  const client = getServerClient();
+  const client = createPublicServerClient();
   const databaseProducts = (await readDatabaseProducts(client, branch, ids)).map(enrichProduct);
   const databaseIds = new Set(databaseProducts.map((product) => String(product.id)));
   const demoProducts = includeSamples ? sampleProducts.filter((product) => !databaseIds.has(String(product.id))) : [];

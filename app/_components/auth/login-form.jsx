@@ -44,7 +44,9 @@ export default function LoginForm() {
   const { user } = useUser();
 
   const next = searchParams.get("next");
-  const destination = next && next.startsWith("/") ? next : "/profile";
+  const destination = next && next.startsWith("/") && !next.startsWith("//") && !next.includes(String.fromCharCode(92)) ? next : "/profile";
+  const requestedAdmin = destination.split(/[?#]/)[0] === "/admin" || destination.startsWith("/admin/");
+  const memberDestination = requestedAdmin ? "/profile" : destination;
   const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
 
   const [mode, setMode] = useState(initialMode);
@@ -88,13 +90,13 @@ export default function LoginForm() {
       try {
         const admin = await isAdmin();
         if (!cancelled) {
-          router.replace(admin ? "/admin" : destination);
+          router.replace(admin ? "/admin" : memberDestination);
           router.refresh();
         }
       } catch {
         if (!cancelled) {
           // A failed admin check must never leave the auth page blank.
-          router.replace(destination);
+          router.replace(memberDestination);
           router.refresh();
         }
       }
@@ -103,7 +105,7 @@ export default function LoginForm() {
     return () => {
       cancelled = true;
     };
-  }, [user, destination, router]);
+  }, [user, memberDestination, router]);
 
   useEffect(() => {
     const target = searchParams.get("mode") === "register" ? "register" : "login";
@@ -263,7 +265,7 @@ export default function LoginForm() {
     try {
       await signInWithEmail(email.trim(), password);
       const admin = await isAdmin();
-      router.replace(admin ? "/admin" : destination);
+      router.replace(admin ? "/admin" : memberDestination);
       router.refresh();
     } catch (err) {
       setError(err?.message || "We could not sign you in. Check your email and password.");

@@ -1,6 +1,6 @@
 import Iyzipay from "iyzipay";
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServiceClient as db, requireAdmin as admin } from "../../../../_lib/server-supabase";
 
 /* const iyzipay = new Iyzipay({
   apiKey: process.env.IYZIPAY_API_KEY,
@@ -25,20 +25,7 @@ function getIyzipay() {
 }
 
 
-function db() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase server configuration is missing.");
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-}
 
-async function admin(request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const { data: { user } } = await db().auth.getUser(token);
-  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
-  return !!user?.email && allowed.includes(user.email.toLowerCase());
-}
 
 /* function refundProvider(request) {
   return new Promise((resolve, reject) => {
@@ -129,13 +116,16 @@ export async function POST(request) {
 
     const providerSuccess = providerResult?.status === "success";
 
-    await c.from("commerce_refunds").update({
-      status: providerSuccess ? "success" : "failed",
+    const { error: recordError } = await c.from("commerce_refunds").update({
+      ...(providerSuccess ? {} : { status: "failed" }),
       provider_refund_id: providerResult?.paymentId || providerResult?.refundId || null,
       provider_status: providerResult?.status || null,
       raw_response: providerResult,
-      completed_at: providerSuccess ? new Date().toISOString() : null,
     }).eq("id", refund.id);
+    if (recordError) {
+      console.error("Could not record the refund provider result", recordError);
+      return NextResponse.json({ error: "The refund provider responded, but saving its result failed. Review this refund before retrying.", refundId: refund.id }, { status: 500 });
+    }
 
     if (!providerSuccess) {
       return NextResponse.json({ error: providerResult?.errorMessage || "Iyzico refund was not successful.", provider: providerResult }, { status: 502 });

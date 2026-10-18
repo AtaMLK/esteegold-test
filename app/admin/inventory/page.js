@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshCw, Search, Warehouse, Plus } from "lucide-react";
 import { supabase } from "../../_lib/supabase";
 import { useError } from "../../context/errorContext";
@@ -15,8 +15,9 @@ export default function InventoryPage() {
   const [adjust, setAdjust] = useState(null);
   const [delta, setDelta] = useState("");
   const [reason, setReason] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  async function req(url, opt = {}) {
+  const req = useCallback(async (url, opt = {}) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) throw new Error("Please sign in as an administrator.");
 
@@ -37,9 +38,9 @@ export default function InventoryPage() {
 
     if (!response.ok) throw new Error(data.error || "Request failed.");
     return data;
-  }
+  }, []);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -52,11 +53,11 @@ export default function InventoryPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [req, reportError]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const filtered = useMemo(() => {
     const search = q.trim().toLowerCase();
@@ -70,6 +71,8 @@ export default function InventoryPage() {
   }, [rows, q]);
 
   async function save() {
+    if (saving || !adjust || !Number.isInteger(Number(delta)) || Number(delta) === 0 || !reason.trim()) return;
+    setSaving(true);
     try {
       await req("/api/admin/inventory", {
         method: "POST",
@@ -87,6 +90,8 @@ export default function InventoryPage() {
       await load();
     } catch (e) {
       setError(reportError(e, "Could not adjust inventory."));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -217,19 +222,24 @@ export default function InventoryPage() {
 
         {adjust && (
           <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-5">
-            <div className="w-full max-w-md rounded-3xl bg-[var(--paper)] p-7">
+            <div role="dialog" aria-modal="true" aria-labelledby="inventory-dialog-title" className="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-[var(--paper)] p-7">
               <p className="text-[8px] uppercase tracking-[.2em] text-black/40">Inventory adjustment</p>
-              <h2 className="mt-2 font-serif text-3xl">{adjust.product_name}</h2>
+              <h2 id="inventory-dialog-title" className="mt-2 font-serif text-3xl">{adjust.product_name}</h2>
               <p className="mt-2 text-[9px] text-black/35">{adjust.product_id}</p>
 
               <input
                 type="number"
+                aria-label="Stock adjustment"
+                step="1"
+                disabled={saving}
                 value={delta}
                 onChange={(e) => setDelta(e.target.value)}
                 placeholder="+10 or -2"
                 className="mt-6 w-full border-b p-3 outline-none"
               />
               <input
+                aria-label="Adjustment reason"
+                disabled={saving}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Reason"
@@ -237,16 +247,16 @@ export default function InventoryPage() {
               />
 
               <div className="mt-6 flex gap-2">
-                <button type="button" onClick={() => setAdjust(null)} className="flex-1 rounded-full border p-3">
+                <button type="button" disabled={saving} onClick={() => setAdjust(null)} className="flex-1 rounded-full border p-3">
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={save}
-                  disabled={!Number.isInteger(Number(delta)) || !reason.trim()}
+                  disabled={saving || !Number.isInteger(Number(delta)) || Number(delta) === 0 || !reason.trim()}
                   className="flex-1 rounded-full bg-black p-3 text-white disabled:opacity-30"
                 >
-                  Save
+                  {saving ? "Saving…" : "Save"}
                 </button>
               </div>
             </div>

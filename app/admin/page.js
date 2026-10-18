@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, Package, ShoppingBag, Users, WalletCards, RefreshCw, AlertTriangle } from "lucide-react";
 import { supabase } from "../_lib/supabase";
+import { formatMoney, formatRevenue, revenueByCurrency } from "../_lib/commerce/reporting";
 
 const statusLabel = {
   pending_payment: "Pending payment",
@@ -49,7 +50,6 @@ export default function AdminDashboardPage() {
 
   const stats = useMemo(() => {
     const validOrders = orders.filter((o) => o.status !== "canceled");
-    const paidOrders = orders.filter((o) => ["paid", "processing", "shipped", "delivered"].includes(o.status));
     const customers = new Set();
     orders.forEach((o) => {
       const c = o.customer_snapshot || {};
@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
       lowStock: products.filter((p) => p.active && Number(p.stock || 0) <= 2).length,
       orders: orders.length,
       pending: orders.filter((o) => ["pending_payment", "paid", "processing"].includes(o.status)).length,
-      revenue: paidOrders.reduce((sum, o) => sum + Number(o.total || 0), 0),
+      revenue: revenueByCurrency(orders),
       customers: customers.size,
       validOrders: validOrders.length,
     };
@@ -86,7 +86,7 @@ export default function AdminDashboardPage() {
         {error && <div className="mt-6 rounded-2xl border border-red-900/10 bg-red-50 px-5 py-4 text-sm text-red-900">{error}</div>}
 
         <section className="grid gap-px overflow-hidden rounded-2xl border border-black/10 bg-black/10 sm:grid-cols-2 lg:grid-cols-4 mt-8">
-          <Stat label="Revenue" value={`€${stats.revenue.toFixed(2)}`} icon={<WalletCards size={16} />} />
+          <Stat label="Revenue" value={formatRevenue(stats.revenue)} icon={<WalletCards size={16} />} />
           <Stat label="Orders" value={stats.orders} meta={`${stats.pending} need attention`} icon={<ShoppingBag size={16} />} />
           <Stat label="Customers" value={stats.customers} icon={<Users size={16} />} />
           <Stat label="Products" value={stats.activeProducts} meta={`${stats.lowStock} low stock`} icon={<Package size={16} />} />
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
               <div><p className="text-[8px] uppercase tracking-[.25em] text-black/40">Latest activity</p><h2 className="mt-2 font-serif text-3xl">Recent orders.</h2></div>
               <Link href="/admin/orders" className="inline-flex items-center gap-1 text-[8px] uppercase tracking-[.2em]">View all <ArrowUpRight size={12}/></Link>
             </div>
-            {loading ? <div className="py-16 text-sm text-black/40">Loading orders…</div> : recentOrders.length === 0 ? <div className="py-16 text-sm text-black/40">No orders yet.</div> : <div className="divide-y divide-black/5">{recentOrders.map((order) => { const customer = order.customer_snapshot || {}; return <Link key={order.id} href="/admin/orders" className="flex items-center justify-between gap-4 py-5 hover:opacity-60"><div className="min-w-0"><div className="font-serif text-xl">{order.order_number || order.id.slice(0, 8)}</div><div className="mt-1 truncate text-xs text-black/40">{customer.fullName || customer.email || "Guest"} · {order.items?.length || 0} item(s)</div></div><div className="text-right"><div className="text-sm">€{Number(order.total || 0).toFixed(2)}</div><div className="mt-1 text-[8px] uppercase tracking-[.15em] text-black/40">{statusLabel[order.status] || order.status}</div></div></Link>; })}</div>}
+            {loading ? <div className="py-16 text-sm text-black/40">Loading orders…</div> : recentOrders.length === 0 ? <div className="py-16 text-sm text-black/40">No orders yet.</div> : <div className="divide-y divide-black/5">{recentOrders.map((order) => { const customer = order.customer_snapshot || {}; return <Link key={order.id} href="/admin/orders" className="flex items-center justify-between gap-4 py-5 hover:opacity-60"><div className="min-w-0"><div className="font-serif text-xl">{order.order_number || order.id.slice(0, 8)}</div><div className="mt-1 truncate text-xs text-black/40">{customer.fullName || customer.email || "Guest"} · {order.items?.length || 0} item(s)</div></div><div className="text-right"><div className="text-sm">{formatMoney(order.total, order.currency)}</div><div className="mt-1 text-[8px] uppercase tracking-[.15em] text-black/40">{statusLabel[order.status] || order.status}</div></div></Link>; })}</div>}
           </div>
 
           <div className="space-y-5">

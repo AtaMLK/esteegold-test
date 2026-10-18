@@ -1,6 +1,6 @@
 import Iyzipay from "iyzipay";
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "../../../../_lib/supabaseAdmin";
+import { getSupabaseAdmin } from "../../../../_lib/supabaseAdmin";
 import { notifyAdminNewOrder } from "../../../../_lib/notifications";
 
 /* const client = new Iyzipay({
@@ -76,8 +76,8 @@ export async function POST(request, { params }) {
     }
 
     if (money(payment.amount) !== money(order.total) || String(payment.currency).toUpperCase() !== String(order.currency).toUpperCase()) {
-      await supabaseAdmin.from("commerce_payments").update({ provider_status: "amount_or_currency_mismatch", payment_status: "failed", verified_at: new Date().toISOString() }).eq("id", payment.id);
-      await supabaseAdmin.from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.order_id);
+      await getSupabaseAdmin().from("commerce_payments").update({ provider_status: "amount_or_currency_mismatch", payment_status: "failed", verified_at: new Date().toISOString() }).eq("id", payment.id);
+      await getSupabaseAdmin().from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.order_id);
       return NextResponse.redirect(new URL(`/checkout/result?status=failure&reason=amount-mismatch&conversationId=${encodeURIComponent(conversationId)}`, request.url));
     }
 
@@ -91,17 +91,17 @@ export async function POST(request, { params }) {
     const providerAmountMatches = providerAmount == null || money(providerAmount) === money(order.total);
     const providerCurrencyMatches = !providerCurrency || String(providerCurrency).toUpperCase() === String(order.currency).toUpperCase();
     if (verified && (!providerAmountMatches || !providerCurrencyMatches)) {
-      await supabaseAdmin.from("commerce_payments").update({
+      await getSupabaseAdmin().from("commerce_payments").update({
         provider_status: "provider_amount_or_currency_mismatch",
         payment_status: "failed",
         raw_response: result,
         verified_at: new Date().toISOString(),
       }).eq("id", payment.id);
-      await supabaseAdmin.from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.order_id);
+      await getSupabaseAdmin().from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.order_id);
       return NextResponse.redirect(new URL(`/checkout/result?status=failure&reason=provider-amount-mismatch&conversationId=${encodeURIComponent(conversationId)}`, request.url));
     }
 
-    const { error: paymentUpdateError } = await supabaseAdmin.from("commerce_payments").update({
+    const { error: paymentUpdateError } = await getSupabaseAdmin().from("commerce_payments").update({
       payment_id: result.paymentId || payment.payment_id || null,
       payment_transaction_id: paymentTransactionId,
       provider_status: result.status || null,
@@ -113,7 +113,7 @@ export async function POST(request, { params }) {
     if (paymentUpdateError) throw paymentUpdateError;
 
     if (!verified) {
-      await supabaseAdmin.from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.order_id);
+      await getSupabaseAdmin().from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", payment.order_id);
       return NextResponse.redirect(new URL(`/checkout/result?status=failure&conversationId=${encodeURIComponent(conversationId)}`, request.url));
     }
 
@@ -122,10 +122,10 @@ export async function POST(request, { params }) {
       return NextResponse.redirect(new URL(`/checkout/result?status=review&conversationId=${encodeURIComponent(conversationId)}`, request.url));
     }
 
-    const { data: finalized, error: finalizeError } = await supabaseAdmin.rpc("finalize_commerce_order", { p_order_id: payment.order_id });
+    const { data: finalized, error: finalizeError } = await getSupabaseAdmin().rpc("finalize_commerce_order", { p_order_id: payment.order_id });
     if (finalizeError) {
       console.error("Order finalization failed after verified payment", finalizeError);
-      await supabaseAdmin.from("commerce_payments").update({ payment_status: "success", provider_status: "success_finalization_error" }).eq("id", payment.id);
+      await getSupabaseAdmin().from("commerce_payments").update({ payment_status: "success", provider_status: "success_finalization_error" }).eq("id", payment.id);
       return NextResponse.redirect(new URL(`/checkout/result?status=review&conversationId=${encodeURIComponent(conversationId)}`, request.url));
     }
 

@@ -2,7 +2,7 @@ import Iyzipay from "iyzipay";
 import { NextResponse } from "next/server";
 import { getProductMap } from "../../../_lib/commerce/catalog";
 import { getRegionalPrice, regionForRequest } from "../../../_lib/commerce/regional-pricing";
-import { supabaseAdmin } from "../../../_lib/supabaseAdmin";
+import { getSupabaseAdmin } from "../../../_lib/supabaseAdmin";
 
 function getIyzipay() {
   const apiKey = process.env.IYZIPAY_API_KEY, secretKey = process.env.IYZIPAY_SECRET_KEY, uri = process.env.IYZIPAY_URI || "https://sandbox-api.iyzipay.com";
@@ -51,10 +51,10 @@ export async function POST(request) {
     const customerSnapshot = { fullName: cleanName(customer.fullName), email: cleanName(customer.email).toLowerCase(), phone: cleanName(customer.phone, "") };
     const addressSnapshot = { address: cleanName(address.address), city: cleanName(address.city), postalCode: cleanName(address.postalCode), country: cleanName(address.country, "Turkey") };
 
-    const { data: order, error: orderError } = await supabaseAdmin.from("commerce_orders").insert({ order_number: orderNumber(), status: "pending_payment", payment_status: "pending", currency, subtotal, discount_total: discountTotal, shipping_total: 0, total, customer_snapshot: customerSnapshot, address_snapshot: addressSnapshot, terms_accepted: true, shipping_terms_accepted: true, terms_accepted_at: new Date().toISOString(), shipping_terms_accepted_at: new Date().toISOString() }).select("id,order_number,total").single();
+    const { data: order, error: orderError } = await getSupabaseAdmin().from("commerce_orders").insert({ order_number: orderNumber(), status: "pending_payment", payment_status: "pending", currency, subtotal, discount_total: discountTotal, shipping_total: 0, total, customer_snapshot: customerSnapshot, address_snapshot: addressSnapshot, terms_accepted: true, shipping_terms_accepted: true, terms_accepted_at: new Date().toISOString(), shipping_terms_accepted_at: new Date().toISOString() }).select("id,order_number,total").single();
     if (orderError) throw new Error(`ORDER_CREATE_FAILED:${orderError.message}`); createdOrderId = order.id;
 
-    const { error: itemError } = await supabaseAdmin.from("commerce_order_items").insert(safeItems.map(({ id, product, quantity, pricing, options }) => ({ order_id: order.id, product_id: id, product_line: product.branch, product_name_snapshot: product.name, category_snapshot: product.category, options_snapshot: options, quantity, unit_list_price: pricing.listPrice, unit_discount: pricing.unitDiscount, unit_final_price: pricing.finalPrice, line_total: pricing.finalPrice * quantity })));
+    const { error: itemError } = await getSupabaseAdmin().from("commerce_order_items").insert(safeItems.map(({ id, product, quantity, pricing, options }) => ({ order_id: order.id, product_id: id, product_line: product.branch, product_name_snapshot: product.name, category_snapshot: product.category, options_snapshot: options, quantity, unit_list_price: pricing.listPrice, unit_discount: pricing.unitDiscount, unit_final_price: pricing.finalPrice, line_total: pricing.finalPrice * quantity })));
     if (itemError) throw new Error(`ORDER_ITEMS_CREATE_FAILED:${itemError.message}`);
 
     const [name, ...surnameParts] = cleanName(customer.fullName).split(/\s+/), surname = surnameParts.join(" ") || name, siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
@@ -62,15 +62,15 @@ export async function POST(request) {
     const result = await createCheckoutForm({ locale: Iyzipay.LOCALE.EN, conversationId, price: total.toFixed(2), paidPrice: total.toFixed(2), currency: iyziCurrency, basketId: order.order_number, paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT, callbackUrl: `${siteUrl}/api/payment/callback/${encodeURIComponent(conversationId)}`, enabledInstallments: [1], buyer: { id: order.order_number, name, surname, gsmNumber: cleanName(customer.phone), email: customerSnapshot.email, registrationAddress: addressSnapshot.address, city: addressSnapshot.city, country: addressSnapshot.country, zipCode: addressSnapshot.postalCode, ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1" }, shippingAddress: { contactName: customerSnapshot.fullName, city: addressSnapshot.city, country: addressSnapshot.country, address: addressSnapshot.address, zipCode: addressSnapshot.postalCode }, billingAddress: { contactName: customerSnapshot.fullName, city: addressSnapshot.city, country: addressSnapshot.country, address: addressSnapshot.address, zipCode: addressSnapshot.postalCode }, basketItems: safeItems.map(({ id, product, quantity, pricing }) => ({ id: `BI-${id}`, name: product.name, category1: product.category, itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL, price: (pricing.finalPrice * quantity).toFixed(2) })) });
 
     if (result.status !== "success" || !result.paymentPageUrl || !result.token) {
-      await supabaseAdmin.from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", order.id);
+      await getSupabaseAdmin().from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", order.id);
       return NextResponse.json({ error: result.errorMessage || "Unable to initialize payment." }, { status: 502 });
     }
-    const { error: paymentError } = await supabaseAdmin.from("commerce_payments").insert({ order_id: order.id, provider: "iyzico", conversation_id: conversationId, token: result.token, provider_status: result.status, payment_status: "pending", amount: total, currency });
+    const { error: paymentError } = await getSupabaseAdmin().from("commerce_payments").insert({ order_id: order.id, provider: "iyzico", conversation_id: conversationId, token: result.token, provider_status: result.status, payment_status: "pending", amount: total, currency });
     if (paymentError) throw new Error(`PAYMENT_RECORD_FAILED:${paymentError.message}`);
     return NextResponse.json({ paymentPageUrl: result.paymentPageUrl, token: result.token, conversationId, orderNumber: order.order_number, currency, region });
   } catch (error) {
     console.error("Payment initialization error", error);
-    if (createdOrderId) await supabaseAdmin.from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", createdOrderId);
+    if (createdOrderId) await getSupabaseAdmin().from("commerce_orders").update({ status: "payment_failed", payment_status: "failed", updated_at: new Date().toISOString() }).eq("id", createdOrderId);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to initialize payment." }, { status: 500 });
   }
 }

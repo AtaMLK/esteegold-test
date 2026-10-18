@@ -1,20 +1,7 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServiceClient as db, requireAdmin as isAdmin, getRequestUser, isAdminUser } from "../../../_lib/server-supabase";
 
-function db() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase server configuration is missing.");
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-}
 
-async function isAdmin(request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const { data: { user } } = await db().auth.getUser(token);
-  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
-  return !!user?.email && allowed.includes(user.email.toLowerCase());
-}
 
 export async function GET(request) {
   try {
@@ -59,17 +46,18 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    if (!(await isAdmin(request))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const user = await getRequestUser(request);
+    if (!isAdminUser(user)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const body = await request.json();
-    if (!body.product_id || !Number.isInteger(Number(body.delta)) || !body.reason?.trim()) {
-      return NextResponse.json({ error: "Product, integer adjustment and reason are required." }, { status: 400 });
+    if (!body.product_id || !Number.isInteger(Number(body.delta)) || Number(body.delta) === 0 || !body.reason?.trim()) {
+      return NextResponse.json({ error: "Product, non-zero integer adjustment and reason are required." }, { status: 400 });
     }
 
     const { data, error } = await db().rpc("adjust_commerce_inventory", {
       p_product_id: String(body.product_id),
       p_delta: Number(body.delta),
       p_reason: String(body.reason).trim(),
-      p_actor: body.actor || null,
+      p_actor: user.email,
       p_metadata: body.metadata || {},
     });
 

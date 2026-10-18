@@ -1,22 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServiceClient as adminClient, requireAdmin } from "../../../_lib/server-supabase";
+import { normalizeProductOptions } from "../../../_lib/commerce/product-options";
 
-function adminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase server configuration is missing.");
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-}
 
-async function requireAdmin(request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const client = adminClient();
-  const { data: { user }, error } = await client.auth.getUser(token);
-  if (error || !user?.email) return false;
-  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
-  return allowed.includes(user.email.toLowerCase());
-}
 
 async function withStock(products) {
   if (!products?.length) return [];
@@ -58,7 +44,7 @@ export async function GET(request) {
     if (error && /price_eur|price_try|price_usd_override|gold_price_eur|gold_price_try|material_options|size_type|stone_options|column/i.test(error.message || "")) {
       const legacy = await client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active,created_at,updated_at").order("created_at", { ascending: false });
       if (legacy.error) throw legacy.error;
-      data = (legacy.data || []).map((p) => ({ ...p, material_options: ["925 Sterling Silver"], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "", gold_price_eur: null, gold_price_try: null }));
+      data = (legacy.data || []).map((p) => ({ ...p, material_options: [], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "", gold_price_eur: null, gold_price_try: null }));
     }
     if (error && !data) throw error;
     return NextResponse.json({ products: await enrich(data || []) });
@@ -68,30 +54,19 @@ export async function GET(request) {
   }
 }
 
-function arrayText(value, fallback = []) {
-  if (!Array.isArray(value)) return fallback;
-  return value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 30);
-}
-
-function optionObjects(value) {
-  if (!Array.isArray(value)) return [];
-  return value.map((item) => {
-    if (typeof item === "string") return { name: item.trim() };
-    return { name: String(item?.name || "").trim(), note: String(item?.note || "").trim() };
-  }).filter((item) => item.name).slice(0, 30);
-}
-
 function clean(body, { requireStock = false } = {}) {
+  const options = normalizeProductOptions(body);
   const discount = Number(body.discount_percent ?? 0);
   const priceEur = Number(body.price_eur ?? body.price);
   const priceTry = body.price_try === "" || body.price_try == null ? null : Number(body.price_try);
   const priceUsdOverride = body.price_usd_override === "" || body.price_usd_override == null ? null : Number(body.price_usd_override);
-  const goldPriceEur = body.gold_price_eur === "" || body.gold_price_eur == null ? null : Number(body.gold_price_eur);
-  const goldPriceTry = body.gold_price_try === "" || body.gold_price_try == null ? null : Number(body.gold_price_try);
-  const sizeType = ["none", "ring", "bracelet", "necklace"].includes(body.size_type) ? body.size_type : "none";
-  const materialOptions = arrayText(body.material_options, ["925 Sterling Silver"]); if (body.gold_available && !materialOptions.some((value) => /gold/i.test(value))) materialOptions.push("18K Gold");
-  const sizeOptions = arrayText(body.size_options);
-  const stoneOptions = optionObjects(body.stone_options);
+  const goldPriceEur = options.gold_price_eur === "" || options.gold_price_eur == null ? null : Number(options.gold_price_eur);
+  const goldPriceTry = options.gold_price_try === "" || options.gold_price_try == null ? null : Number(options.gold_price_try);
+  const sizeType = options.size_type;
+  const materialOptions = options.material_options;
+  const sizeOptions = options.size_options;
+  const stoneOptions = options.stone_options;
+  if (options.gold_available && !materialOptions.some((value) => /gold/i.test(value))) materialOptions.push("18K Gold");
   if (!body.name?.trim()) throw new Error("Product name is required.");
   if (!Number.isFinite(priceEur) || priceEur < 0) throw new Error("EUR price must be a valid non-negative number.");
   if (priceTry != null && (!Number.isFinite(priceTry) || priceTry < 0)) throw new Error("TRY price must be a valid non-negative number.");
@@ -101,6 +76,8 @@ function clean(body, { requireStock = false } = {}) {
   if (!Number.isFinite(discount) || discount < 0 || discount > 100) throw new Error("Discount must be between 0 and 100.");
   if (!["EsteeGold", "EsteeBags"].includes(body.branch)) throw new Error("Invalid branch. Choose EsteeGold or EsteeBags.");
   if (sizeType !== "none" && !sizeOptions.length) throw new Error("Add at least one size option for this product.");
+  if (options.stone_required && (!stoneOptions.length || stoneOptions.some((stone) => stone.name === "None"))) throw new Error("Choose at least one stone and remove None when stone selection is required.");
+  if (options.gold_available && goldPriceEur == null) throw new Error("Add a gold EUR price when gold can be ordered.");
   let stock;
   if (requireStock || body.stock !== undefined) {
     stock = Number(body.stock ?? 0);
@@ -125,8 +102,8 @@ function clean(body, { requireStock = false } = {}) {
       size_type: sizeType,
       size_options: sizeOptions,
       stone_options: stoneOptions,
-      stone_required: body.stone_required === true,
-      gold_available: body.gold_available === true,
+      stone_required: options.stone_required,
+      gold_available: options.gold_available,
       customization_note: body.customization_note?.trim() || "",
       gold_price_eur: goldPriceEur,
       gold_price_try: goldPriceTry,
@@ -157,23 +134,18 @@ export async function PATCH(request) {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     const body = await request.json();
     if (!body.id) throw new Error("Product id is required.");
+    if (body.stock !== undefined) return NextResponse.json({ error: "Use Inventory adjustments to change stock safely and preserve the audit history." }, { status: 409 });
     const client = adminClient();
     if (Object.keys(body).every((key) => ["id", "active"].includes(key))) {
+      if (typeof body.active !== "boolean") throw new Error("Choose whether this product is active.");
       const { data, error } = await client.from("commerce_products").update({ active: body.active === true, updated_at: new Date().toISOString() }).eq("id", body.id).select().single();
       if (error) throw error;
       const [product] = await enrich([data]);
       return NextResponse.json({ product });
     }
-    const { row, stock } = clean(body);
+    const { row } = clean(body);
     const { data, error } = await client.from("commerce_products").update(row).eq("id", body.id).select().single();
     if (error) throw error;
-    if (stock !== undefined) {
-      const { data: existing } = await client.from("commerce_inventory").select("product_id").eq("product_id", body.id).maybeSingle();
-      const inventoryResult = existing
-        ? await client.from("commerce_inventory").update({ available_quantity: stock, updated_at: new Date().toISOString() }).eq("product_id", body.id)
-        : await client.from("commerce_inventory").insert({ product_id: body.id, available_quantity: stock, reserved_quantity: 0 });
-      if (inventoryResult.error) throw inventoryResult.error;
-    }
     const [product] = await enrich([data]);
     return NextResponse.json({ product });
   } catch (error) {

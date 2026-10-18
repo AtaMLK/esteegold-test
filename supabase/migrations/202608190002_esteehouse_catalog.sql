@@ -26,7 +26,7 @@ values
 ('1','Essential Ring','EsteeGold','Rings','A refined everyday ring.','/images/Products-page/Ring.jpg',69,0),
 ('2','Layered Set','EsteeGold','Sets','A layered jewelry combination.','/images/Products-page/Combinations.jpg',118,0),
 ('3','Statement Earrings','EsteeGold','Earrings','A statement pair with character.','/images/Products-page/Earrings.jpg',48,0),
-('4','Hand Combination','EsteeGold','Bracelets','A distinctive hand combination.','/images/Products-page/hand combinations.jpg',92,0),
+('4','Hand Combination','EsteeGold','Bracelets','A distinctive hand combination.','/images/Products-page/hand Combinations.jpg',92,0),
 ('5','Classic Earrings','EsteeGold','Earrings','A classic everyday pair.','/images/Products-page/Earrings-2.jpg',39.99,0),
 ('6','Everyday Bracelet','EsteeGold','Bracelets','A simple everyday bracelet.','/images/Products-page/Bracelets.jpg',59,0)
 on conflict (id) do update set name=excluded.name,branch=excluded.branch,category=excluded.category,description=excluded.description,image_url=excluded.image_url,price=excluded.price,updated_at=now();

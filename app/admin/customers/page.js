@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { RefreshCw, Search, Users } from "lucide-react";
 import { supabase } from "../../_lib/supabase";
+import { formatRevenue, revenueByCurrency } from "../../_lib/commerce/reporting";
 
 export default function AdminCustomersPage() {
   const [orders, setOrders] = useState([]),
@@ -46,11 +47,13 @@ export default function AdminCustomersPage() {
         email: c.email || "—",
         phone: c.phone || "—",
         orders: 0,
-        spent: 0,
+        paidOrders: [],
+        spentByCurrency: {},
         lastOrder: order.created_at,
       };
       previous.orders += 1;
-      previous.spent += Number(order.total || 0);
+      previous.paidOrders.push(order);
+      previous.spentByCurrency = revenueByCurrency(previous.paidOrders);
       if (new Date(order.created_at) > new Date(previous.lastOrder))
         previous.lastOrder = order.created_at;
       map.set(key, previous);
@@ -61,7 +64,7 @@ export default function AdminCustomersPage() {
           .toLowerCase()
           .includes(query.toLowerCase()),
       )
-      .sort((a, b) => b.spent - a.spent);
+      .sort((first, second) => new Date(second.lastOrder) - new Date(first.lastOrder));
   }, [orders, query]);
   return (
     <main className="min-h-screen bg-[var(--paper)] px-5 pb-24 pt-28 md:px-10">
@@ -137,7 +140,7 @@ export default function AdminCustomersPage() {
                       <span className="text-black/40">{c.phone}</span>
                     </td>
                     <td className="text-sm">{c.orders}</td>
-                    <td className="text-sm">€{c.spent.toFixed(2)}</td>
+                    <td className="text-sm">{formatRevenue(c.spentByCurrency)}</td>
                     <td className="text-sm">
                       {new Date(c.lastOrder).toLocaleDateString()}
                     </td>

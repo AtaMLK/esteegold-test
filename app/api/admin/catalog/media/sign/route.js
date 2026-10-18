@@ -1,20 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServiceClient as db, requireAdmin } from "../../../../../_lib/server-supabase";
 
-function db() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Supabase server configuration is missing.");
-  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-}
-async function requireAdmin(request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const { data: { user }, error } = await db().auth.getUser(token);
-  if (error || !user?.email) return false;
-  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
-  return allowed.includes(user.email.toLowerCase());
-}
 const IMAGE_MAX = 15 * 1024 * 1024;
 const VIDEO_MAX = 15 * 1024 * 1024;
 const ALLOWED_VIDEO = new Set(["video/mp4","video/webm","video/quicktime"]);
@@ -36,6 +22,7 @@ export async function POST(request) {
     for (const file of files) {
       const kind = file.kind === "video" ? "video" : file.kind === "image" ? "image" : null;
       const size = Number(file.size || 0);
+      if (!Number.isSafeInteger(size) || size <= 0) throw new Error("Every file must have a valid, positive byte size.");
       const contentType = String(file.contentType || "");
       if (!kind) throw new Error("Every file must be an image or video.");
       if (kind === "image" && (!contentType.startsWith("image/") || size > IMAGE_MAX)) throw new Error("Images must be valid image files up to 15 MB.");
