@@ -1,10 +1,8 @@
+import { pageMetadata } from "../_lib/seo";
 import Main from "../_components/ui/main";
 
-export const metadata = {
-  title: "Handmade Bags — EsteeBags | EsteeHouse",
-  description: "Discover the EsteeBags collection: handmade bags, expressive textures and a story in every knot. Explore the shapes and find your next companion.",
-  alternates: { canonical: "/bags" },
-};
+export const metadata = pageMetadata({ title: "Handmade Bags — EsteeBags | EsteeHouse", description: "Explore EsteeBags, the handmade bag collection from EsteeHouse in Türkiye. Discover current bag designs, textures and individual product details.", path: "/bags" });
+export const dynamic = "force-dynamic";
 
 export default function BagsPage() {
   return <Main collection="bags" />;

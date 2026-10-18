@@ -58,6 +58,7 @@ export async function POST(request) {
     for (const file of files) {
       const kind = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : null;
       if (!kind) throw new Error("Unsupported file type.");
+      if (kind === "image" && file.type !== "image/webp") throw new Error("Convert images to WebP before uploading.");
       if (kind === "image" && file.size > 15 * 1024 * 1024) throw new Error("Image is too large. Maximum is 15 MB.");
       if (kind === "video" && file.size > 15 * 1024 * 1024) throw new Error("Video is too large. Maximum is 15 MB.");
       const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-");

@@ -1,0 +1,130 @@
+"use client";
+
+import { useAppearance } from "../context/appearanceContext";
+
+import Image from "next/image";
+import { categoryLabel, localizedProduct } from "../_lib/localization";
+import Link from "../_components/ui/localized-link";
+import { ArrowUpRight, Search, SlidersHorizontal, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import ProductVideo from "../_components/ui/product-video";
+import WishlistButton from "../_components/ui/wishlist-button";
+import { collectionLabel, normalizeCollection } from "../_components/ui/collection-label";
+
+function money(product) {
+  const currency = product.regional_price?.currency || "EUR";
+  const symbol = currency === "TRY" ? "₺" : currency === "USD" ? "$" : "€";
+  const base = Number(product.regional_price?.amount ?? product.price_eur ?? product.price ?? 0);
+  const discount = Number(product.discount_percent || 0);
+  return { symbol, list: base, final: Math.max(0, base - base * discount / 100), discounted: discount > 0 };
+}
+
+function productImage(product, index = 0) {
+  return product.image_url || product.media?.find((m) => m.kind === "image")?.url || `/images/Hero-bg-${(index % 4) + 1}.jpg`;
+}
+
+function CatalogContent({ initialData, initialFilters }) {
+  const { translateText, locale, href } = useAppearance();
+  const params = useSearchParams();
+  const locationQuery = params.toString();
+  const [taxonomy, setTaxonomy] = useState({ branches: initialData.branches, categories: initialData.categories });
+  const [products, setProducts] = useState(initialData.products);
+  const [branch, setBranch] = useState(initialFilters.branch);
+  const [category, setCategory] = useState(initialFilters.category);
+  const [search, setSearch] = useState(initialFilters.search);
+  const [searchInput, setSearchInput] = useState(initialFilters.search);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const requestRef = useRef(null);
+
+  const loadCatalog = useCallback(async () => {
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
+    setLoading(true); setError("");
+    const query = new URLSearchParams();
+
+    try {
+      const response = await fetch(`/api/catalog${query.toString() ? `?${query.toString()}` : ""}`, { cache: "no-store", signal: controller.signal });
+      const data = await response.json();
+      if (controller.signal.aborted) return;
+      if (!response.ok) throw new Error(data.error || "Catalog unavailable");
+      setProducts(data.products || []);
+      setTaxonomy({ branches: data.branches || [], categories: data.categories || [] });
+    } catch (requestError) { if (!controller.signal.aborted) { setError(requestError.message || "Catalog unavailable"); setProducts([]); } }
+    finally { if (!controller.signal.aborted) setLoading(false); }
+  }, []);
+
+  useEffect(() => () => requestRef.current?.abort(), []);
+  useEffect(() => {
+    const selected = new URLSearchParams(locationQuery);
+    setBranch(normalizeCollection(selected.get("branch")));
+    setCategory(selected.get("category") || "all");
+    setSearch(selected.get("search") || "");
+    setSearchInput(selected.get("search") || "");
+  }, [locationQuery]);
+  const canonicalBranch = branch === "silver" ? "EsteeGold" : branch === "bags" ? "EsteeBags" : branch;
+  const categories = useMemo(() => ["all", ...Array.from(new Set(taxonomy.categories.filter((item) => canonicalBranch === "all" || item.branch === canonicalBranch).map((item) => item.name)))], [taxonomy.categories, canonicalBranch]);
+  const visible = useMemo(() => products.filter((product) =>
+    (canonicalBranch === "all" || product.branch === canonicalBranch) &&
+    (category === "all" || String(product.category || "").trim().toLowerCase() === category.trim().toLowerCase()) &&
+    (!search || [product.name, product.category, categoryLabel(product.category, locale), product.branch, product.description, localizedProduct(product, locale).description].filter(Boolean).some((value) => String(value).toLowerCase().includes(search.toLowerCase())))
+  ), [products, canonicalBranch, category, search, locale]);
+  function updateFilters(nextBranch, nextCategory, nextSearch) {
+    const query = new URLSearchParams();
+    if (nextBranch !== "all") query.set("branch", nextBranch);
+    if (nextCategory !== "all") query.set("category", nextCategory);
+    if (nextSearch) query.set("search", nextSearch);
+    window.history.pushState({}, "", href("/categories" + (query.toString() ? "?" + query : "")));
+  }
+  function chooseBranch(nextBranch) { updateFilters(nextBranch, "all", search); }
+  function submitSearch(event) { event.preventDefault(); updateFilters(branch, category, searchInput.trim()); }
+  function clearSearch() { setSearchInput(""); updateFilters(branch, category, ""); }
+
+  return (
+    <main className="catalog-page min-h-screen bg-[var(--paper)] px-5 pb-28 pt-28 md:px-10 md:pt-32">
+      <div className="mx-auto max-w-[1440px]">
+        <section className="catalog-intro grid gap-10 border-b border-black/10 pb-12 md:grid-cols-[1.25fr_.75fr] md:items-end md:pb-16">
+          <div className="catalog-visual" aria-hidden="true"><Image src={branch === "bags" ? "/images/bags/bag1.jpg" : "/images/Products-page/rings-title.jpg"} alt="" fill sizes="130px" /></div>
+          <div><p className="text-[9px] uppercase tracking-[.32em] text-black/40">{translateText("The collection /")} {branch === "all" ? "EsteeBags & EsteeGold" : collectionLabel(branch)}</p><h1 className="mt-6 max-w-5xl font-serif text-[clamp(4.3rem,11vw,12rem)] leading-[.69] tracking-[-.08em]">{translateText("Find what")}<br/><i>{translateText("stays.")}</i></h1></div>
+          <div className="md:pb-1"><p className="max-w-md text-sm leading-7 text-black/55">{translateText("A small collection of things made to be worn, carried and kept. Look slowly. The details are where the pieces become yours.")}</p><Link href="/about" className="mt-7 inline-flex items-center gap-2 text-[9px] uppercase tracking-[.25em]">{translateText("How the house makes")}<ArrowUpRight size={14}/></Link></div>
+        </section>
+
+        <section className="catalog-filter-bar sticky z-30 -mx-5 border-b border-black/10 px-5 py-4 backdrop-blur-xl md:-mx-10 md:px-10" aria-label="Filter the collection">
+          <div className="mx-auto flex max-w-[1440px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {[["all",translateText("All pieces")], ...taxonomy.branches.map((item) => [normalizeCollection(item.name), item.name])].map(([value,label]) => <button key={value} type="button" aria-pressed={branch === value} onClick={() => chooseBranch(value)} className={`shrink-0 rounded-full border px-5 py-2.5 text-[9px] uppercase tracking-[.15em] transition ${branch === value ? "border-black bg-black text-white" : "border-black/15 hover:border-black/35"}`}>{label}</button>)}
+            </div>
+            <div className="flex items-center gap-5"><label className="flex shrink-0 items-center gap-2 text-[8px] uppercase tracking-[.2em] text-black/45"><SlidersHorizontal size={13}/><select aria-label={translateText("Category")} value={category} onChange={(event) => updateFilters(branch, event.target.value, search)} className="bg-transparent outline-none"><option value="all">{translateText("All categories")}</option>{categories.slice(1).map((item) => <option key={item} value={item}>{categoryLabel(item, locale)}</option>)}</select></label><form onSubmit={submitSearch} className="flex min-w-0 flex-1 items-center gap-2 border-b border-black/20 py-1 lg:w-[360px]"><Search size={15}/><input value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder={translateText("Search the collection")} aria-label={translateText("Search the collection")} className="min-w-0 flex-1 bg-transparent py-2 text-[11px] outline-none"/>{searchInput && <button type="button" onClick={clearSearch} aria-label={translateText("Clear search")}><X size={14}/></button>}<button type="submit" className="text-[8px] uppercase tracking-[.2em]">{translateText("Search")}</button></form></div>
+          </div>
+        </section>
+
+        {!loading && <p role="status" className="mt-5 text-xs text-black/60">{visible.length} {visible.length === 1 ? translateText("piece") : translateText("pieces")} {translateText("matching your selection")}</p>}
+        {search && !loading && <div className="py-5 text-[9px] uppercase tracking-[.2em] text-black/40">Search / “{search}” / {visible.length} {translateText("pieces")}</div>}
+        {loading ? <section className="grid min-h-[55vh] place-items-center text-[9px] uppercase tracking-[.3em] text-black/35">{translateText("Opening the collection…")}</section> : error ? <section className="grid min-h-[55vh] place-items-center text-center"><div><p className="font-serif text-5xl tracking-[-.04em]">{translateText("The collection is")}<br/><i>{translateText("quiet for a moment.")}</i></p><p className="mt-4 max-w-sm text-sm leading-7 text-black/45">{error}</p><button onClick={() => loadCatalog(branch, search)} className="mt-7 rounded-full bg-black px-6 py-3 text-[8px] uppercase tracking-[.2em] text-white">{translateText("Try again")}</button></div></section> : visible.length === 0 ? <section className="grid min-h-[45vh] place-items-center text-center"><div><p className="font-serif text-5xl">{translateText("Nothing here yet.")}</p><p className="mt-3 text-sm text-black/45">{translateText("Try another category or search.")}</p></div></section> : (
+          <section className="grid grid-cols-2 gap-x-3 gap-y-14 pt-10 md:grid-cols-12 md:gap-x-5 md:gap-y-20 md:pt-16">
+            {visible.map((product, index) => {
+              const price = money(product); const image = productImage(product, index); const feature = index === 0; const wide = index > 0 && index % 7 === 0;
+              return <Link key={product.id} href={`/product/${product.id}`} className={`catalog-card ${feature ? "col-span-2 md:col-span-7 md:row-span-2" : wide ? "col-span-2 md:col-span-8" : "col-span-1 md:col-span-5"} group relative block`}>
+                <div className={`relative overflow-hidden bg-[#d8d1c4] ${feature ? "aspect-[.92] md:aspect-[.88]" : wide ? "aspect-[1.55]" : "aspect-[.78]"}`}>
+                  <Image src={image} alt={product.name} fill quality={95} sizes={feature ? "(max-width: 768px) 100vw, 58vw" : "(max-width: 768px) 50vw, 42vw"} className="object-cover transition duration-1000 ease-out group-hover:scale-[1.045]"/>
+                  {product.media?.find((item) => item.kind === "video") && <ProductVideo preview title={product.name} src={product.media.find((item) => item.kind === "video").url}/>}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-70"/>
+                  <div className="absolute left-3 top-3 flex items-center gap-2 md:left-5 md:top-5"><span className="rounded-full border border-white/40 bg-black/15 px-3 py-1.5 text-[7px] uppercase tracking-[.2em] text-white backdrop-blur">{String(index + 1).padStart(2,"0")}</span>{price.discounted && <span className="rounded-full bg-white px-3 py-1.5 text-[7px] uppercase tracking-[.2em]">-{product.discount_percent}%</span>}</div>
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3 text-white md:bottom-5 md:left-5 md:right-5"><div><p className="text-[7px] uppercase tracking-[.2em] text-white/65">{collectionLabel(product.branch)} / {categoryLabel(product.category, locale)}</p><h2 className={`mt-1 font-serif tracking-[-.035em] ${feature ? "text-3xl md:text-6xl" : "text-xl md:text-3xl"}`}>{product.name}</h2></div><WishlistButton productId={product.id} compact/></div>
+                </div>
+                <div className="mt-3 flex items-start justify-between gap-4"><p className="max-w-[70%] text-[9px] leading-4 text-black/40">{localizedProduct(product, locale).description}</p><div className="text-right text-[10px]">{price.discounted && <span className="mr-1 text-black/30 line-through">{price.symbol}{price.list.toFixed(2)}</span>}<span>{price.symbol}{price.final.toFixed(2)}</span></div></div>
+              </Link>;
+            })}
+          </section>
+        )}
+      </div>
+    </main>
+  );
+}
+
+export default function CatalogBrowser({ initialData, initialFilters }) {
+  const { translateText, locale } = useAppearance();
+  return <Suspense fallback={<main className="min-h-screen px-6 pt-32">{translateText("Opening the collection…")}</main>}><CatalogContent initialData={initialData} initialFilters={initialFilters}/></Suspense>;
+}

@@ -3,6 +3,9 @@ import { createServerClient } from "@supabase/ssr";
 import { isAdminUser } from "./app/_lib/server-supabase";
 
 export async function middleware(request) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-estee-locale", request.nextUrl.pathname === "/tr" || request.nextUrl.pathname.startsWith("/tr/") ? "tr" : "en");
+  if (!request.nextUrl.pathname.startsWith("/admin")) return NextResponse.next({ request: { headers: requestHeaders } });
   let response = NextResponse.next({ request });
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL, process.env.NEXT_PUBLIC_SUPABASE_API_KEY, {
     cookies: {
@@ -26,4 +29,4 @@ export async function middleware(request) {
   return response;
 }
 
-export const config = { matcher: ["/admin/:path*"] };
+export const config = { matcher: ["/((?!api|_next|.*\\..*).*)"] };

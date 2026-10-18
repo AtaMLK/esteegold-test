@@ -1,3 +1,4 @@
+import { productKind, MATERIAL_OPTIONS } from "../../../_lib/commerce/product-options";
 import Iyzipay from "iyzipay";
 import { NextResponse } from "next/server";
 import { getProductMap } from "../../../_lib/commerce/catalog";
@@ -30,7 +31,10 @@ export async function POST(request) {
       const regional = getRegionalPrice(product, { eur_usd_rate: product.pricing_rate_eur_usd || 1.08 }, region);
       const selectedOptions = item.options && typeof item.options === "object" ? item.options : {};
       const material = String(selectedOptions.material || "");
-      const isGold = material.toLowerCase().includes("gold");
+      const isGold = material === MATERIAL_OPTIONS[1];
+      if (productKind(product) === "silver" && (!MATERIAL_OPTIONS.includes(material) || !product.material_options?.includes(material))) throw new Error(`INVALID_MATERIAL:${product.name}`);
+      if (isGold && !product.gold_available) throw new Error(`GOLD_PRICE_NOT_CONFIGURED:${product.name}`);
+      if (productKind(product) === "silver" && (product.size_type === "none" || !product.size_options?.length)) throw new Error(`SIZE_NOT_CONFIGURED:${product.name}`);
       const materialNames = (product.material_options || []).map((value) => typeof value === "string" ? value : value?.name).filter(Boolean);
       if (material && materialNames.length && !materialNames.includes(material)) throw new Error(`INVALID_MATERIAL:${product.name}`);
       const stoneNames = (product.stone_options || []).map((value) => typeof value === "string" ? value : value?.name).filter(Boolean);

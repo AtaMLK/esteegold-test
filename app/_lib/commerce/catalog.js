@@ -3,7 +3,7 @@ import { sampleProducts } from "./sample-products";
 
 
 function enrichProduct(product) {
-  const branch = product.branch === "EsteeGold" ? "the silver piece" : "the bag";
+  const branch = product.product_kind === "silver" || product.branch === "EsteeGold" ? "the silver piece" : product.product_kind === "bag" || product.branch === "EsteeBags" ? "the bag" : "the piece";
   return {
     ...product,
     story: product.story || `I wanted ${branch} to feel personal rather than overworked. The shape is kept clear, the material is allowed to show itself, and the small differences are part of why the piece belongs here.`,
@@ -20,13 +20,13 @@ function enrichProduct(product) {
 }
 
 async function readDatabaseProducts(client, branch, ids) {
-  const select = "id,name,branch,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,story,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,gold_price_eur,gold_price_try";
-  let query = client.from("commerce_products").select(select).eq("active", true);
+  const select = "id,name,branch,product_kind,category,description,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,story,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,gold_price_eur,gold_price_try,updated_at";
+  let query = client.from("commerce_products").select(select).eq("active", true).is("deleted_at", null);
   if (branch) query = query.eq("branch", branch);
   if (Array.isArray(ids)) query = query.in("id", ids);
   let result = await query;
   if (result.error) {
-    let legacyQuery = client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active").eq("active", true);
+    let legacyQuery = client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active").eq("active", true).is("deleted_at", null);
     if (branch) legacyQuery = legacyQuery.eq("branch", branch);
     if (Array.isArray(ids)) legacyQuery = legacyQuery.in("id", ids);
     const legacyResult = await legacyQuery;
@@ -65,8 +65,7 @@ export async function getProducts({ branch = null, ids = null, search = "", incl
     .filter((product) => !branch || product.branch === branch)
     .filter((product) => !Array.isArray(ids) || ids.map(String).includes(String(product.id)))
     .filter((product) => !normalizedSearch || [product.name, product.category, product.branch, product.description, product.story].filter(Boolean).some((value) => String(value).toLowerCase().includes(normalizedSearch)));
-  const media = await readMedia(client, databaseProducts.map((p) => String(p.id)));
-  const settings = await readPricingSettings(client);
+  const [media, settings] = await Promise.all([readMedia(client, databaseProducts.map((product) => String(product.id))), readPricingSettings(client)]);
   return products.map((product) => {
     const eur = Number(product.price_eur ?? product.price ?? 0);
     const tryPrice = Number(product.price_try ?? 0);

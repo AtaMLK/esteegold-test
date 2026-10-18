@@ -25,7 +25,7 @@ export async function POST(request) {
       if (!Number.isSafeInteger(size) || size <= 0) throw new Error("Every file must have a valid, positive byte size.");
       const contentType = String(file.contentType || "");
       if (!kind) throw new Error("Every file must be an image or video.");
-      if (kind === "image" && (!contentType.startsWith("image/") || size > IMAGE_MAX)) throw new Error("Images must be valid image files up to 15 MB.");
+      if (kind === "image" && (contentType !== "image/webp" || size > IMAGE_MAX)) throw new Error("Images must be WebP files up to 15 MB.");
       if (kind === "video" && (!ALLOWED_VIDEO.has(contentType) || size > VIDEO_MAX)) throw new Error("Videos must be MP4, WebM or MOV and no larger than 15 MB.");
       const safeName = String(file.name || "media").toLowerCase().replace(/[^a-z0-9._-]+/g, "-");
       const path = productId + "/" + Date.now() + "-" + crypto.randomUUID() + "-" + safeName;

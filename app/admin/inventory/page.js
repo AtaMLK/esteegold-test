@@ -222,7 +222,7 @@ export default function InventoryPage() {
 
         {adjust && (
           <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-5">
-            <div role="dialog" aria-modal="true" aria-labelledby="inventory-dialog-title" className="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-[var(--paper)] p-7">
+            <div role="dialog" aria-modal="true" aria-labelledby="inventory-dialog-title" className="admin-inventory-editor"><div className="admin-inventory-body">
               <p className="text-[8px] uppercase tracking-[.2em] text-black/40">Inventory adjustment</p>
               <h2 id="inventory-dialog-title" className="mt-2 font-serif text-3xl">{adjust.product_name}</h2>
               <p className="mt-2 text-[9px] text-black/35">{adjust.product_id}</p>
@@ -246,7 +246,7 @@ export default function InventoryPage() {
                 className="mt-4 w-full border-b p-3 outline-none"
               />
 
-              <div className="mt-6 flex gap-2">
+              </div><div className="admin-inventory-footer flex gap-2">
                 <button type="button" disabled={saving} onClick={() => setAdjust(null)} className="flex-1 rounded-full border p-3">
                   Cancel
                 </button>

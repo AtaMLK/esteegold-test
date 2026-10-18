@@ -190,6 +190,11 @@
 .house-closing-bottom > p { max-width: 370px; }
 .house-closing-links { display: flex; gap: 35px; flex-wrap: wrap; }
 .house-closing-note { display: block; margin-top: 65px; font: 8px/1.5 monospace; color: #69705a; text-transform: uppercase; letter-spacing: .15em; }
+.journey-mode { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 18px 5vw 0; font: 9px/1.5 monospace; color: #565e49; letter-spacing: .02em; }
+.journey-mode button { min-height: 32px; border-bottom: 1px solid currentColor; }
+.journey-mode button:disabled { opacity: .6; cursor: not-allowed; }
+.journey-mode span { font: 10px/1.5 Arial, sans-serif; color: #686b5e; }
+.scroll-journey[data-motion="full"] .journey-mode { position: absolute; top: 164px; right: 3.5vw; z-index: 8; padding: 0; }
 @media (min-width: 701px) {
   .journey-chapter { padding-top: 190px; }
   .journey-copy h1, .journey-copy h2 { font-size: clamp(50px, 6.4vw, 105px); }
@@ -198,8 +203,38 @@
 @media (max-width: 700px) {
   .collection-switcher { padding-top: 95px; }
   .collection-switcher a { padding: 0 13px; min-height: 34px; font-size: 8px; gap: 14px; }
-  .scroll-journey[data-motion="full"] .collection-switcher { top: 108px; left: 8vw; }
-  .scroll-journey[data-motion="full"] .journey-chapter { padding-top: 158px; }
+  .scroll-journey[data-motion="full"] .collection-switcher { top: 120px; left: 8vw; }
+  .scroll-journey[data-motion="full"] .journey-chapter { padding-top: 170px; }
   .journey-copy h1 em, .journey-copy h2 em { white-space: normal; }
   .house-closing-links { gap: 20px; }
+  .scroll-journey[data-motion="full"] .journey-mode { top: 82px; left: 8vw; right: auto; font-size: 8px; }
+}
+@media (min-width: 701px) and (max-height: 700px) {
+  .scroll-journey[data-motion="full"] .journey-stage,
+  .scroll-journey[data-motion="full"] .journey-chapter { min-height: 0; }
+  .scroll-journey[data-motion="full"] .journey-chapter { padding-top: 155px; padding-bottom: 55px; }
+  .scroll-journey[data-motion="full"] .journey-copy { padding-bottom: 0; }
+  .scroll-journey[data-motion="full"] .journey-copy h1,
+  .scroll-journey[data-motion="full"] .journey-copy h2 { font-size: clamp(32px, 8vh, 65px); }
+  .scroll-journey[data-motion="full"] .journey-copy .house-eyebrow { margin-bottom: 12px; font-size: 8px; }
+  .scroll-journey[data-motion="full"] .journey-description { margin: 12px 0 8px; font-size: 11px; line-height: 1.55; }
+  .scroll-journey[data-motion="full"] .journey-image { height: min(50svh, 340px); min-height: 0; }
+  .scroll-journey[data-motion="full"] .journey-edition { display: none; }
+  .scroll-journey[data-motion="full"] .journey-mode { top: 116px; }
+  .scroll-journey[data-motion="full"] .journey-topline { top: 91px; }
+  .scroll-journey[data-motion="full"] .journey-topline span:last-child { display: none; }
+  .scroll-journey[data-motion="full"] .journey-skip { top: 85px; }
+  .scroll-journey[data-motion="full"] .collection-switcher { top: 113px; }
+  .scroll-journey[data-motion="full"] .journey-bottomline { bottom: 8px; }
+}
+@media (max-width: 700px) and (max-height: 700px) {
+  .scroll-journey[data-motion="full"] .journey-stage,
+  .scroll-journey[data-motion="full"] .journey-chapter { min-height: 0; }
+  .scroll-journey[data-motion="full"] .journey-chapter { padding-top: 160px; padding-bottom: 50px; gap: 8px; }
+  .scroll-journey[data-motion="full"] .journey-copy h1,
+  .scroll-journey[data-motion="full"] .journey-copy h2 { font-size: clamp(30px, 9vw, 40px); }
+  .scroll-journey[data-motion="full"] .journey-description { margin: 10px 0 5px; font-size: 11px; line-height: 1.5; }
+  .scroll-journey[data-motion="full"] .journey-image { height: clamp(110px, 22svh, 160px); min-height: 0; }
+  .scroll-journey[data-motion="full"] .journey-figure { width: 60%; }
+  .scroll-journey[data-motion="full"] .journey-topline { display: none; }
 }

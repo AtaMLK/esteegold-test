@@ -1,25 +1,46 @@
 "use client";
 
-import L from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import { useEffect, useRef, useState } from "react";
+import { Map as MapLibreMap, NavigationControl, setWorkerUrl } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
-const markerIcon = new L.Icon({
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  shadowSize: [41, 41],
-});
+export default function StudioMap({ lat = 41.0082, lng = 28.9784, zoom = 10.5 }) {
+  const containerRef = useRef(null);
+  const [status, setStatus] = useState("loading");
 
-export default function Map({ lat, lng, zoom = 10 }) {
+  useEffect(() => {
+    let map;
+    let observer;
+    let disposed = false;
+    let loaded = false;
+    const timeout = setTimeout(() => { if (!disposed && !loaded) setStatus("unavailable"); }, 20000);
+    try {
+      setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString());
+      map = new MapLibreMap({
+        container: containerRef.current,
+        style: "https://tiles.openfreemap.org/styles/liberty",
+        center: [lng, lat], zoom,
+        attributionControl: { compact: false },
+        cooperativeGestures: true,
+        dragRotate: false,
+        pitchWithRotate: false,
+      });
+      map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+      map.once("load", () => { loaded = true; clearTimeout(timeout); if (!disposed) setStatus("ready"); });
+      map.on("error", () => { if (!disposed && !loaded) setStatus("unavailable"); });
+      observer = new ResizeObserver(() => map.resize());
+      observer.observe(containerRef.current);
+    } catch {
+      clearTimeout(timeout);
+      setStatus("unavailable");
+    }
+    return () => { disposed = true; clearTimeout(timeout); observer?.disconnect(); map?.remove(); };
+  }, [lat, lng, zoom]);
+
   return (
-    <div className="contact-map-frame">
-      <MapContainer center={[lat, lng]} zoom={zoom} style={{ height: "100%", width: "100%" }}>
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
-        <Marker position={[lat, lng]} icon={markerIcon}><Popup>ESTEE GOLD STUDIO</Popup></Marker>
-      </MapContainer>
+    <div className="contact-map-frame" role="region" aria-label="Interactive Istanbul city map" data-map-status={status}>
+      <div ref={containerRef} className="contact-map-canvas" />
+      {status !== "ready" && <div className="contact-map-status" role="status"><p>{status === "loading" ? "Opening a window onto Istanbul…" : "The interactive map is unavailable in this browser or connection."}</p><a href="https://www.openstreetmap.org/#map=11/41.0082/28.9784" target="_blank" rel="noreferrer">Open Istanbul in OpenStreetMap ↗</a></div>}
     </div>
   );
 }

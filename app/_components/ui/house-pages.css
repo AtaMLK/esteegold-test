@@ -1,4 +1,41 @@
 body.house-site { overflow-x: clip; overflow-y: visible; }
+.collection-overview { padding: 90px 7vw; border-top: 1px solid #7e896233; background: #f1ecdf; }
+.collection-overview-intro { max-width: 720px; margin-bottom: 45px; }
+.collection-overview h2 { font: 400 clamp(38px, 5vw, 72px)/1.05 Georgia, serif; letter-spacing: -.04em; margin: 20px 0; }
+.collection-overview-intro > p:not(.house-eyebrow) { font: 14px/1.8 Arial, sans-serif; color: #57604e; max-width: 640px; margin-bottom: 24px; }
+.collection-overview-products { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 20px; }
+.collection-overview-image { position: relative; aspect-ratio: .85; overflow: hidden; border-radius: 8px; background: #ddd8c9; }
+.collection-overview-image img { object-fit: cover; }
+.collection-overview-products p { font: 9px/1.6 monospace; color: #606a54; margin-top: 16px; }
+.collection-overview h3 { font: 28px/1.1 Georgia, serif; letter-spacing: -.03em; margin-top: 6px; }
+.product-breadcrumbs { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 5vw 60px; font: 12px/1.8 Arial, sans-serif; color: #59654c; }
+.product-breadcrumbs a { text-decoration: underline; text-underline-offset: 4px; }
+.guide-sections { max-width: 760px; margin-top: 60px; }
+.guide-sections a { display: inline-block; margin-top: 20px; font: 12px/1.8 Arial, sans-serif; }
+@media(max-width:700px) { .collection-overview { padding: 60px 6vw; } .collection-overview-products { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 28px 14px; } .collection-overview h3 { font-size: 23px; } }
+.admin-inventory-editor { width: 100%; max-width: 450px; max-height: 90dvh; overflow: hidden; display: flex; flex-direction: column; border-radius: 24px; background: var(--paper); }
+.admin-inventory-body { min-height: 0; overflow-y: auto; margin: 10px; padding: 18px; scrollbar-width: thin; scrollbar-color: #8a9776 transparent; overscroll-behavior: contain; }
+.admin-inventory-body::-webkit-scrollbar { width: 5px; }
+.admin-inventory-body::-webkit-scrollbar-thumb { border-radius: 10px; background: #8a9776; }
+.admin-inventory-footer { padding: 18px 28px; border-top: 1px solid #8a977633; }
+body.house-site .house-toast { border-radius: 20px; padding: 20px 38px 20px 22px; border-left-width: 3px; letter-spacing: normal; }
+.house-toast [toast-close] { opacity: 1; }
+.house-toast p, .house-toast span { font-family: Arial, sans-serif; }
+.product-video { position: absolute; inset: 0; z-index: 2; }
+.product-video video { width: 100%; height: 100%; object-fit: cover; }
+.product-video button { position: absolute; right: 12px; top: 12px; display: flex; align-items: center; gap: 7px; padding: 10px 13px; border: 1px solid #d5ddc699; border-radius: 99px; background: #f1ecdfed; color: #30382b; font: 10px/1.4 Arial, sans-serif; box-shadow: 0 3px 14px #18201022; }
+.product-video.is-preview { pointer-events: none; }
+.product-video.is-preview button { pointer-events: auto; }
+.catalog-card .product-video button { left: 50%; right: auto; top: 20px; transform: translateX(-50%); white-space: nowrap; }
+.house-confirmation { width: min(460px, calc(100vw - 32px)); border: 1px solid #89937455; border-radius: 26px; padding: 32px; background: #f1ecdf; color: #30382b; box-shadow: 0 30px 100px #17201044; }
+.house-confirmation::backdrop { background: #18201388; backdrop-filter: blur(5px); }
+.house-confirmation-eyebrow { font: 9px/1.7 monospace; letter-spacing: .15em; text-transform: uppercase; }
+.house-confirmation h2 { font: 38px/1.05 Georgia, serif; margin: 22px 0; letter-spacing: -.04em; }
+.house-confirmation #confirmation-description { font: 14px/1.8 Arial, sans-serif; color: #58614d; }
+.house-confirmation-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.house-confirmation-actions button { border: 1px solid #73815c55; border-radius: 99px; padding: 12px 20px; font: 12px/1.5 Arial, sans-serif; }
+.house-confirmation-actions [data-destructive] { background: #803e30; border-color: #803e30; color: #fff8ed; }
+.house-confirmation :focus-visible { outline: 2px solid #69794e; outline-offset: 4px; }
 .house-public { color: #292e24; letter-spacing: normal; }
 .house-public main { font-family: Arial, Helvetica, sans-serif; }
 .house-public main h1, .house-public main h2, .house-public main h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }

@@ -8,7 +8,7 @@ The house homepage and the Bags and Silver collection homepages combine a pinned
 
 ScrollTrigger pins the stage and scrubs the camera in both directions. Images and copy have separate restrained parallax offsets. Only the current chapter is keyboard-accessible; the header, skip link and collection links remain available. Resize refreshes rebuild the path using current stage dimensions.
 
-With reduced motion, or a viewport shorter than 620px, the content becomes ordinary stacked editorial sections without pinning or scrub. This also avoids trapping content behind the controls in mobile landscape. No JavaScript is required to read the static chapter layout.
+Reduced motion initially selects ordinary stacked editorial sections without pinning or scrub. Desktop views at least 420px high and mobile portrait views at least 560px high can run the journey; smaller views explain the readable alternative. An explicit Play scroll journey button lets a visitor opt into motion, while Switch to text edition provides an immediate alternative. No JavaScript is required to read the static chapter layout.
 
 ## Radial gallery
 
@@ -70,3 +70,16 @@ This UI revision does not resolve the separate payment, refund, pricing, invento
 - Replaced intermittent plugin-based touch handling with native horizontal-intent detection and pointer capture. Touch dragging is rechecked after navigating through the other public routes; short landscape and reduced-motion layouts remain readable without pinning.
 - The redesigned source passes the existing lint rules, with JSX included explicitly in the check. Inspected desktop and mobile screenshots of the collection homepages and shared editorial pages.
 - Original collection photography, final policy copy and the existing payment/backend launch requirements remain separate tasks. Archive photography is not a verified product feed.
+
+## Journey, naming and contact revision — 18 October 2026
+
+- Removed the old 620px animation cutoff that silently disabled the journey in shorter desktop/in-app windows. Compact stage styles preserve pinned, scrubbed and reversible motion at those sizes, with reduced-motion and very short landscape alternatives retained.
+- Removed the duplicate collection navigation from the header. The single hero switcher uses The house, EsteeBags and EsteeGold; the menu and footer retain full navigation. EsteeGold is described as the handmade silver collection, not as a statement that all its pieces are gold.
+- The contact map uses pinned MapLibre GL JS 6.14.0 and the OpenFreeMap Liberty style. Its worker is bundled locally using the documented Next.js URL pattern. Maps load only after a visitor chooses to connect; no location permission or tracking cookie is added. A city view replaces the previously unconfirmed exact studio marker. Keep attribution visible and provide an external map link if graphics/network support is unavailable.
+- Shipping, returns, sale terms and privacy drafts are prepared separately for owner review. Do not publish business identity, dispatch promises, bespoke exclusions or retention periods without confirmation. Made-to-order payment/availability support requires a separate checkout decision; policy wording alone does not enable it.
+
+## Owner policy review — 18 October 2026
+
+- Shipping, returns, terms and privacy now share an accessible editorial layout, section navigation and related-policy links. All remain visibly marked as pre-launch drafts with noindex metadata until legal seller details and operational arrangements are complete.
+- Owner-confirmed details include the support address, full prepayment and 10–14 business-day production time. See `docs/OWNER_LAUNCH_SETUP.md` for shipping research, proposed standard returns and unresolved checkout launch blockers. No live checkout, database, order or inventory behaviour was changed by the policy revision.
+- Removed an unused automatic recently-viewed browser-history write. Cart, wishlist and authentication storage remain in use and are disclosed. The contact map remains city-only and click-to-load.

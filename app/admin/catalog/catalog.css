@@ -1,0 +1,10 @@
+.admin-product-editor { display: flex; flex-direction: column; width: 100%; max-width: 780px; max-height: min(92dvh, 1100px); overflow: hidden; border: 1px solid #d3d6c5; border-radius: 28px; background: var(--paper); box-shadow: 0 28px 90px #18201055; }
+.admin-editor-header { flex-shrink: 0; padding: 26px 30px 20px; border-bottom: 1px solid #7e896233; }
+.admin-editor-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; flex: 1; margin: 8px 10px; padding: 0 20px 20px; scrollbar-width: thin; scrollbar-color: #8a9776 transparent; scrollbar-gutter: stable; }
+.admin-editor-body::-webkit-scrollbar { width: 5px; }
+.admin-editor-body::-webkit-scrollbar-track { background: transparent; margin: 12px 0; }
+.admin-editor-body::-webkit-scrollbar-thumb { background: #8a9776; border-radius: 8px; }
+.admin-editor-footer { flex-shrink: 0; padding: 18px 30px; border-top: 1px solid #7e896233; }
+.admin-product-editor h2 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -.04em; }
+.admin-editor-footer .bg-black { background-color: #343c2c; }
+@media(max-width: 600px) { .admin-product-editor { max-height: calc(100dvh - 28px); border-radius: 22px; } .admin-editor-header, .admin-editor-footer { padding: 20px; } .admin-editor-body { margin: 6px; padding: 0 12px 20px; } }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient as adminClient, requireAdmin } from "../../../_lib/server-supabase";
+import { validateTaxonomy } from "../../../_lib/commerce/taxonomy";
 import { normalizeProductOptions } from "../../../_lib/commerce/product-options";
 
 
@@ -31,18 +32,19 @@ async function withMedia(products) {
 }
 
 async function enrich(products) {
-  return withMedia(await withStock(products));
+  const [stock, media] = await Promise.all([withStock(products), withMedia(products)]);
+  return stock.map((product, index) => ({ ...product, media: media[index].media }));
 }
 
-const SELECT = "id,name,branch,category,description,story,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,gold_price_eur,gold_price_try,created_at,updated_at";
+const SELECT = "id,name,branch,product_kind,category,description,story,image_url,price,price_eur,price_try,price_usd_override,price_usd_override_enabled,discount_percent,active,material_options,size_type,size_options,stone_options,stone_required,gold_available,customization_note,gold_price_eur,gold_price_try,created_at,updated_at";
 
 export async function GET(request) {
   try {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized. Administrator access is required." }, { status: 401 });
     const client = adminClient();
-    let { data, error } = await client.from("commerce_products").select(SELECT).order("created_at", { ascending: false });
+    let { data, error } = await client.from("commerce_products").select(SELECT).is("deleted_at", null).order("created_at", { ascending: false });
     if (error && /price_eur|price_try|price_usd_override|gold_price_eur|gold_price_try|material_options|size_type|stone_options|column/i.test(error.message || "")) {
-      const legacy = await client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active,created_at,updated_at").order("created_at", { ascending: false });
+      const legacy = await client.from("commerce_products").select("id,name,branch,category,description,image_url,price,discount_percent,active,created_at,updated_at").is("deleted_at", null).order("created_at", { ascending: false });
       if (legacy.error) throw legacy.error;
       data = (legacy.data || []).map((p) => ({ ...p, material_options: [], size_type: "none", size_options: [], stone_options: [], stone_required: false, gold_available: false, customization_note: "", gold_price_eur: null, gold_price_try: null }));
     }
@@ -54,8 +56,9 @@ export async function GET(request) {
   }
 }
 
-function clean(body, { requireStock = false } = {}) {
-  const options = normalizeProductOptions(body);
+async function clean(body, { requireStock = false } = {}) {
+  const kind = await validateTaxonomy(adminClient(), String(body.branch || ""), String(body.category || ""));
+  const options = normalizeProductOptions({ ...body, product_kind: kind });
   const discount = Number(body.discount_percent ?? 0);
   const priceEur = Number(body.price_eur ?? body.price);
   const priceTry = body.price_try === "" || body.price_try == null ? null : Number(body.price_try);
@@ -66,7 +69,7 @@ function clean(body, { requireStock = false } = {}) {
   const materialOptions = options.material_options;
   const sizeOptions = options.size_options;
   const stoneOptions = options.stone_options;
-  if (options.gold_available && !materialOptions.some((value) => /gold/i.test(value))) materialOptions.push("18K Gold");
+  if (options.gold_available && !materialOptions.some((value) => /gold/i.test(value))) materialOptions.push("14K Gold Plated");
   if (!body.name?.trim()) throw new Error("Product name is required.");
   if (!Number.isFinite(priceEur) || priceEur < 0) throw new Error("EUR price must be a valid non-negative number.");
   if (priceTry != null && (!Number.isFinite(priceTry) || priceTry < 0)) throw new Error("TRY price must be a valid non-negative number.");
@@ -74,7 +77,7 @@ function clean(body, { requireStock = false } = {}) {
   if (goldPriceEur != null && (!Number.isFinite(goldPriceEur) || goldPriceEur < 0)) throw new Error("Gold EUR price must be a valid non-negative number.");
   if (goldPriceTry != null && (!Number.isFinite(goldPriceTry) || goldPriceTry < 0)) throw new Error("Gold TRY price must be a valid non-negative number.");
   if (!Number.isFinite(discount) || discount < 0 || discount > 100) throw new Error("Discount must be between 0 and 100.");
-  if (!["EsteeGold", "EsteeBags"].includes(body.branch)) throw new Error("Invalid branch. Choose EsteeGold or EsteeBags.");
+  if (kind === "silver" && (!materialOptions.length || sizeType === "none")) throw new Error("Silver pieces need materials and a size type. Use One size for earrings.");
   if (sizeType !== "none" && !sizeOptions.length) throw new Error("Add at least one size option for this product.");
   if (options.stone_required && (!stoneOptions.length || stoneOptions.some((stone) => stone.name === "None"))) throw new Error("Choose at least one stone and remove None when stone selection is required.");
   if (options.gold_available && goldPriceEur == null) throw new Error("Add a gold EUR price when gold can be ordered.");
@@ -87,6 +90,7 @@ function clean(body, { requireStock = false } = {}) {
     row: {
       name: body.name.trim(),
       branch: body.branch,
+      product_kind: kind,
       category: body.category?.trim() || "Uncategorized",
       description: body.description?.trim() || "",
       story: body.story?.trim() || "",
@@ -116,7 +120,7 @@ function clean(body, { requireStock = false } = {}) {
 export async function POST(request) {
   try {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    const { row, stock } = clean(await request.json(), { requireStock: true });
+    const { row, stock } = await clean(await request.json(), { requireStock: true });
     const client = adminClient();
     const { data, error } = await client.from("commerce_products").insert({ id: crypto.randomUUID(), ...row }).select().single();
     if (error) throw error;
@@ -138,13 +142,13 @@ export async function PATCH(request) {
     const client = adminClient();
     if (Object.keys(body).every((key) => ["id", "active"].includes(key))) {
       if (typeof body.active !== "boolean") throw new Error("Choose whether this product is active.");
-      const { data, error } = await client.from("commerce_products").update({ active: body.active === true, updated_at: new Date().toISOString() }).eq("id", body.id).select().single();
+      const { data, error } = await client.from("commerce_products").update({ active: body.active === true, updated_at: new Date().toISOString() }).eq("id", body.id).is("deleted_at", null).select().single();
       if (error) throw error;
       const [product] = await enrich([data]);
       return NextResponse.json({ product });
     }
-    const { row } = clean(body);
-    const { data, error } = await client.from("commerce_products").update(row).eq("id", body.id).select().single();
+    const { row } = await clean(body);
+    const { data, error } = await client.from("commerce_products").update(row).eq("id", body.id).is("deleted_at", null).select().single();
     if (error) throw error;
     const [product] = await enrich([data]);
     return NextResponse.json({ product });
@@ -152,4 +156,16 @@ export async function PATCH(request) {
     console.error("[admin/catalog PATCH]", error);
     return NextResponse.json({ error: error.message || "Could not update product." }, { status: 400 });
   }
+}
+
+export async function DELETE(request) {
+  try {
+    if (!(await requireAdmin(request))) return NextResponse.json({ error: "Administrator access required." }, { status: 401 });
+    const body = await request.json();
+    if (!body.id) throw new Error("Product id is required.");
+    const { data, error } = await adminClient().from("commerce_products").update({ active: false, deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", body.id).is("deleted_at", null).select("id").maybeSingle();
+    if (error) throw error;
+    if (!data) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+    return NextResponse.json({ success: true });
+  } catch (error) { return NextResponse.json({ error: error.message }, { status: 400 }); }
 }

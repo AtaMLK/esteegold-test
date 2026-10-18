@@ -1,9 +1,9 @@
 "use client";
 
-import { MATERIAL_OPTIONS, SIZE_OPTIONS, STONE_OPTIONS } from "../../_lib/commerce/product-options";
+import { MATERIAL_OPTIONS, SIZE_OPTIONS, STONE_OPTIONS, productKind } from "../../_lib/commerce/product-options";
 
 function OptionChoices({ label, options, selected, onChange, disabled, hint }) {
-  const choices = [...new Set([...options, ...selected])];
+  const choices = options;
   return (
     <fieldset disabled={disabled} className="min-w-0 space-y-3 disabled:opacity-40">
       <legend className="text-[9px] uppercase tracking-[.18em] text-black/60">{label}</legend>
@@ -22,7 +22,7 @@ function OptionChoices({ label, options, selected, onChange, disabled, hint }) {
 }
 
 export default function ProductOptionFields({ form, setForm }) {
-  const isBag = form.branch === "EsteeBags";
+  const isBag = productKind(form) !== "silver";
   const stoneNames = (form.stone_options || []).map((item) => typeof item === "string" ? item : item.name);
   function setField(key, value) { setForm((previous) => ({ ...previous, [key]: value })); }
   function setStones(names) {
@@ -39,7 +39,7 @@ export default function ProductOptionFields({ form, setForm }) {
         Size type
         <select aria-label="Size type" disabled={isBag} value={form.size_type} onChange={(event) => setForm((previous) => ({ ...previous, size_type: event.target.value, size_options: [] }))}
           className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm normal-case tracking-normal outline-none focus:border-black disabled:cursor-not-allowed disabled:opacity-40">
-          <option value="none">No size</option><option value="ring">Ring size</option><option value="bracelet">Bracelet size</option><option value="necklace">Necklace length</option>
+          <option value="none">Choose size type</option><option value="one_size">One size</option><option value="ring">Ring size</option><option value="bracelet">Bracelet size</option><option value="necklace">Necklace length</option>
         </select>
       </label>
       <OptionChoices label="Size options" options={SIZE_OPTIONS[form.size_type] || []} selected={form.size_options} onChange={(value) => setField("size_options", value)} disabled={isBag}
@@ -48,8 +48,8 @@ export default function ProductOptionFields({ form, setForm }) {
       <fieldset disabled={isBag} className="grid gap-5 disabled:opacity-40 sm:grid-cols-2">
         <legend className="sr-only">Stone and gold settings</legend>
         <label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={!!form.stone_required} onChange={(event) => setForm((previous) => ({ ...previous, stone_required: event.target.checked, stone_options: event.target.checked ? previous.stone_options.filter((stone) => (typeof stone === "string" ? stone : stone.name) !== "None") : previous.stone_options }))} className="accent-black"/> Stone selection required</label>
-        <label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={!!form.gold_available} onChange={(event) => setForm((previous) => ({ ...previous, gold_available: event.target.checked, gold_price_eur: event.target.checked ? previous.gold_price_eur : "", gold_price_try: event.target.checked ? previous.gold_price_try : "" }))} className="accent-black"/> Gold can be ordered</label>
-        {[["gold_price_eur", "Gold price (€)"], ["gold_price_try", "Gold price (₺)"]].map(([key, label]) => <label key={key} className="text-[9px] uppercase tracking-[.18em] text-black/60">{label}<input type="number" min="0" step="0.01" value={form[key] ?? ""} onChange={(event) => setField(key, event.target.value)} className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm normal-case tracking-normal outline-none focus:border-black disabled:cursor-not-allowed"/></label>)}
+        <label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={!!form.gold_available} onChange={(event) => setForm((previous) => ({ ...previous, gold_available: event.target.checked, gold_price_eur: event.target.checked ? previous.gold_price_eur : "", gold_price_try: event.target.checked ? previous.gold_price_try : "" }))} className="accent-black"/> 14K gold plating can be ordered</label>
+        {[["gold_price_eur", "Gold-plated price (€)"], ["gold_price_try", "Gold-plated price (₺)"]].map(([key, label]) => <label key={key} className="text-[9px] uppercase tracking-[.18em] text-black/60">{label}<input type="number" min="0" step="0.01" value={form[key] ?? ""} onChange={(event) => setField(key, event.target.value)} className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm normal-case tracking-normal outline-none focus:border-black disabled:cursor-not-allowed"/></label>)}
       </fieldset>
       <label className="block text-[9px] uppercase tracking-[.18em] text-black/60">Customization note<textarea value={form.customization_note} onChange={(event) => setField("customization_note", event.target.value)} rows={2} placeholder={isBag ? "Optional bag personalization or made-to-order note." : "Optional made-to-order or stone note."} className="mt-2 w-full rounded-xl border border-black/15 bg-transparent p-3 text-sm normal-case tracking-normal outline-none focus:border-black"/></label>
     </section>

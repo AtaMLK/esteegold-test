@@ -1,13 +1,16 @@
 "use client";
 
+import { useAppearance } from "../../context/appearanceContext";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "./localized-link";
 import { ArrowDown, ArrowDownRight, ArrowUpRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { collectionLinks, collections, getChapters } from "./house-content";
+import { collectionLinks } from "./house-content";
+import { getCollection, localizedChapters } from "./house-content-tr";
 
 function cameraPath(width, height) {
   const point = (horizontal, vertical) => `${-horizontal * width},${-vertical * height}`;
@@ -15,8 +18,9 @@ function cameraPath(width, height) {
 }
 
 export default function ScrollJourney({ collection = "house" }) {
-  const chapters = useMemo(() => getChapters(collection), [collection]);
-  const config = collections[collection];
+  const { translateText, locale } = useAppearance();
+  const chapters = useMemo(() => localizedChapters(collection, locale), [collection, locale]);
+  const config = getCollection(collection, locale);
   const rootRef = useRef(null);
   const stageRef = useRef(null);
   const cameraRef = useRef(null);
@@ -25,6 +29,8 @@ export default function ScrollJourney({ collection = "house" }) {
   const activeRef = useRef(0);
   const [active, setActive] = useState(0);
   const [enhanced, setEnhanced] = useState(false);
+  const [motionPreference, setMotionPreference] = useState("auto");
+  const [motionAvailable, setMotionAvailable] = useState(true);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
@@ -37,7 +43,13 @@ export default function ScrollJourney({ collection = "house" }) {
     const matchMedia = gsap.matchMedia();
     let disposed = false;
 
-    matchMedia.add("(prefers-reduced-motion: no-preference) and (min-height: 620px)", () => {
+    const roomQuery = "(min-width: 701px) and (min-height: 420px), (max-width: 700px) and (min-height: 560px)";
+    const room = window.matchMedia(roomQuery);
+    function updateAvailability() { setMotionAvailable(room.matches); }
+    updateAvailability();
+    room.addEventListener("change", updateAvailability);
+    const motionQuery = motionPreference === "journey" ? roomQuery : "(prefers-reduced-motion: no-preference) and (min-width: 701px) and (min-height: 420px), (prefers-reduced-motion: no-preference) and (max-width: 700px) and (min-height: 560px)";
+    if (motionPreference !== "text") matchMedia.add(motionQuery, () => {
       setEnhanced(true);
       root.dataset.motion = "full";
       let viewportWidth = stage.clientWidth;
@@ -105,8 +117,17 @@ export default function ScrollJourney({ collection = "house" }) {
       };
     }, root);
 
-    return () => { disposed = true; matchMedia.revert(); };
-  }, [chapters]);
+    return () => { disposed = true; matchMedia.revert(); room.removeEventListener("change", updateAvailability); };
+  }, [chapters, motionPreference]);
+
+  function toggleMotion() {
+    const top = rootRef.current.getBoundingClientRect().top + window.scrollY;
+    setEnhanced(false);
+    setActive(0);
+    activeRef.current = 0;
+    setMotionPreference(enhanced ? "text" : "journey");
+    requestAnimationFrame(() => window.scrollTo({ top, behavior: "instant" }));
+  }
 
   function nextChapter() {
     const control = scrollControlRef.current;
@@ -115,11 +136,12 @@ export default function ScrollJourney({ collection = "house" }) {
   }
 
   return (
-    <section ref={rootRef} className="scroll-journey" aria-label={`A journey through ${config.name}`}>
+    <section ref={rootRef} className="scroll-journey" aria-label={locale === "tr" ? `${config.name} dünyasında bir yolculuk` : `A journey through ${config.name}`}>
       <div ref={stageRef} className="journey-stage">
-        <div className="journey-topline" aria-hidden="true"><span>Independent objects / Istanbul</span><span>{config.eyebrow}</span></div>
-        <nav className="collection-switcher" aria-label="Choose your collection">{collectionLinks.map((item) => <Link key={item.key} href={item.href} aria-current={collection === item.key ? "page" : undefined}>{item.label}<span aria-hidden="true">↗</span></Link>)}</nav>
-        <a href="#collection" className="journey-skip">Skip to the collection <ArrowDownRight size={14} /></a>
+        <div className="journey-topline" aria-hidden="true"><span>{translateText("Independent objects / Istanbul")}</span><span>{config.eyebrow}</span></div>
+        <nav className="collection-switcher" aria-label={translateText("Choose your collection")}>{collectionLinks.map((item) => <Link key={item.key} href={item.href} aria-current={collection === item.key ? "page" : undefined}>{translateText(item.label)}<span aria-hidden="true">↗</span></Link>)}</nav>
+        <div className="journey-mode"><button type="button" onClick={toggleMotion} disabled={!motionAvailable} aria-pressed={enhanced}>{enhanced ? translateText("Switch to text edition") : translateText("Play scroll journey")}</button>{!enhanced && <span>{motionAvailable ? translateText("Text edition · motion is optional") : translateText("Text edition · more screen height enables the journey")}</span>}</div>
+        <a href="#collection" className="journey-skip">{translateText("Skip to the collection")}<ArrowDownRight size={14} /></a>
         <div className="journey-world" ref={cameraRef}>
           {chapters.map((chapter, index) => (
             <article key={chapter.label} className={`journey-chapter journey-chapter--${chapter.layout}`} aria-hidden={enhanced && active !== index ? true : undefined} inert={enhanced && active !== index ? true : undefined}>
@@ -132,14 +154,14 @@ export default function ScrollJourney({ collection = "house" }) {
               </div>
               <figure className="journey-figure">
                 <div className="journey-image"><Image src={chapter.image} alt={chapter.alt} fill priority={index === 0} sizes="(max-width: 700px) 80vw, 43vw" className="journey-photo" /></div>
-                <figcaption><span>EsteeHouse / {chapter.label}</span><span>Made with character ↗</span></figcaption>
+                <figcaption><span>EsteeHouse / {chapter.label}</span><span>{translateText("Made with character ↗")}</span></figcaption>
               </figure>
-              {index === 0 && <span className="journey-edition">The house edit<br />Volume 01 — 2026</span>}
+              {index === 0 && <span className="journey-edition">{translateText("The house edit")}<br />{translateText("Volume 01 — 2026")}</span>}
             </article>
           ))}
         </div>
         <div className="journey-bottomline">
-          <button type="button" onClick={nextChapter} className="journey-scroll" aria-label="Continue through the journey"><ArrowDown size={16} /><span>Scroll to wander</span></button>
+          <button type="button" onClick={nextChapter} className="journey-scroll" aria-label={translateText("Continue through the journey")}><ArrowDown size={16} /><span>{translateText("Scroll to wander")}</span></button>
           <p className="journey-current" aria-live="off">{String(active + 1).padStart(2, "0")} <span>/ 08</span> <span>{chapters[active].label}</span></p>
           <Link href={config.shop} className="journey-shop">{config.shopLabel} <ArrowUpRight size={14} /></Link>
         </div>

@@ -1,5 +1,8 @@
 "use client";
 
+import { useAppearance } from "../../context/appearanceContext";
+
+import ProductVideo from "./product-video";
 import Image from "next/image";
 import { Maximize2, Play } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -14,6 +17,7 @@ function mediaSource(product) {
 }
 
 export default function ProductGallery({ product }) {
+  const { translateText } = useAppearance();
   const media = useMemo(() => mediaSource(product), [product]);
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState({ x: 50, y: 50, active: false });
@@ -39,7 +43,7 @@ export default function ProductGallery({ product }) {
         aria-label={current?.kind === "image" ? current.alt_text || product.name : undefined}
       >
         {current?.kind === "video" ? (
-          <video src={current.url} className="absolute inset-0 h-full w-full object-cover" controls playsInline preload="metadata" />
+          <ProductVideo key={current.url} src={current.url} title={product.name} className="absolute inset-0"/>
         ) : (
           <>
             <Image
@@ -49,19 +53,19 @@ export default function ProductGallery({ product }) {
               priority
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 60vw"
-              unoptimized={current.url?.startsWith("http")}
+              quality={100}
             />
             <div
               aria-hidden="true"
               className={`pointer-events-none absolute inset-0 bg-cover bg-no-repeat transition-opacity duration-200 ${zoom.active ? "opacity-100" : "opacity-0"}`}
               style={{
-                backgroundImage: `url("${current.url}")`,
+                backgroundImage: zoom.active ? `url("/_next/image?url=${encodeURIComponent(current.url)}&w=3840&q=100")` : "none",
                 backgroundPosition: `${zoom.x}% ${zoom.y}%`,
                 backgroundSize: "220%",
               }}
             />
             <div className="pointer-events-none absolute bottom-5 left-5 inline-flex items-center gap-2 rounded-full bg-white/85 px-4 py-2 text-[8px] uppercase tracking-[.2em] backdrop-blur-sm">
-              <Maximize2 size={12} /> {zoom.active ? "Move to inspect" : "Move to magnify"}
+              <Maximize2 size={12} /> {zoom.active ? translateText("Move to inspect") : translateText("Move to magnify")}
             </div>
           </>
         )}
@@ -77,14 +81,14 @@ export default function ProductGallery({ product }) {
               setZoom({ x: 50, y: 50, active: false });
             }}
             className={`group relative overflow-hidden bg-black/[.04] text-left ${index === active ? "ring-1 ring-black" : "opacity-65 hover:opacity-100"}`}
-            aria-label={`View ${item.kind} ${index + 1}`}
+            aria-label={`${translateText("View")} ${translateText(item.kind)} ${index + 1}`}
           >
             {item.kind === "video" ? (
               <div className="absolute inset-0 grid place-items-center bg-black text-white">
                 <Play size={18} fill="currentColor" />
               </div>
             ) : (
-              <Image src={item.url} alt="" fill className="object-cover" sizes="112px" unoptimized={item.url?.startsWith("http")} />
+              <Image src={item.url} alt="" fill className="object-cover" sizes="112px" quality={95} />
             )}
           </button>
         ))}

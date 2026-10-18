@@ -1,7 +1,9 @@
 "use client";
 
+import { useAppearance } from "../../context/appearanceContext";
+
 import { signInWithGoogle, signInWithProvider, signInWithEmail } from "@/app/_lib/auth";
-import Link from "next/link";
+import Link from "../ui/localized-link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Eye, EyeOff } from "lucide-react";
@@ -39,6 +41,7 @@ function FacebookIcon() {
 
 
 export default function LoginForm() {
+  const { translateText, href } = useAppearance();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useUser();
@@ -46,7 +49,7 @@ export default function LoginForm() {
   const next = searchParams.get("next");
   const destination = next && next.startsWith("/") && !next.startsWith("//") && !next.includes(String.fromCharCode(92)) ? next : "/profile";
   const requestedAdmin = destination.split(/[?#]/)[0] === "/admin" || destination.startsWith("/admin/");
-  const memberDestination = requestedAdmin ? "/profile" : destination;
+  const memberDestination = href(requestedAdmin ? "/profile" : destination);
   const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
 
   const [mode, setMode] = useState(initialMode);
@@ -158,7 +161,7 @@ export default function LoginForm() {
     window.history.replaceState(
       {},
       "",
-      "/auth/login" + (params.toString() ? "?" + params.toString() : "")
+      href("/auth/login" + (params.toString() ? "?" + params.toString() : ""))
     );
   }
 
@@ -268,7 +271,7 @@ export default function LoginForm() {
       router.replace(admin ? "/admin" : memberDestination);
       router.refresh();
     } catch (err) {
-      setError(err?.message || "We could not sign you in. Check your email and password.");
+      setError(err?.message || translateText("We could not sign you in. Check your email and password."));
     } finally {
       setLoading(false);
     }
@@ -281,7 +284,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      if (!name.trim()) throw new Error("Your name is required.");
+      if (!name.trim()) throw new Error(translateText("Your name is required."));
 
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
       const { data, error: signUpError } = await supabase.auth.signUp({
@@ -301,10 +304,10 @@ export default function LoginForm() {
         return;
       }
 
-      setMessage("Your account is created. Check your email to confirm it, then sign in.");
+      setMessage(translateText("Your account is created. Check your email to confirm it, then sign in."));
       flip("login", { clearMessages: false });
     } catch (err) {
-      setError(err?.message || "We could not create your account.");
+      setError(err?.message || translateText("We could not create your account."));
     } finally {
       setLoading(false);
     }
@@ -322,7 +325,7 @@ export default function LoginForm() {
         await signInWithProvider(provider, destination);
       }
     } catch (err) {
-      setError(err?.message || "Social sign-in could not be started.");
+      setError(err?.message || translateText("Social sign-in could not be started."));
       setGoogleLoading(false);
     }
   }
@@ -331,41 +334,41 @@ export default function LoginForm() {
     return (
       <section className="auth-card">
         <div className="auth-heading">
-          <p className="auth-kicker">{isRegister ? "WELCOME IN" : "WELCOME BACK"}</p>
-          <h1>{isRegister ? "Sign up." : "Sign in."}</h1>
+          <p className="auth-kicker">{isRegister ? translateText("WELCOME IN") : translateText("WELCOME BACK")}</p>
+          <h1>{isRegister ? translateText("Sign up.") : translateText("Sign in.")}</h1>
           <p className="auth-copy">
             {isRegister
-              ? "Create your EsteeHouse account and keep your details in one place."
-              : "Sign in to manage your EsteeHouse account, orders, and profile."}
+              ? translateText("Create your EsteeHouse account and keep your details in one place.")
+              : translateText("Sign in to manage your EsteeHouse account, orders, and profile.")}
           </p>
         </div>
 
         <form onSubmit={isRegister ? handleRegister : handleLogin} className="auth-form">
           {isRegister && (
             <label>
-              <span>Name</span>
-              <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Your name" required />
+              <span>{translateText("Name")}</span>
+              <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder={translateText("Your name")} required />
             </label>
           )}
 
           <label>
-            <span>Email address</span>
+            <span>{translateText("Email address")}</span>
             <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="you@example.com" required />
           </label>
 
           <label>
-            <span>Password</span>
+            <span>{translateText("Password")}</span>
             <div className="auth-password">
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type={showPassword ? "text" : "password"}
                 autoComplete={isRegister ? "new-password" : "current-password"}
-                placeholder="Your password"
+                placeholder={translateText("Your password")}
                 minLength={6}
                 required
               />
-              <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Hide password" : "Show password"}>
+              <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? translateText("Hide password") : translateText("Show password")}>
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
@@ -373,7 +376,7 @@ export default function LoginForm() {
 
           {!isRegister && (
             <div className="auth-forgot">
-              <Link href="/auth/forgot-password">Forgot password?</Link>
+              <Link href="/auth/forgot-password">{translateText("Forgot password?")}</Link>
             </div>
           )}
 
@@ -382,25 +385,25 @@ export default function LoginForm() {
 
           <button className="auth-primary" type="submit" disabled={loading}>
             {loading
-              ? (isRegister ? "Creating account…" : "Signing in…")
-              : (isRegister ? "Create account" : "Sign in")}
+              ? (isRegister ? translateText("Creating account…") : translateText("Signing in…"))
+              : (isRegister ? translateText("Create account") : translateText("Sign in"))}
             <ArrowUpRight size={16} />
           </button>
         </form>
 
-        <div className="auth-divider"><span>OR</span></div>
+        <div className="auth-divider"><span>{translateText("OR")}</span></div>
 
-        <div className="auth-social-heading">SIGN IN WITH</div>
+        <div className="auth-social-heading">{translateText("SIGN IN WITH")}</div>
         <div className="auth-socials">
-          <button className="auth-social-button" type="button" onClick={() => handleSocial("google")} disabled={googleLoading} aria-label="Continue with Google">
+          <button className="auth-social-button" type="button" onClick={() => handleSocial("google")} disabled={googleLoading} aria-label={translateText("Continue with Google")}>
             <GoogleIcon />
             <span>Google</span>
           </button>
-          <button className="auth-social-button" type="button" onClick={() => handleSocial("apple")} disabled={googleLoading} aria-label="Continue with Apple">
+          <button className="auth-social-button" type="button" onClick={() => handleSocial("apple")} disabled={googleLoading} aria-label={translateText("Continue with Apple")}>
             <AppleIcon />
             <span>Apple</span>
           </button>
-          <button className="auth-social-button" type="button" onClick={() => handleSocial("facebook")} disabled={googleLoading} aria-label="Continue with Facebook">
+          <button className="auth-social-button" type="button" onClick={() => handleSocial("facebook")} disabled={googleLoading} aria-label={translateText("Continue with Facebook")}>
             <FacebookIcon />
             <span>Facebook</span>
           </button>
@@ -412,7 +415,7 @@ export default function LoginForm() {
             className="auth-switch"
             onClick={() => flip(isRegister ? "login" : "register")}
           >
-            {isRegister ? "Already have an account? Sign in" : "New here? Create an account"}
+            {isRegister ? translateText("Already have an account? Sign in") : translateText("New here? Create an account")}
           </button>
         </div>
       </section>
@@ -424,7 +427,7 @@ export default function LoginForm() {
       <main className="auth-shell auth-redirecting" aria-live="polite">
         <div className="auth-redirect-message">
           <span>ESTEEHOUSE</span>
-          <small>Opening your account…</small>
+          <small>{translateText("Opening your account…")}</small>
         </div>
       </main>
     );
@@ -445,18 +448,18 @@ export default function LoginForm() {
 
         <div ref={curtainRef} className="auth-curtain" aria-hidden="true">
           <div className="auth-curtain-face">
-            <div className="auth-meta"><span>ESTEEHOUSE</span><span>01 / ACCOUNT</span></div>
+            <div className="auth-meta"><span>ESTEEHOUSE</span><span>{translateText("01 / ACCOUNT")}</span></div>
             <div className="auth-brand">
-              <p>Two collections.<br />One house.</p>
-              <span>EST. / HANDMADE</span>
+              <p>{translateText("Two collections.")}<br />{translateText("One house.")}</p>
+              <span>{translateText("EST. / HANDMADE")}</span>
             </div>
-            <div className="auth-meta"><span>ISTANBUL / 2026</span><span>HANDMADE OBJECTS</span></div>
+            <div className="auth-meta"><span>ISTANBUL / 2026</span><span>{translateText("HANDMADE OBJECTS")}</span></div>
           </div>
         </div>
 
         <div className="auth-corner">
           <span>ESTEEHOUSE</span>
-          <span>{isRegister ? "02 / JOIN" : "01 / ACCOUNT"}</span>
+          <span>{isRegister ? "02 / JOIN" : translateText("01 / ACCOUNT")}</span>
         </div>
       </div>
     </main>

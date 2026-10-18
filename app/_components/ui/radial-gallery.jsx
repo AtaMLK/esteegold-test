@@ -1,14 +1,17 @@
 "use client";
 
+import { useAppearance } from "../../context/appearanceContext";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "./localized-link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, MoveHorizontal } from "lucide-react";
 import gsap from "gsap";
-import { getGalleryPieces } from "./house-content";
+import { localizedGallery } from "./house-content-tr";
 
 export default function RadialGallery({ collection = "house" }) {
-  const pieces = useMemo(() => getGalleryPieces(collection), [collection]);
+  const { translateText, locale } = useAppearance();
+  const pieces = useMemo(() => localizedGallery(collection, locale), [collection, locale]);
   const rootRef = useRef(null);
   const stageRef = useRef(null);
   const controlsRef = useRef(null);
@@ -156,9 +159,9 @@ export default function RadialGallery({ collection = "house" }) {
 
   return (
     <section id="collection" ref={rootRef} className={"radial-gallery " + (ready ? "is-ready" : "")} aria-labelledby="gallery-title" aria-roledescription="carousel" onKeyDown={onKeyDown}>
-      <div className="gallery-heading"><p className="house-eyebrow">A few things worth keeping</p><h2 id="gallery-title">The {collection === "house" ? "house" : collection === "bags" ? "bag" : "silver"} <em>edit.</em></h2><p>Follow what catches your eye.</p></div>
-      <span className="gallery-watermark" aria-hidden="true">COLLECTION</span>
-      <div className="arc-stage" ref={stageRef} tabIndex={0} aria-label="Collection gallery. Drag horizontally or use the left and right arrow keys." aria-describedby="gallery-instructions">
+      <div className="gallery-heading"><p className="house-eyebrow">{translateText("A few things worth keeping")}</p><h2 id="gallery-title">{collection === "house" ? translateText("The house") : collection === "bags" ? "EsteeBags" : "EsteeGold"} <em>{translateText("edit.")}</em></h2><p>{translateText("Follow what catches your eye.")}</p></div>
+      <span className="gallery-watermark" aria-hidden="true">{translateText("COLLECTION")}</span>
+      <div className="arc-stage" ref={stageRef} tabIndex={0} aria-label={translateText("Collection gallery. Drag horizontally or use the left and right arrow keys.")} aria-describedby="gallery-instructions">
         <div className="arc-guide" aria-hidden="true" />
         {pieces.map((piece, index) => (
           <button key={piece.name} type="button" className="arc-card" aria-label={"Center " + piece.name + ", " + (index + 1) + " of " + pieces.length} onClick={() => { if (!dragRef.current) controlsRef.current?.select(index); }}>
@@ -168,11 +171,11 @@ export default function RadialGallery({ collection = "house" }) {
         ))}
       </div>
       <div className="gallery-controls">
-        <button type="button" className="gallery-arrow" onClick={() => controlsRef.current?.previous()} aria-label="Previous piece"><ArrowLeft size={21} /></button>
-        <div className="gallery-caption" aria-live="polite" aria-atomic="true"><p className="house-eyebrow">{pieces[selected].category}</p><h3>{pieces[selected].name}</h3><Link href={pieces[selected].href} className="house-text-link">Explore collection <ArrowUpRight size={15} /></Link></div>
-        <button type="button" className="gallery-arrow" onClick={() => controlsRef.current?.next()} aria-label="Next piece"><ArrowRight size={21} /></button>
+        <button type="button" className="gallery-arrow" onClick={() => controlsRef.current?.previous()} aria-label={translateText("Previous piece")}><ArrowLeft size={21} /></button>
+        <div className="gallery-caption" aria-live="polite" aria-atomic="true"><p className="house-eyebrow">{pieces[selected].category}</p><h3>{pieces[selected].name}</h3><Link href={pieces[selected].href} className="house-text-link">{translateText("Explore collection")}<ArrowUpRight size={15} /></Link></div>
+        <button type="button" className="gallery-arrow" onClick={() => controlsRef.current?.next()} aria-label={translateText("Next piece")}><ArrowRight size={21} /></button>
       </div>
-      <div className="gallery-bottom"><p id="gallery-instructions"><MoveHorizontal size={15} /> Drag to explore <span>or use the arrow keys</span></p><span>{String(selected + 1).padStart(2, "0")} — {String(pieces.length).padStart(2, "0")}</span></div>
+      <div className="gallery-bottom"><p id="gallery-instructions"><MoveHorizontal size={15} />{translateText("Drag to explore")}<span>{translateText("or use the arrow keys")}</span></p><span>{String(selected + 1).padStart(2, "0")} — {String(pieces.length).padStart(2, "0")}</span></div>
     </section>
   );
 }

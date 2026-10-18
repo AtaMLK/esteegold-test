@@ -1,11 +1,14 @@
+import { pageMetadata } from "../_lib/seo";
 import Link from "next/link";
 import AdminSignOut from "./_components/admin-signout";
 import { ErrorProvider } from "../context/errorContext";
 
+export const metadata = pageMetadata({ title: "Admin | EsteeHouse", path: "/admin", noindex: true });
+
 export default function AdminLayout({ children }) {
   return (
     <ErrorProvider>
-      <div className="min-h-screen bg-[var(--paper)]">
+      <div className="house-admin min-h-screen bg-[var(--paper)]">
         <aside className="fixed bottom-0 left-0 right-0 z-40 border-t border-black/10 bg-[var(--paper)]/95 px-3 py-3 backdrop-blur md:bottom-auto md:top-0 md:h-screen md:w-56 md:border-r md:border-t-0 md:px-5 md:py-8">
           <Link href="/admin" className="hidden font-serif text-2xl tracking-[-.04em] md:block">EsteeHouse</Link>
           <p className="mt-10 hidden text-[8px] uppercase tracking-[.25em] text-black/35 md:block">Back office</p>
