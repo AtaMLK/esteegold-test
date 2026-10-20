@@ -17,18 +17,22 @@ html[data-theme="dark"] .house-theme-moon { color: #f0ead9; }
 .house-language-note { padding: 16px 6vw; font: 12px/1.7 Arial, sans-serif; border-bottom: 1px solid #87907844; }
 .house-auth-preferences { position: fixed; right: 20px; top: 10px; z-index: 90; padding: 0 10px; border-radius: 30px; background: var(--paper); color: #343c2c; }
 html[data-theme="dark"] .house-auth-preferences { background: #252d24; color: #eee9db; }
-html[data-theme="dark"] :is(.auth-shell, .auth-login-panel, .auth-register-panel, .reset-page, .forgot-page) { background: #20291f; color: #eee9db; }
-html[data-theme="dark"] :is(.auth-card, .reset-card, .forgot-card) { background: #293327; color: #eee9db; }
-html[data-theme="dark"] :is(.auth-card p, .auth-card label, .auth-card input, .auth-card a, .auth-kicker, .auth-or) { color: #c6cfba; }
-html[data-theme="dark"] .auth-card input { background: transparent; }
-html[data-theme="dark"]:has(.house-admin) { --paper: #f1ecdf; color-scheme: light; }
-html[data-theme="dark"]:has(.house-admin) body.house-site { background: #f1ecdf; color: #292e24; }
+html[data-theme="dark"] :is(.reset-page, .forgot-page) { background: #20291f; color: #eee9db; }
+html[data-theme="dark"] :is(.reset-card, .forgot-card) { background: #293327; color: #eee9db; }
+html[data-theme="dark"] :is(.reset-top, .reset-kicker, .reset-back, .forgot-top, .forgot-kicker, .forgot-back) { color: #c6cfba; }
+html[data-theme="dark"] :is(.reset-card input, .forgot-card input) { border-color: #a7b59a66; }
+html[data-theme="dark"] :is(.forgot-card input::placeholder, .reset-card input::placeholder) { color: #b0bba3; }
+html[data-theme="dark"] :is(.reset-card h1 em, .forgot-card h1 em) { color: #c4cda9; }
+html[data-theme="dark"] :is(.reset-card input, .forgot-card input, .reset-success a, .forgot-success a) { color: #eee9db; }
 html[data-theme="dark"] body.house-site { background: #20251f; color: #eee9db; }
 html[data-theme="dark"] .house-public { color: #eee9db; }
 html[data-theme="dark"] .house-experience { --house-ink: #eee9db; --house-muted: #b5beaa; --house-paper: #20251f; }
 html[data-theme="dark"] :is(.house-header, .house-search-panel, .house-navigation, .footer-container, .collection-overview, .house-confirmation, .house-toast) { background: #252d24; color: #eee9db; border-color: #a7b59a44; }
 html[data-theme="dark"] .house-header { background: #252d24ed; }
 html[data-theme="dark"] .house-navigation::backdrop { background: #252d24; }
+html[data-theme="dark"] .house-navigation-visual { background: color-mix(in srgb, var(--menu-tone) 22%, #20291f); color: #eee9db; }
+html[data-theme="dark"] .house-navigation-content nav > a[data-active="true"] strong { color: #c4cda9; }
+html[data-theme="dark"] .house-navigation-content nav > a > span, html[data-theme="dark"] .house-navigation-bottom > span { color: #b9c3ac; }
 html[data-theme="dark"] :is(.house-wordmark span, .house-search label, .house-search-hint, .house-dialog-shortcut, .house-search input, .house-navigation-content small, .footer-brand p, .footer-label, .footer-subscribe p, .footer-bottom, .collection-overview-intro > p, .collection-overview-products p, .product-breadcrumbs, .house-confirmation #confirmation-description) { color: #bac4ae; }
 html[data-theme="dark"] :is(.house-experience em, .journey-description, .gallery-heading > p, .house-closing-bottom > p) { color: #c2cba9; }
 html[data-theme="dark"] :is(.journey-watermark, .gallery-watermark) { color: #b6c69c; opacity: .11; }
@@ -59,6 +63,14 @@ html[data-theme="dark"] :is(.house-search input, .contact-page input, .contact-p
   .house-header { gap: 8px; padding-inline: 4vw; }
   .house-header-actions { gap: 0; }
   .house-header-actions > button:last-child { margin-left: 0; }
-  .house-header .house-preferences { display: none; }
-  .house-navigation .house-preferences { margin-block: 12px; }
+  .house-header .house-preferences { gap: 4px; margin-right: 0; }
+  .house-header .house-preferences a { min-width: 32px; }
+  .house-header .house-theme-toggle { width: 44px; padding: 0; }
+  .house-header .house-theme-toggle-thumb, .house-header .house-theme-moon { display: none; }
+  html[data-theme="dark"] .house-header .house-theme-sun { display: none; }
+  html[data-theme="dark"] .house-header .house-theme-moon { display: block; }
+}
+@media(max-width:360px) {
+  .house-header-actions > .house-header-account { display: none; }
+  .house-header .house-wordmark { font-size: 23px; }
 }

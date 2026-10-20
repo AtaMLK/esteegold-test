@@ -1,4 +1,5 @@
 export const turkishUI = {
+  "Account connection timed out. Please try again.": "Hesap bağlantısı zaman aşımına uğradı. Lütfen tekrar deneyin.",
   "Objects with character": "Karakter sahibi tasarımlar",
   "EsteeHouse home": "EsteeHouse ana sayfa",
   "Search the collection": "Koleksiyonda ara",

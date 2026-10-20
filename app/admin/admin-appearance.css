@@ -1,0 +1,25 @@
+.admin-appearance { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #32382a24; background: var(--paper); }
+.admin-appearance > span { font: 9px/1.5 monospace; letter-spacing: .12em; text-transform: uppercase; }
+.house-admin-content > main { padding-top: 32px; }
+html[data-theme="dark"] .house-admin { color: #eee9db; }
+html[data-theme="dark"] .admin-appearance { border-color: #a7b59a44; }
+html[data-theme="dark"] .house-admin [class*="text-black/"] { color: #bbc4b1; }
+html[data-theme="dark"] .house-admin .text-black { color: #eee9db; }
+html[data-theme="dark"] .house-admin :is([class*="border-black/"], .border, .border-b, .border-t, .border-r) { border-color: #a7b59a44; }
+html[data-theme="dark"] .house-admin [class*="divide-black/"] > :not([hidden]) ~ :not([hidden]) { border-color: #a7b59a44; }
+html[data-theme="dark"] .house-admin :is([class*="bg-white/"], .bg-white) { background-color: #303b2d; color: #eee9db; }
+html[data-theme="dark"] .house-admin [class*="bg-black/"]:not(.fixed) { background-color: #a7b59a0d; }
+html[data-theme="dark"] .house-admin .bg-black { background-color: #344630; color: #fff8ec; }
+html[data-theme="dark"] .house-admin [class~="hover:bg-black"]:hover { background-color: #344630; color: #fff8ec; }
+html[data-theme="dark"] .house-admin [class~="hover:text-black"]:hover { color: #fff8ec; }
+html[data-theme="dark"] .house-admin [class~="hover:border-black"]:hover { border-color: #c4cda9; }
+html[data-theme="dark"] .house-admin [class~="aria-pressed:bg-black"][aria-pressed="true"] { background-color: #c4cda9; border-color: #c4cda9; color: #20251f; }
+html[data-theme="dark"] .house-admin :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select) { background-color: transparent; color: #eee9db; }
+html[data-theme="dark"] .house-admin :is(input, textarea)::placeholder { color: #a8b39a; }
+html[data-theme="dark"] .house-admin option { background-color: #252d24; color: #eee9db; }
+html[data-theme="dark"] .house-admin :is(input[type="checkbox"], input[type="radio"]) { accent-color: #c4cda9; }
+html[data-theme="dark"] .house-admin :is(input, textarea, select):focus { border-color: #c4cda9; }
+html[data-theme="dark"] .house-admin :is(.text-red-900, .text-red-800, .text-red-700, .text-red-600) { color: #efb0a4; }
+html[data-theme="dark"] .house-admin .bg-red-50 { background-color: #482e2a; }
+html[data-theme="dark"] .house-admin .admin-product-editor { border-color: #a7b59a44; }
+@media(min-width: 768px) { .admin-appearance { padding-inline: 40px; } }

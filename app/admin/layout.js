@@ -2,6 +2,8 @@ import { pageMetadata } from "../_lib/seo";
 import Link from "next/link";
 import AdminSignOut from "./_components/admin-signout";
 import { ErrorProvider } from "../context/errorContext";
+import { ThemeToggle } from "../_components/ui/appearance-controls";
+import "./admin-appearance.css";
 
 export const metadata = pageMetadata({ title: "Admin | EsteeHouse", path: "/admin", noindex: true });
 
@@ -22,7 +24,7 @@ export default function AdminLayout({ children }) {
           <Link href="/" className="hidden md:block mt-10 border-t border-black/10 pt-5 text-[8px] uppercase tracking-[.2em] text-black/40 hover:text-black">← Storefront</Link>
           <AdminSignOut />
         </aside>
-        <div className="md:pl-56">{children}</div>
+        <div className="house-admin-content md:pl-56"><div className="admin-appearance"><span>Back office / Appearance</span><ThemeToggle /></div>{children}</div>
       </div>
     </ErrorProvider>
   );

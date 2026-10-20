@@ -1,6 +1,6 @@
 # Languages and appearance
 
-Updated 19 October 2026. Changes remain in the local feature checkout; this document does not imply a production deployment.
+Updated 21 October 2026. Verification notes describe local checks; production deployment status must be verified separately.
 
 ## Language URLs
 
@@ -9,7 +9,7 @@ Updated 19 October 2026. Changes remain in the local feature checkout; this docu
 - About, contact, size/material guidance, four policy drafts, cart, checkout/result, saved pieces, account, sign-in and password recovery also have Turkish versions.
 - The language control preserves the corresponding page, query filters and fragment. There is no IP-based language redirect and no language-tracking cookie. Language and regional pricing are independent: choosing Turkish does not change the delivery country or force a currency.
 - Shared public navigation stays in the selected language. Guest saving redirects to the localized sign-in screen with a return destination. Sign-out returns to the selected language's home page.
-- Admin remains English with its existing light palette. Unsupported/legacy routes do not receive invented Turkish aliases; `/tr/admin` is not an admin bypass.
+- Admin remains English and shares the storefront's saved light/dark theme, with its own sun/moon control above the dashboard pages. Unsupported/legacy routes do not receive invented Turkish aliases; `/tr/admin` is not an admin bypass.
 
 Translations render through React on the server, not by replacing DOM text after load. The URL supplies the document language. Middleware overwrites its internal language header instead of trusting a caller-provided header.
 
@@ -25,9 +25,19 @@ Supabase email templates and iyzico-hosted screens are separate services. Their 
 
 ## Appearance
 
-Desktop header and the mobile navigation expose language and colour-theme controls. A sage-toned sun/moon button switches between light and dark only. The choice is saved under `esteehouse-theme` in localStorage. New visitors and older saved system preferences default to light; operating-system changes do not override the choice. A small head script applies the preference before paint. No image inversion filter is used; product photography retains its original colours. The existing gallery desaturation is part of its neighbouring-card treatment, not a theme transformation.
+The header exposes the English/Turkish control and a sage-toned sun/moon button that switches between light and dark only; mobile uses a compact icon button in the header. The menu contains neither switch and inherits the selected language and theme, including the menu visual's surrounding surface. Its full-viewport layout keeps navigation and footer links inside the viewport without scrolling, with compact spacing for short landscape screens. At the narrowest mobile widths, account access stays available in the menu rather than crowding the header. The theme choice is saved under `esteehouse-theme` in localStorage. New visitors and older saved system preferences default to light; operating-system changes do not override the choice. A small head script applies the preference before paint. No image inversion filter is used; product photography retains its original colours. The existing gallery desaturation is part of its neighbouring-card treatment, not a theme transformation.
 
 Dark styling covers public chrome, editorial journeys/gallery, buying pages, policy drafts, dialogs and account forms. Error text and saved-piece controls have dark-surface colours. Reduced-motion behaviour remains independent of theme and language. Preference storage is disclosed in both privacy drafts; no advertising or analytics integration is added.
+
+Admin uses the same `esteehouse-theme` preference and reusable sun/moon control, in a toolbar shared by all five back-office pages. Switching there also updates the storefront preference. Admin text, table surfaces, borders, form fields, native options, selected choices, errors and editor panels have dark treatments; the previous forced-light admin override is removed. This changes appearance only, not authentication, permissions or commerce behaviour.
+
+Account opening uses bounded session and role requests rather than an indefinite redirect screen. A failed check exposes retry/sign-out controls. Login submits credentials once; the auth-state effect owns the account redirect, avoiding duplicate role checks and competing navigation. Cached session user data supplies display state only: admin and order APIs still verify the access token on the server. Account labels, redirect/error text, social controls and password-recovery screens have explicit dark-surface colours.
+
+Sign-in and registration now use shared local colour tokens: the form card is transparent over a single panel surface, including browser-autofilled inputs. The shell fits the dynamic viewport. Forms remain vertically scrollable inside their panel only when available height cannot accommodate accessible controls; the page never needs horizontal scrolling. On wide screens a softly flexing editorial curtain exchanges sides with understated text parallax. On mobile it sweeps across and exits the viewport completely. Reduced motion switches immediately; inactive forms are inert and focus moves to the newly revealed heading. Scoped GSAP cleanup and responsive resets prevent stranded animations after navigation or resizing.
+
+The admin catalog uses explicit column proportions and an 880px minimum table width rather than an unconditional 1050px minimum. It fits normal desktop content areas without a horizontal scrollbar; narrower content areas retain local table scrolling without widening the page.
+
+Sign-in, registration and the account-opening screen have a localized home link independent of browser history. The menu's account/saved links sit below its left navigation column, allowing the right visual to extend to the bottom of the usable viewport. The menu's Istanbul/date label is removed. Taller photo frames retain aspect-preserving cover sizing, with room reserved for captions. Menu images are loaded when the menu opens and crossfade; the previous photo remains visible until the newly requested photo loads.
 
 ## Search launch
 
@@ -37,6 +47,12 @@ The confirmed name is not proof of DNS ownership, HTTPS connection, deployment o
 
 ## Verification
 
-Latest local run: 19 browser/SSR checks passed; 47 JavaScript/JSX files passed targeted ESLint. Evidence is held in the working-session `outputs/appearance-checks.json` and screenshots, outside the application repository.
+Latest local run: 22 browser/SSR checks passed; 47 JavaScript/JSX files passed targeted ESLint. Evidence is held in the working-session `outputs/appearance-checks.json` and screenshots, outside the application repository.
 
-Local browser checks cover server-rendered languages/canonicals/alternates, bilingual sitemap, no admin alias, draft-policy warnings/noindex, language switching with filters, saved theme, original image colours, localized product selections, guest wishlist/sign-in routing, cart/checkout canonical values, Turkish search/reload and 320px navigation. Checks use isolated browser profiles and do not submit payments, send recovery emails, alter live products or change order/stock records. Targeted ESLint checks include the changed modules. A production build, domain activation, search-engine submission and deployment are separate steps.
+The separate account regression check uses mocked auth, role and order endpoints in an isolated browser. It verifies a stalled role request reaches a visible timeout, retry reaches the member profile, login does not issue competing role checks, and account labels/loading text change colour with the theme. It also lints the new request helper and four related modules. This is not a live administrator sign-in or a test of real account credentials.
+
+Admin appearance checks exercise the real shared theme control against a representative back-office style fixture, including dark/light panel colours, table text, native inputs/options, selected choices, errors, keyboard operation, persistence and mobile width. The shared control and admin layout pass targeted ESLint. Live authenticated admin-page testing remains separate; middleware authentication is not disabled or bypassed for appearance tests.
+
+The authentication layout regression covers 32 Turkish light/dark, sign-in/registration and viewport combinations across eight sizes, plus English direct registration. It checks a 4.5:1 minimum contrast for secondary text, a uniform form surface, full viewport height, absence of page horizontal overflow, fitting forms at normal heights, inert inactive forms, both curtain directions, focus, resize and reduced motion. A catalog-style fixture checks desktop fit and retained narrow-screen table scrolling. The account timeout/retry regression also passes with the new colours. No real credentials, registration, orders or stock changes are used.
+
+Local browser checks cover server-rendered languages/canonicals/alternates, bilingual sitemap, no admin alias, draft-policy warnings/noindex, language switching with filters, saved theme, original image colours, localized product selections, guest wishlist/sign-in routing, cart/checkout canonical values, Turkish search/reload, mobile header controls and full-viewport menus at 320×568, 390×844, 844×390, 1280×600 and 1280×900. Checks use isolated browser profiles and do not submit payments, send recovery emails, alter live products or change order/stock records. Targeted ESLint checks include the changed modules. A production build, domain activation, search-engine submission and deployment are separate steps.

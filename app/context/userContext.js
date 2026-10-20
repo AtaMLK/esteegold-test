@@ -4,6 +4,7 @@ import { useAppearance } from "./appearanceContext";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../_lib/supabase";
+import { accountRequest } from "../_lib/account-request";
 import { toast } from "@/hooks/use-toast";
 
 const UserContext = createContext();
@@ -21,8 +22,8 @@ export const UserProvider = ({ children }) => {
     const currentRevision = revision.current;
     const getUser = async () => {
       try {
-        const { data, error } = await supabase.auth.getUser();
-        if (mounted && currentRevision === revision.current) setUser(error ? null : data.user);
+        const { data, error } = await accountRequest(() => supabase.auth.getSession());
+        if (mounted && currentRevision === revision.current) setUser(error ? null : data.session?.user || null);
       } catch { if (mounted && currentRevision === revision.current) setUser(null); }
       finally { if (mounted) setAuthLoading(false); }
     };

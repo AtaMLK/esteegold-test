@@ -4,11 +4,12 @@ import { useAppearance } from "../../context/appearanceContext";
 
 import { signInWithGoogle, signInWithProvider, signInWithEmail } from "@/app/_lib/auth";
 import Link from "../ui/localized-link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/app/_lib/supabase";
 import { useUser } from "@/app/context/userContext";
+import { accountRequest, fetchAccount } from "@/app/_lib/account-request";
 import { gsap } from "gsap";
 import "./login-form.css";
 
@@ -42,9 +43,8 @@ function FacebookIcon() {
 
 export default function LoginForm() {
   const { translateText, href } = useAppearance();
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useUser();
+  const { user, logout, signingOut } = useUser();
 
   const next = searchParams.get("next");
   const destination = next && next.startsWith("/") && !next.startsWith("//") && !next.includes(String.fromCharCode(92)) ? next : "/profile";
@@ -62,22 +62,30 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [redirecting, setRedirecting] = useState(false);
+  const [accountError, setAccountError] = useState("");
+  const [retry, setRetry] = useState(0);
 
+  const shellRef = useRef(null);
+  const animationContext = useRef(null);
+  const transitionRef = useRef(null);
   const curtainRef = useRef(null);
   const loginRef = useRef(null);
   const registerRef = useRef(null);
   const animatingRef = useRef(false);
 
   async function isAdmin() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) return false;
+    const { data: { session }, error: sessionError } = await accountRequest(() => supabase.auth.getSession());
+    if (sessionError) throw sessionError;
+    if (!session?.access_token) throw new Error("Your session could not be verified. Please sign in again.");
 
-    const response = await fetch("/api/admin/me", {
+    const response = await fetchAccount("/api/admin/me", {
       headers: { Authorization: "Bearer " + session.access_token },
       cache: "no-store",
     });
 
-    return response.ok;
+    if (response.status === 403) return false;
+    if (!response.ok) throw new Error("Your session could not be verified. Please sign in again.");
+    return true;
   }
 
   useEffect(() => {
@@ -88,19 +96,17 @@ export default function LoginForm() {
 
     let cancelled = false;
     setRedirecting(true);
+    setAccountError("");
 
     (async () => {
       try {
         const admin = await isAdmin();
         if (!cancelled) {
-          router.replace(admin ? "/admin" : memberDestination);
-          router.refresh();
+          window.location.replace(admin ? "/admin" : memberDestination);
         }
-      } catch {
+      } catch (requestError) {
         if (!cancelled) {
-          // A failed admin check must never leave the auth page blank.
-          router.replace(memberDestination);
-          router.refresh();
+          setAccountError(translateText(requestError.message || "Could not open your account."));
         }
       }
     })();
@@ -108,157 +114,94 @@ export default function LoginForm() {
     return () => {
       cancelled = true;
     };
-  }, [user, memberDestination, router]);
+  }, [user, memberDestination, translateText, retry]);
 
   useEffect(() => {
+    if (!shellRef.current || !curtainRef.current || !loginRef.current || !registerRef.current) return;
     const target = searchParams.get("mode") === "register" ? "register" : "login";
-    setMode(target);
-
-    if (!curtainRef.current || !loginRef.current || !registerRef.current) return;
-
-    const loginCard = loginRef.current.querySelector(".auth-card");
-    const registerCard = registerRef.current.querySelector(".auth-card");
-
-    gsap.killTweensOf([
-      curtainRef.current,
-      loginRef.current,
-      registerRef.current,
-      loginCard,
-      registerCard,
-    ]);
-
-    if (target === "register") {
-      gsap.set(curtainRef.current, {
-        xPercent: 100,
-        rotationY: 0,
-        rotationZ: 0,
-        skewX: 0,
-        scaleX: 1,
+    const context = gsap.context(() => {
+      const media = gsap.matchMedia();
+      media.add({ compact: "(max-width: 800px)", wide: "(min-width: 801px)" }, (match) => {
+        transitionRef.current?.kill();
+        animatingRef.current = false;
+        setMode(target);
+        const register = target === "register";
+        gsap.set(curtainRef.current, { x: 0, xPercent: register ? 100 : match.conditions.compact ? -100 : 0, scaleX: 1, skewX: 0 });
+        gsap.set(curtainRef.current.querySelector(".auth-curtain-face"), { xPercent: 0 });
+        gsap.set(loginRef.current, { autoAlpha: register ? 0 : 1 });
+        gsap.set(registerRef.current, { autoAlpha: register ? 1 : 0 });
+        gsap.set([loginRef.current.querySelector(".auth-card"), registerRef.current.querySelector(".auth-card")], { opacity: 1, x: 0, y: 0, scale: 1 });
       });
-      gsap.set(loginRef.current, { opacity: 0, x: 24 });
-      gsap.set(registerRef.current, { opacity: 1, x: 0 });
-      gsap.set(loginCard, { opacity: 0, x: 24, y: 0, scale: 1, filter: "blur(0px)" });
-      gsap.set(registerCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
-    } else {
-      gsap.set(curtainRef.current, {
-        xPercent: 0,
-        rotationY: 0,
-        rotationZ: 0,
-        skewX: 0,
-        scaleX: 1,
-      });
-      gsap.set(loginRef.current, { opacity: 1, x: 0 });
-      gsap.set(registerRef.current, { opacity: 0, x: -24 });
-      gsap.set(loginCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
-      gsap.set(registerCard, { opacity: 0, x: -24, y: 0, scale: 1, filter: "blur(0px)" });
-    }
-  }, [searchParams]);
+    }, shellRef);
+    animationContext.current = context;
+    return () => {
+      transitionRef.current?.kill();
+      context.revert();
+      animationContext.current = null;
+      animatingRef.current = false;
+    };
+  }, [searchParams, redirecting]);
 
   function updateUrl(nextMode) {
     const params = new URLSearchParams();
     if (nextMode === "register") params.set("mode", "register");
     if (next) params.set("next", next);
-    window.history.replaceState(
-      {},
-      "",
-      href("/auth/login" + (params.toString() ? "?" + params.toString() : ""))
-    );
+    window.history.replaceState({}, "", href("/auth/login" + (params.toString() ? "?" + params.toString() : "")));
   }
 
   function flip(nextMode, { clearMessages = true } = {}) {
     if (nextMode === mode || animatingRef.current) return;
-
     if (clearMessages) {
       setError("");
       setMessage("");
     }
-    animatingRef.current = true;
-
-    const toRegister = nextMode === "register";
     const curtain = curtainRef.current;
-    const loginPanel = loginRef.current;
-    const registerPanel = registerRef.current;
-    const loginCard = loginPanel?.querySelector(".auth-card");
-    const registerCard = registerPanel?.querySelector(".auth-card");
-
-    if (!curtain || !loginPanel || !registerPanel || !loginCard || !registerCard) {
+    const oldPanel = mode === "register" ? registerRef.current : loginRef.current;
+    const newPanel = nextMode === "register" ? registerRef.current : loginRef.current;
+    if (!curtain || !oldPanel || !newPanel || !animationContext.current) {
       setMode(nextMode);
       updateUrl(nextMode);
-      animatingRef.current = false;
       return;
     }
-
-    const oldCard = toRegister ? loginCard : registerCard;
-    const newCard = toRegister ? registerCard : loginCard;
-    const oldPanel = toRegister ? loginPanel : registerPanel;
-    const newPanel = toRegister ? registerPanel : loginPanel;
-
-    // The state changes only after the curtain has crossed the screen.
-    // This keeps the transition visually continuous instead of swapping the
-    // React content before the animation starts.
-    gsap.killTweensOf([curtain, oldPanel, newPanel, oldCard, newCard]);
-
-    gsap.set(oldPanel, { opacity: 1, x: 0 });
-    gsap.set(newPanel, { opacity: 1, x: 0 });
-    gsap.set(oldCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
-    gsap.set(newCard, { opacity: 0, x: toRegister ? -34 : 34, y: 16, scale: 0.985, filter: "blur(5px)" });
-
-    const timeline = gsap.timeline({
-      defaults: { overwrite: "auto" },
-      onComplete: () => {
-        setMode(nextMode);
-        updateUrl(nextMode);
-        gsap.set(oldPanel, { opacity: 0 });
-        gsap.set(newPanel, { opacity: 1, x: 0 });
-        gsap.set(newCard, { opacity: 1, x: 0, y: 0, scale: 1, filter: "blur(0px)" });
-        animatingRef.current = false;
-      },
+    const compact = window.matchMedia("(max-width: 800px)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const direction = nextMode === "register" ? 1 : -1;
+    const targetPosition = nextMode === "register" ? 100 : compact ? -100 : 0;
+    const oldCard = oldPanel.querySelector(".auth-card");
+    const newCard = newPanel.querySelector(".auth-card");
+    const curtainFace = curtain.querySelector(".auth-curtain-face");
+    animatingRef.current = true;
+    setMode(nextMode);
+    newPanel.scrollTop = 0;
+    const finish = () => {
+      gsap.set(oldPanel, { autoAlpha: 0 });
+      gsap.set(newPanel, { autoAlpha: 1 });
+      animatingRef.current = false;
+      updateUrl(nextMode);
+      newPanel.querySelector("h1")?.focus({ preventScroll: true });
+    };
+    animationContext.current.add(() => {
+      if (reduced) {
+        gsap.set(curtain, { xPercent: targetPosition, scaleX: 1, skewX: 0 });
+        finish();
+        return;
+      }
+      gsap.set(newPanel, { autoAlpha: 1 });
+      gsap.set(newCard, { opacity: 0, x: -direction * 24, y: 12, scale: .99 });
+      transitionRef.current = gsap.timeline({
+        defaults: { overwrite: "auto", ease: "power3.inOut" },
+        onComplete: finish,
+      })
+        .to(oldCard, { opacity: 0, x: direction * 18, y: -6, duration: .3 }, 0)
+        .to(curtain, { xPercent: targetPosition, duration: 1.1 }, .04)
+        .to(curtain, { scaleX: 1.045, skewX: direction * .6, duration: .48 }, .04)
+        .to(curtainFace, { xPercent: -direction * 5, duration: .5 }, .04)
+        .to(curtain, { scaleX: 1, skewX: 0, duration: .58 }, .52)
+        .to(curtainFace, { xPercent: 0, duration: .6 }, .5)
+        .to(newCard, { opacity: 1, x: 0, y: 0, scale: 1, duration: .64, ease: "power3.out" }, .54);
     });
-
-    // 1. The outgoing editorial content recedes.
-    timeline.to(oldCard, {
-      opacity: 0,
-      x: toRegister ? 30 : -30,
-      y: -8,
-      scale: 0.985,
-      filter: "blur(4px)",
-      duration: 0.42,
-      ease: "power3.in",
-    }, 0);
-
-    // 2. The black field crosses the viewport like a heavy editorial sheet.
-    // The tiny skew/3D bend gives the edge a physical, fabric-like feel.
-    timeline.to(curtain, {
-      xPercent: toRegister ? 100 : 0,
-      rotationY: toRegister ? -8 : 8,
-      rotationZ: toRegister ? -0.45 : 0.45,
-      skewX: toRegister ? -1.1 : 1.1,
-      scaleX: 1.045,
-      duration: 1.18,
-      ease: "expo.inOut",
-    }, 0.08);
-
-    // 3. Reveal the new form from underneath the moving black field.
-    timeline.to(newCard, {
-      opacity: 1,
-      x: 0,
-      y: 0,
-      scale: 1,
-      filter: "blur(0px)",
-      duration: 0.72,
-      ease: "power3.out",
-    }, 0.67);
-
-    // 4. Let the black edge settle perfectly flat.
-    timeline.to(curtain, {
-      rotationY: 0,
-      rotationZ: 0,
-      skewX: 0,
-      scaleX: 1,
-      duration: 0.3,
-      ease: "power2.out",
-    }, 1.02);
   }
+
   async function handleLogin(event) {
     event.preventDefault();
     setError("");
@@ -267,9 +210,6 @@ export default function LoginForm() {
 
     try {
       await signInWithEmail(email.trim(), password);
-      const admin = await isAdmin();
-      router.replace(admin ? "/admin" : memberDestination);
-      router.refresh();
     } catch (err) {
       setError(err?.message || translateText("We could not sign you in. Check your email and password."));
     } finally {
@@ -299,8 +239,6 @@ export default function LoginForm() {
       if (signUpError) throw signUpError;
 
       if (data.session) {
-        router.replace("/profile");
-        router.refresh();
         return;
       }
 
@@ -335,7 +273,7 @@ export default function LoginForm() {
       <section className="auth-card">
         <div className="auth-heading">
           <p className="auth-kicker">{isRegister ? translateText("WELCOME IN") : translateText("WELCOME BACK")}</p>
-          <h1>{isRegister ? translateText("Sign up.") : translateText("Sign in.")}</h1>
+          <h1 tabIndex={-1}>{isRegister ? translateText("Sign up.") : translateText("Sign in.")}</h1>
           <p className="auth-copy">
             {isRegister
               ? translateText("Create your EsteeHouse account and keep your details in one place.")
@@ -425,9 +363,11 @@ export default function LoginForm() {
   if (redirecting) {
     return (
       <main className="auth-shell auth-redirecting" aria-live="polite">
+        <Link href="/" className="auth-home" aria-label={translateText("Back to EsteeHouse home", "EsteeHouse ana sayfasına dön")}><ArrowLeft size={14}/><span>{translateText("Home", "Ana sayfa")}</span></Link>
         <div className="auth-redirect-message">
           <span>ESTEEHOUSE</span>
-          <small>{translateText("Opening your account…")}</small>
+          <small role={accountError ? "alert" : undefined}>{accountError || translateText("Opening your account…")}</small>
+          {accountError && <div className="auth-redirect-actions"><button type="button" onClick={() => setRetry((current) => current + 1)}>{translateText("Try again", "Tekrar dene")}</button><button type="button" onClick={logout} disabled={signingOut}>{translateText("Sign out")}</button></div>}
         </div>
       </main>
     );
@@ -436,19 +376,20 @@ export default function LoginForm() {
   const isRegister = mode === "register";
 
   return (
-    <main className="auth-shell">
+    <main ref={shellRef} className="auth-shell" data-mode={mode}>
+      <Link href="/" className="auth-home" aria-label={translateText("Back to EsteeHouse home", "EsteeHouse ana sayfasına dön")}><ArrowLeft size={14}/><span>{translateText("Home", "Ana sayfa")}</span></Link>
       <div className="auth-stage">
-        <section ref={registerRef} className="auth-panel auth-register-panel" aria-hidden={!isRegister}>
+        <section ref={registerRef} className="auth-panel auth-register-panel" aria-hidden={!isRegister} inert={!isRegister}>
           {renderPanel(true)}
         </section>
 
-        <section ref={loginRef} className="auth-panel auth-login-panel" aria-hidden={isRegister}>
+        <section ref={loginRef} className="auth-panel auth-login-panel" aria-hidden={isRegister} inert={isRegister}>
           {renderPanel(false)}
         </section>
 
         <div ref={curtainRef} className="auth-curtain" aria-hidden="true">
           <div className="auth-curtain-face">
-            <div className="auth-meta"><span>ESTEEHOUSE</span><span>{translateText("01 / ACCOUNT")}</span></div>
+            <div className="auth-meta"><span>{translateText("01 / ACCOUNT")}</span></div>
             <div className="auth-brand">
               <p>{translateText("Two collections.")}<br />{translateText("One house.")}</p>
               <span>{translateText("EST. / HANDMADE")}</span>
@@ -457,10 +398,6 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <div className="auth-corner">
-          <span>ESTEEHOUSE</span>
-          <span>{isRegister ? "02 / JOIN" : translateText("01 / ACCOUNT")}</span>
-        </div>
       </div>
     </main>
   );

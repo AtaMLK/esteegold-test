@@ -39,20 +39,24 @@
 .house-search-field > button { min-width: 50px; min-height: 50px; display: grid; place-items: center; }
 .house-search-hint { color: #666a56; font: 12px/1.8 Arial, sans-serif; }
 .house-dialog-shortcut { display: block; margin-top: 40px; font: 9px/1.5 monospace; color: #666a56; }
-.house-navigation { inset: 0; width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 25px 5vw; overflow-y: auto; border: 0; background: #eae5d8; color: #25291f; letter-spacing: normal; }
+.house-navigation { inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: 100dvh; box-sizing: border-box; margin: 0; padding: clamp(12px, 3dvh, 25px) 5vw; overflow: hidden; border: 0; background: #eae5d8; color: #25291f; letter-spacing: normal; }
+.house-navigation[open] { display: flex; flex-direction: column; }
+.house-navigation > .house-dialog-top { flex-shrink: 0; }
 .house-navigation::backdrop { background: #eae5d8; }
-.house-navigation-content { display: grid; grid-template-columns: 1.15fr .85fr; gap: 9vw; margin: 30px 0; min-height: min(65vh, 660px); }
-.house-navigation-content nav { display: flex; flex-direction: column; justify-content: center; }
-.house-navigation-content nav > a { display: grid; grid-template-columns: 30px 1fr 25px; gap: 10px; align-items: center; padding: 21px 0; border-bottom: 1px solid #a9ad9870; }
+.house-navigation-content { display: grid; flex: 1; min-height: 0; grid-template-columns: 1.15fr .85fr; gap: 9vw; margin: clamp(8px, 3dvh, 30px) 0 0; }
+.house-navigation-links { display: flex; flex-direction: column; min-height: 0; }
+.house-navigation-links nav { flex: 1; }
+.house-navigation-content nav { display: flex; min-height: 0; flex-direction: column; justify-content: center; }
+.house-navigation-content nav > a { display: grid; flex: 1; min-height: 0; grid-template-columns: 30px 1fr 25px; column-gap: 10px; row-gap: clamp(3px, 1dvh, 10px); align-content: center; align-items: center; padding: clamp(4px, 1.5dvh, 16px) 0; border-bottom: 1px solid #a9ad9870; }
 .house-navigation-content nav > a > span { font: 9px/1.5 monospace; color: #626653; }
-.house-navigation-content strong { font: 400 clamp(32px, 4.7vw, 70px)/1 Georgia, serif; letter-spacing: -.06em; }
+.house-navigation-content strong { font: 400 clamp(28px, min(4.7vw, 7dvh), 70px)/1 Georgia, serif; letter-spacing: -.06em; }
 .house-navigation-content small { grid-column: 2; font: 9px/1.4 monospace; color: #666a56; }
 .house-navigation-content nav > a > svg { transition: transform .25s; }
 .house-navigation-content nav > a:hover > svg { transform: translate(3px, -3px); }
-.house-navigation-visual { position: relative; isolation: isolate; min-height: 510px; overflow: hidden; background: var(--menu-tone); transition: background-color .7s; }
-.house-navigation-image, .house-navigation-echo { position: absolute; inset: 11% 16% 20%; overflow: hidden; border-radius: 48% 48% 2px 2px; }
+.house-navigation-visual { position: relative; isolation: isolate; min-height: 0; overflow: hidden; background: var(--menu-tone); transition: background-color .7s; }
+.house-navigation-image, .house-navigation-echo { position: absolute; inset: 8% 16% clamp(112px, 13dvh, 140px); overflow: hidden; border-radius: 48% 48% 2px 2px; }
 .house-navigation-image { transform: rotate(-4deg); box-shadow: 0 24px 45px -30px #34382a60; }
-.house-navigation-echo { inset: 7% 10% 15%; transform: rotate(4deg); opacity: .22; }
+.house-navigation-echo { inset: 5% 10% clamp(68px, 8dvh, 92px); transform: rotate(4deg); opacity: .22; }
 .house-navigation-echo::after { content: ""; position: absolute; inset: 0; background: var(--menu-tone); opacity: .3; transition: background-color .7s; }
 .house-navigation-image img, .house-navigation-echo img { object-fit: cover; opacity: 0; transform: scale(1.07); transition: opacity .6s, transform 1s cubic-bezier(.2,.7,.2,1); }
 .house-navigation-image img.is-active, .house-navigation-echo img.is-active { opacity: 1; transform: scale(1); }
@@ -61,9 +65,8 @@
 .menu-visual-caption span { font: 8px/1.6 monospace; letter-spacing: .16em; text-transform: uppercase; }
 .menu-visual-caption p { font: italic 27px/1.2 Georgia, serif; letter-spacing: -.04em; margin-top: 7px; }
 .house-navigation-content nav > a[data-active="true"] strong { font-style: italic; color: #626a4c; }
-.house-navigation-bottom { display: flex; gap: 30px; align-items: center; padding: 20px 0; font: 9px/1.5 monospace; text-transform: uppercase; letter-spacing: .1em; }
+.house-navigation-bottom { display: flex; flex-shrink: 0; gap: 30px; align-items: center; padding: clamp(4px, 1dvh, 12px) 0; font: 9px/1.5 monospace; text-transform: uppercase; letter-spacing: .1em; }
 .house-navigation-bottom a { display: inline-flex; align-items: center; gap: 12px; min-height: 35px; }
-.house-navigation-bottom > span { margin-left: auto; color: #666a56; }
 .house-skip-link { position: fixed; top: 12px; left: 12px; transform: translateY(-160%); z-index: 100; padding: 12px 18px; background: #25291f; color: white; font-size: 14px; }
 .house-skip-link:focus { transform: translateY(0); }
 @media (max-width: 900px) { .house-header-nav { gap: 20px; } .house-header { gap: 15px; } }
@@ -81,11 +84,21 @@
   .house-search form { margin-top: 35px; }
   .house-search input { font-size: 28px; }
   .house-search-field { gap: 5px; }
-  .house-navigation { padding: 18px 7vw; }
-  .house-navigation-content { grid-template-columns: 1fr; min-height: 0; margin: 25px 0; gap: 0; }
-  .house-navigation-content nav > a { padding: 19px 0; }
-  .house-navigation-content strong { font-size: 43px; }
+  .house-navigation { padding: clamp(12px, 2dvh, 18px) 7vw; }
+  .house-navigation-content { grid-template-columns: 1fr; margin: clamp(8px, 2dvh, 25px) 0 0; gap: 0; }
+  .house-navigation-content strong { font-size: clamp(28px, min(10vw, 7dvh), 43px); }
   .house-navigation-visual { display: none; }
-  .house-navigation-bottom { flex-wrap: wrap; gap: 15px; }
-  .house-navigation-bottom > span { width: 100%; margin-left: 0; }
+  .house-navigation-bottom { flex-wrap: wrap; column-gap: 15px; row-gap: 4px; }
+}
+@media (max-height: 500px) {
+  .house-navigation { padding-block: 8px; }
+  .house-navigation-content { margin-top: 6px; gap: 5vw; }
+  .house-navigation-content nav > a { padding-block: 2px; row-gap: 2px; }
+  .house-navigation-content strong { font-size: clamp(22px, 6dvh, 30px); }
+  .house-navigation-content small { font-size: 8px; }
+  .house-navigation-bottom { padding-block: 0; gap: 12px; flex-wrap: nowrap; }
+  .menu-visual-index { top: 12px; left: 15px; }
+  .house-navigation-image { bottom: 88px; }
+  .menu-visual-caption { bottom: 12px; }
+  .menu-visual-caption p { font-size: 20px; }
 }

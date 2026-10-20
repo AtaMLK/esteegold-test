@@ -56,6 +56,8 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(0);
+  const [previewMenu, setPreviewMenu] = useState(0);
+  const loadedImages = useRef(new Set());
   const [query, setQuery] = useState("");
   const searchRef = useRef(null);
   const menuRef = useRef(null);
@@ -76,6 +78,16 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onShortcut);
   }, []);
 
+  function previewNavigation(index) {
+    setActiveMenu(index);
+    if (loadedImages.current.has(index)) setPreviewMenu(index);
+  }
+
+  function menuImageLoaded(index) {
+    loadedImages.current.add(index);
+    if (activeMenu === index) setPreviewMenu(index);
+  }
+
   function submitSearch(event) {
     event.preventDefault();
     if (query.trim()) window.location.assign(href("/categories?search=" + encodeURIComponent(query.trim())));
@@ -87,7 +99,7 @@ export default function Header() {
         <Link href="/" className="house-wordmark" aria-label={translateText("EsteeHouse home")}>EsteeHouse<span>{translateText("Objects with character")}</span></Link>
         <div className="house-header-actions"><AppearanceControls/>
           <button type="button" aria-label={translateText("Search the collection")} aria-haspopup="dialog" onClick={() => setSearchOpen(true)}><Search size={17} /></button>
-          <Link href={accountHref} aria-label={user ? translateText("Your account") : translateText("Sign in")}><User size={17} /></Link>
+          <Link href={accountHref} className="house-header-account" aria-label={user ? translateText("Your account") : translateText("Sign in")}><User size={17} /></Link>
           <Link href="/cart" aria-label={translateText("Shopping bag", "Sepet") + ", " + itemCount + " " + translateText("items", "ürün")} className="house-bag"><ShoppingBag size={17} /><span>{itemCount}</span></Link>
           <button type="button" aria-label={translateText("Open navigation")} aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={19} /><span className="house-menu-label">{translateText("Menu")}</span></button>
         </div>
@@ -102,8 +114,7 @@ export default function Header() {
       </dialog>
       <dialog ref={menuRef} className="house-navigation" aria-labelledby="house-menu-title" onKeyDown={containDialogFocus} onCancel={() => setMenuOpen(false)} onClose={() => setMenuOpen(false)}>
         <div className="house-dialog-top"><p id="house-menu-title">{translateText("EsteeHouse / Explore")}</p><button type="button" data-initial-focus onClick={() => setMenuOpen(false)} aria-label={translateText("Close navigation")}><X size={24} /></button></div>
-        <AppearanceControls/><div className="house-navigation-content"><nav aria-label={translateText("Main navigation")}>{navigation.map((item, index) => <Link href={item.href} key={item.href} data-active={activeMenu === index ? "true" : undefined} aria-current={unlocalizedPath(pathname) === item.href ? "page" : undefined} onMouseEnter={() => setActiveMenu(index)} onFocus={() => setActiveMenu(index)} onClick={() => setMenuOpen(false)}><span>{String(index + 1).padStart(2, "0")}</span><strong>{item.label}</strong><ArrowUpRight size={23} /><small>{item.detail}</small></Link>)}</nav><div className="house-navigation-visual" style={{ "--menu-tone": navigation[activeMenu].tone }} aria-hidden="true"><span className="menu-visual-index">{String(activeMenu + 1).padStart(2, "0")} / THE HOUSE</span><div className="house-navigation-echo">{menuOpen && <Image key={navigation[activeMenu].href} src={navigation[activeMenu].image} alt="" fill sizes="40vw" className="is-active"/>}</div><div className="house-navigation-image">{menuOpen && <Image key={navigation[activeMenu].href} src={navigation[activeMenu].image} alt="" fill sizes="(max-width: 700px) 80vw, 35vw" className="is-active"/>}</div><div className="menu-visual-caption"><span>{navigation[activeMenu].label}</span><p>{navigation[activeMenu].caption}</p></div></div></div>
-        <div className="house-navigation-bottom"><Link href={accountHref} onClick={() => setMenuOpen(false)}>{user ? translateText("Your account") : translateText("Sign in")} <ArrowUpRight size={14} /></Link><Link href="/wishlist" onClick={() => setMenuOpen(false)}>{translateText("Saved pieces")}<ArrowUpRight size={14} /></Link><span>Istanbul / 2026</span></div>
+        <div className="house-navigation-content"><div className="house-navigation-links"><nav aria-label={translateText("Main navigation")}>{navigation.map((item, index) => <Link href={item.href} key={item.href} data-active={activeMenu === index ? "true" : undefined} aria-current={unlocalizedPath(pathname) === item.href ? "page" : undefined} onMouseEnter={() => previewNavigation(index)} onFocus={() => previewNavigation(index)} onClick={() => setMenuOpen(false)}><span>{String(index + 1).padStart(2, "0")}</span><strong>{item.label}</strong><ArrowUpRight size={23} /><small>{item.detail}</small></Link>)}</nav><div className="house-navigation-bottom"><Link href={accountHref} onClick={() => setMenuOpen(false)}>{user ? translateText("Your account") : translateText("Sign in")} <ArrowUpRight size={14} /></Link><Link href="/wishlist" onClick={() => setMenuOpen(false)}>{translateText("Saved pieces")}<ArrowUpRight size={14} /></Link></div></div><div className="house-navigation-visual" style={{ "--menu-tone": navigation[activeMenu].tone }} aria-hidden="true"><span className="menu-visual-index">{String(activeMenu + 1).padStart(2, "0")} / THE HOUSE</span><div className="house-navigation-echo">{menuOpen && navigation.map((item, index) => <Image key={item.href} src={item.image} alt="" fill sizes="35vw" loading="eager" onLoad={() => menuImageLoaded(index)} className={previewMenu === index ? "is-active" : ""}/>)}</div><div className="house-navigation-image">{menuOpen && navigation.map((item, index) => <Image key={item.href} src={item.image} alt="" fill sizes="35vw" loading="eager" onLoad={() => menuImageLoaded(index)} className={previewMenu === index ? "is-active" : ""}/>)}</div><div className="menu-visual-caption"><span>{navigation[activeMenu].label}</span><p>{navigation[activeMenu].caption}</p></div></div></div>
       </dialog>
     </>
   );

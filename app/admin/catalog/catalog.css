@@ -7,4 +7,18 @@
 .admin-editor-footer { flex-shrink: 0; padding: 18px 30px; border-top: 1px solid #7e896233; }
 .admin-product-editor h2 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -.04em; }
 .admin-editor-footer .bg-black { background-color: #343c2c; }
+.admin-catalog-scroll { max-width: 100%; }
+.admin-catalog-table { min-width: 880px; table-layout: fixed; }
+.catalog-col-product { width: 23%; }
+.catalog-col-branch, .catalog-col-category, .catalog-col-price, .catalog-col-status { width: 9%; }
+.catalog-col-stock { width: 6%; }
+.catalog-col-actions { width: 17%; }
+.admin-catalog-table :is(th, td) { padding-inline: 12px; overflow-wrap: anywhere; }
+.admin-catalog-table th { white-space: nowrap; }
+.admin-catalog-table :is(th, td):nth-child(7) { padding-inline: 8px; }
+.admin-catalog-table td:first-child > .flex { gap: 12px; }
+.admin-catalog-table td:first-child > .flex > div { min-width: 0; font-size: 18px; }
+.admin-catalog-table td:first-child > .truncate { max-width: 100%; }
+.admin-catalog-table td:last-child > .flex { gap: 6px; }
+.admin-catalog-table td:last-child button { flex-shrink: 0; }
 @media(max-width: 600px) { .admin-product-editor { max-height: calc(100dvh - 28px); border-radius: 22px; } .admin-editor-header, .admin-editor-footer { padding: 20px; } .admin-editor-body { margin: 6px; padding: 0 12px 20px; } }

@@ -6,6 +6,7 @@ import Link from "../_components/ui/localized-link";
 import { ChevronDown, ChevronUp, Heart, LogOut, Package, RefreshCw, ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "../_lib/supabase";
+import { accountRequest, fetchAccount } from "../_lib/account-request";
 import { useUser } from "../context/userContext";
 import { useWishlist } from "../context/wishlistContext";
 
@@ -26,11 +27,11 @@ export default function ProfilePage() {
     let cancelled = false;
     async function start() {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await accountRequest(() => supabase.auth.getSession());
         if (sessionError) throw sessionError;
         if (!session?.access_token) throw new Error(translateText("Please sign in to see your orders."));
         const headers = { Authorization: `Bearer ${session.access_token}` };
-        const adminResponse = await fetch("/api/admin/me", { headers, cache: "no-store" });
+        const adminResponse = await fetchAccount("/api/admin/me", { headers, cache: "no-store" });
         if (cancelled) return;
         if (adminResponse.ok) { window.location.replace("/admin"); return; }
         if (adminResponse.status !== 403) {
@@ -38,12 +39,12 @@ export default function ProfilePage() {
           throw new Error(data.error || translateText("Your session could not be verified. Please sign in again."));
         }
         setCheckingRole(false);
-        const response = await fetch("/api/account/orders", { headers, cache: "no-store" });
+        const response = await fetchAccount("/api/account/orders", { headers, cache: "no-store" });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || translateText("Could not load your orders."));
         if (!cancelled) setOrders(data.orders || []);
       } catch (requestError) {
-        if (!cancelled) setError(requestError.message || translateText("Could not open your account."));
+        if (!cancelled) setError(translateText(requestError.message || "Could not open your account."));
       } finally {
         if (!cancelled) { setCheckingRole(false); setLoading(false); }
       }
