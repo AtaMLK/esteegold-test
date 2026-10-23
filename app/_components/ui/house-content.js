@@ -1,5 +1,5 @@
-const silverImages = ["/images/Products-page/Ring.jpg", "/images/Products-page/rings-title.jpg", "/images/Products-page/Bracelets.jpg", "/images/Products-page/Combinations.jpg"];
-const bagImages = ["/images/bags/bag1.jpg", "/images/bags/bag3.jpg", "/images/bags/bag18.jpg", "/images/bags/bag8.jpg", "/images/bags/bag12.jpg", "/images/bags/bag5.jpg", "/images/bags/bag10.jpg", "/images/bags/bag16.jpg"];
+const silverImages = ["/images/stories/lotus-cutout.webp", "/images/stories/lotus-worn.webp", "/images/stories/lotus-cutout.webp", "/images/stories/lotus-worn.webp"];
+const bagImages = ["/images/stories/blue-stone.webp", "/images/stories/blue-detail.webp", "/images/stories/blue-carried.webp", "/images/stories/blue-orange.webp", "/images/stories/blue-detail.webp", "/images/stories/blue-orange.webp", "/images/stories/blue-carried.webp", "/images/stories/blue-stone.webp"];
 
 export const collectionLinks = [
   { key: "house", label: "The house", href: "/" },
@@ -54,9 +54,16 @@ export function getChapters(collection = "house") {
 }
 
 export function getGalleryPieces(collection = "house") {
-  const bagNames = ["The everyday weave", "Texture, carried", "A different rhythm", "The softer side", "Knotted by hand", "A little colour", "The daily companion", "Your own thread"];
-  const silverNames = ["A study in shape", "Follow the curve", "A quiet presence", "Better together"];
-  const bags = bagImages.map((image, index) => ({ name: bagNames[index], category: "EsteeBags / Handmade bags", image, href: collections.bags.shop }));
-  const silver = [...silverImages, ...silverImages].map((image, index) => ({ name: silverNames[index % 4] + (index > 3 ? " / II" : ""), category: "EsteeGold / Handmade silver", image, href: collections.silver.shop }));
-  return collection === "bags" ? bags : collection === "silver" ? silver : [silver[0], bags[0], silver[1], bags[1], silver[2], bags[2], silver[3], bags[3]];
+  const piece = (name, nameTr, image, branch) => ({ name, nameTr, image, category: branch === "bags" ? "EsteeBags / Handmade bags" : "EsteeGold / 925 sterling silver", href: collections[branch].shop });
+  const silver = [
+    piece("The lotus / 925 silver", "Lotus / 925 ayar gümüş", silverImages[0], "silver"),
+    piece("The lotus / Worn your way", "Lotus / Sizin tarzınızla", silverImages[1], "silver"),
+  ];
+  const bags = [
+    piece("Blue / The silhouette", "Mavi / Siluet", bagImages[0], "bags"),
+    piece("Blue / A closer look", "Mavi / Yakından bakın", bagImages[1], "bags"),
+    piece("Blue / Carried", "Mavi / Sizinle", bagImages[2], "bags"),
+    piece("Blue / A little orange", "Mavi / Biraz turuncu", bagImages[3], "bags"),
+  ];
+  return collection === "bags" ? bags : collection === "silver" ? silver : [silver[0], bags[0], silver[1], bags[3]];
 }
