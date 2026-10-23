@@ -1,7 +1,7 @@
 import CollectionOverview from "./collection-overview";
 import Link from "./localized-link";
 import { ArrowUpRight } from "lucide-react";
-import ScrollJourney from "./scroll-journey";
+import CinematicJourney from "./cinematic-journey";
 import RadialGallery from "./radial-gallery";
 import { collectionLabel } from "./collection-label";
 import { getCollection } from "./house-content-tr";
@@ -11,7 +11,7 @@ export default function Main({ collection = "house", locale = "en" }) {
   const config = getCollection(collection, locale);
   return (
     <main className={`house-experience house-experience--${collection}`}>
-      <ScrollJourney key={collection} collection={collection} />
+      <CinematicJourney key={collection} collection={collection} />
       <RadialGallery key={collection + "-gallery"} collection={collection} />
       <CollectionOverview collection={collection} locale={locale}/>
       <section className="house-closing" aria-labelledby="house-closing-title">

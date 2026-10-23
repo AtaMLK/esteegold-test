@@ -58,6 +58,7 @@ export function localizedGallery(collection, locale) {
   const bags = ["Gündelik örgü", "Taşınan doku", "Farklı bir ritim", "Yumuşak bir taraf", "Elde düğümlendi", "Biraz renk", "Günlük yol arkadaşı", "Sizin iziniz"];
   const silver = ["Form üzerine", "Kıvrımın peşinde", "Sessiz bir duruş", "Birlikte daha güzel"];
   return original.map((piece, index) => {
+    if (piece.nameTr) return { ...piece, name: piece.nameTr, category: piece.category.startsWith("EsteeBags") ? "EsteeBags / El yapımı çantalar" : "EsteeGold / 925 ayar gümüş" };
     const isBag = piece.category.startsWith("EsteeBags");
     const position = collection === "house" ? Math.floor(index / 2) : index;
     return { ...piece, name: isBag ? bags[position] : silver[position % 4] + (position > 3 ? " / II" : ""), category: isBag ? "EsteeBags / El yapımı çantalar" : "EsteeGold / El yapımı gümüş" };
